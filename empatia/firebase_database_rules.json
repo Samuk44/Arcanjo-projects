@@ -1,0 +1,30 @@
+{
+  "rules": {
+    "usuarios": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "sonhos": {
+      ".read": "auth != null",
+      "$sonhoId": {
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['responsavelId', 'nomesCrianca', 'descricao', 'categoria', 'cidade', 'status'])"
+      }
+    },
+    "apoios": {
+      ".read": "auth != null",
+      "$apoioId": {
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['sonhoId', 'doadorId', 'responsavelId', 'status'])"
+      }
+    },
+    "notificacoes": {
+      ".read": "auth != null",
+      "$notifId": {
+        ".write": "auth != null"
+      }
+    }
+  }
+}
