@@ -1,5 +1,7 @@
 // lib/features/auth/screens/home/models/sonho_model.dart
 
+import '../../../utils/firebase_parse.dart';
+
 class SonhoModel {
   final String id;
   final String responsavelId;
@@ -13,6 +15,9 @@ class SonhoModel {
   final String status;   // 'aprovado' | 'concluido'
   final DateTime criadoEm;
   final int totalApoios;
+  final int curtidas;
+  final bool curtido;
+  final bool apoiado;
 
   const SonhoModel({
     required this.id,
@@ -27,24 +32,33 @@ class SonhoModel {
     required this.status,
     required this.criadoEm,
     this.totalApoios = 0,
+    this.curtidas = 0,
+    this.curtido = false,
+    this.apoiado = false,
   });
+
+  String get nomeCrianca => nomesCrianca;
+  int get apoios => totalApoios;
 
   factory SonhoModel.fromMap(String id, Map<dynamic, dynamic> map) {
     return SonhoModel(
       id: id,
-      responsavelId: map['responsavelId'] as String? ?? '',
-      responsavelNome: map['responsavelNome'] as String? ?? '',
-      nomesCrianca: map['nomesCrianca'] as String? ?? '',
-      descricao: map['descricao'] as String? ?? '',
-      categoria: map['categoria'] as String? ?? '',
-      cidade: map['cidade'] as String? ?? '',
-      endereco: map['endereco'] as String? ?? '',
-      contato: map['contato'] as String? ?? '',
-      status: map['status'] as String? ?? 'aprovado',
+      responsavelId: map['responsavelId']?.toString() ?? '',
+      responsavelNome: map['responsavelNome']?.toString() ?? '',
+      nomesCrianca: map['nomesCrianca']?.toString() ?? '',
+      descricao: map['descricao']?.toString() ?? '',
+      categoria: map['categoria']?.toString() ?? '',
+      cidade: map['cidade']?.toString() ?? '',
+      endereco: map['endereco']?.toString() ?? '',
+      contato: map['contato']?.toString() ?? '',
+      status: map['status']?.toString() ?? 'aprovado',
       criadoEm: DateTime.fromMillisecondsSinceEpoch(
-        (map['criadoEm'] as int?) ?? 0,
+        firebaseInt(map['criadoEm']),
       ),
-      totalApoios: (map['totalApoios'] as int?) ?? 0,
+      totalApoios: firebaseInt(map['totalApoios']),
+      curtidas: firebaseInt(map['curtidas']),
+      curtido: firebaseBool(map['curtido']),
+      apoiado: firebaseBool(map['apoiado']),
     );
   }
 
@@ -61,6 +75,9 @@ class SonhoModel {
       'status': status,
       'criadoEm': criadoEm.millisecondsSinceEpoch,
       'totalApoios': totalApoios,
+      'curtidas': curtidas,
+      'curtido': curtido,
+      'apoiado': apoiado,
     };
   }
 
@@ -77,6 +94,9 @@ class SonhoModel {
     String? status,
     DateTime? criadoEm,
     int? totalApoios,
+    int? curtidas,
+    bool? curtido,
+    bool? apoiado,
   }) {
     return SonhoModel(
       id: id ?? this.id,
@@ -91,6 +111,9 @@ class SonhoModel {
       status: status ?? this.status,
       criadoEm: criadoEm ?? this.criadoEm,
       totalApoios: totalApoios ?? this.totalApoios,
+      curtidas: curtidas ?? this.curtidas,
+      curtido: curtido ?? this.curtido,
+      apoiado: apoiado ?? this.apoiado,
     );
   }
 }

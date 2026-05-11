@@ -1,9 +1,4 @@
 // lib/features/auth/models/apoio_model.dart
-//
-// Status do apoio:
-//   'pendente_entrega'     → doador apoiou, nenhum lado confirmou
-//   'entregue_pelo_doador' → doador marcou como entregue, aguardando responsável
-//   'entregue'             → ambos confirmaram (concluído)
 
 class ApoioModel {
   final String id;
@@ -15,7 +10,7 @@ class ApoioModel {
   final String doadorId;
   final String doadorNome;
   final String responsavelId;
-  final String status;
+  final String status; // pendente_entrega, entregue_pelo_doador, entregue
   final DateTime criadoEm;
 
   const ApoioModel({
@@ -35,17 +30,17 @@ class ApoioModel {
   factory ApoioModel.fromMap(String id, Map<dynamic, dynamic> map) {
     return ApoioModel(
       id: id,
-      sonhoId: map['sonhoId'] as String? ?? '',
-      sonhoNomesCrianca: map['sonhoNomesCrianca'] as String? ?? '',
-      sonhoDescricao: map['sonhoDescricao'] as String? ?? '',
-      sonhoCategoria: map['sonhoCategoria'] as String? ?? '',
-      sonhoCidade: map['sonhoCidade'] as String? ?? '',
-      doadorId: map['doadorId'] as String? ?? '',
-      doadorNome: map['doadorNome'] as String? ?? '',
-      responsavelId: map['responsavelId'] as String? ?? '',
-      status: map['status'] as String? ?? 'pendente_entrega',
+      sonhoId: map['sonhoId']?.toString() ?? '',
+      sonhoNomesCrianca: map['sonhoNomesCrianca']?.toString() ?? '',
+      sonhoDescricao: map['sonhoDescricao']?.toString() ?? '',
+      sonhoCategoria: map['sonhoCategoria']?.toString() ?? '',
+      sonhoCidade: map['sonhoCidade']?.toString() ?? '',
+      doadorId: map['doadorId']?.toString() ?? '',
+      doadorNome: map['doadorNome']?.toString() ?? '',
+      responsavelId: map['responsavelId']?.toString() ?? '',
+      status: map['status']?.toString() ?? 'pendente_entrega',
       criadoEm: DateTime.fromMillisecondsSinceEpoch(
-        (map['criadoEm'] as int?) ?? 0,
+        (map['criadoEm'] as num?)?.toInt() ?? DateTime.now().millisecondsSinceEpoch,
       ),
     );
   }

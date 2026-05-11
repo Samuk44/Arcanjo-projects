@@ -1,212 +1,75 @@
 # Empatia — Guia de Integração
 
-## 1. Estrutura de arquivos entregues
+## 1. Fotos de perfil (sem Firebase Storage)
 
-```
-lib/
-├── main.dart                          ← substituir o existente
-├── app.dart                           ← substituir o existente
-├── features/
-│   ├── app_colors.dart                ← NOVO — centraliza as cores
-│   └── auth/
-│       ├── models/
-│       │   ├── usuario_model.dart     ← substituir o existente
-│       │   ├── apoio_model.dart       ← substituir o existente
-│       │   └── notificacao_model.dart ← substituir o existente
-│       ├── services/
-│       │   ├── auth_service.dart      ← substituir o existente
-│       │   └── sonho_service.dart     ← substituir o existente
-│       └── screens/
-│           ├── main_screen.dart       ← NOVO — shell de navegação
-│           ├── home/
-│           │   ├── home_screen.dart   ← substituir o existente
-│           │   ├── models/
-│           │   │   └── sonho_model.dart ← substituir o existente
-│           │   └── widgets/
-│           │       └── sonho_feed_card.dart ← NOVO
-│           ├── search/
-│           │   └── search_screen.dart ← substituir o existente
-│           ├── notifications/
-│           │   └── notifications_screen.dart ← substituir o existente
-│           ├── profile/
-│           │   ├── profile_screen.dart ← substituir o existente
-│           │   └── editar_perfil_screen.dart ← NOVO
-│           ├── settings/
-│           │   └── settings_screen.dart ← substituir o existente
-│           └── sonhos/                ← pasta existia vazia, agora preenchida
-│               ├── sonhos_screen.dart ← NOVO
-│               ├── widgets/
-│               │   ├── meu_sonho_card.dart ← NOVO
-│               │   └── apoio_card.dart     ← NOVO
-│               └── screens/
-│                   ├── publicar_sonho_screen.dart ← NOVO
-│                   └── detalhe_sonho_screen.dart  ← NOVO
-```
+As fotos são gravadas em **Base64** no Realtime Database (`usuarios/{uid}/fotoUrl`), com compressão na seleção (**400×400**, qualidade **40%**) em `editar_perfil_screen.dart`.
 
 ---
 
-## 2. Dependências a adicionar no pubspec.yaml
+## 2. Dependências (`pubspec.yaml`)
 
-```yaml
-dependencies:
-  firebase_core: ^3.6.0
-  firebase_auth: ^5.3.1
-  firebase_database: ^11.1.4
-  firebase_storage: ^12.3.2   # já habilitado no projeto
-  image_picker: ^1.1.2        # NOVA — upload de foto de perfil
-```
+Incluem: `firebase_core`, `firebase_auth`, `firebase_database`, `image_picker`, `geolocator`, `geocoding`.
 
-Após adicionar, rode:
-
-```bash
-flutter pub get
-```
+Após alterar o manifesto: `flutter pub get`.
 
 ---
 
-## 3. Permissões de plataforma
+## 3. Imports de modelos
 
-### Android — `android/app/src/main/AndroidManifest.xml`
-
-Adicione dentro de `<manifest>`:
-
-```xml
-<uses-permission android:name="android.permission.CAMERA"/>
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-```
-
-### iOS — `ios/Runner/Info.plist`
-
-Adicione dentro de `<dict>`:
-
-```xml
-<key>NSCameraUsageDescription</key>
-<string>Usamos a câmera para foto de perfil.</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Usamos a galeria para foto de perfil.</string>
-```
+- **Search / Sonhos (lista):** `import '../home/models/sonho_model.dart';` (a partir de `screens/search` ou `screens/sonhos`).
+- **Detalhe / Publicar / Meu sonho:** `import '../../home/models/sonho_model.dart';` (a partir de `screens/sonhos/screens` ou `widgets` sob `sonhos`).
 
 ---
 
-## 4. Regras do Firebase Realtime Database
+## 4. AuthService
 
-Copie o conteúdo de `firebase_database_rules.json` para o painel do Firebase:
-**Firebase Console → Realtime Database → Regras**.
-
----
-
-## 5. Estrutura de dados no Firebase
-
-### `/usuarios/{uid}`
-```json
-{
-  "nome": "string",
-  "email": "string",
-  "bio": "string",
-  "fotoUrl": "string",
-  "sonhosCriados": 0,
-  "apoiosDados": 0,
-  "criadoEm": 1700000000000
-}
-```
-
-### `/sonhos/{sonhoId}`
-```json
-{
-  "responsavelId": "uid",
-  "responsavelNome": "string",
-  "nomesCrianca": "string",
-  "descricao": "string",
-  "categoria": "string",
-  "cidade": "string",
-  "endereco": "string",
-  "contato": "string",
-  "status": "aprovado | concluido",
-  "criadoEm": 1700000000000,
-  "totalApoios": 0
-}
-```
-
-### `/apoios/{apoioId}`
-```json
-{
-  "sonhoId": "string",
-  "sonhoNomesCrianca": "string",
-  "sonhoDescricao": "string",
-  "sonhoCategoria": "string",
-  "sonhoCidade": "string",
-  "doadorId": "uid",
-  "doadorNome": "string",
-  "responsavelId": "uid",
-  "status": "pendente_entrega | entregue_pelo_doador | entregue",
-  "criadoEm": 1700000000000
-}
-```
-
-### `/notificacoes/{notifId}`
-```json
-{
-  "usuarioId": "uid",
-  "titulo": "string",
-  "corpo": "string",
-  "tipo": "novo_apoio | entregue_pelo_doador | entregue_confirmado",
-  "sonhoId": "string (opcional)",
-  "apoioId": "string (opcional)",
-  "lida": false,
-  "criadoEm": 1700000000000
-}
-```
+- `login`, `criarConta`, `logout`
+- `salvarDadosPessoais` (uid, nome, email, opcional: endereco, telefone, redeSocial)
+- `atualizarPerfil` (nome, bio, opcional: `fotoUrl` Base64)
+- `salvarFotoBase64`
 
 ---
 
-## 6. Fluxo de confirmação dupla (anti-fraude)
+## 5. Navegação principal (5 abas)
 
-```
-Doador apoia
-    ↓
-status: pendente_entrega
-    ↓
-Doador marca "Entreguei"  →  status: entregue_pelo_doador
-    ↓                         Notificação para o responsável
-Responsável confirma recebimento  →  status: entregue
-    ↓                                Notificação para o doador
-Se TODOS os apoios do sonho = entregue  →  sonho.status = concluido
-    ↓
-Sonho sai do feed público
-```
+`MainScreen`: **Início** | **Pesquisa** | **Publicar** | **Sonhos** | **Perfil**.
+
+Notificações **não** são aba inferior: acesso pelo **ícone de coração** no AppBar (Home e Pesquisa), com badge de não lidas. Ao abrir a tela de notificações, todas são marcadas como lidas (`SonhoService.marcarTodasComoLidas`).
+
+Configurações permanecem acessíveis pelo menu **⋮** no `ProfileScreen`.
 
 ---
 
-## 7. Regras de código aplicadas
+## 6. Proximidade (GPS)
 
-- Todas as opacidades usam `withValues(alpha: x)` — nunca `withOpacity(x)`.
-- Contadores incrementados com `ServerValue.increment(1)`.
-- Exclusão de sonhos é **hard delete** (conforme decisão do usuário).
-- A logo `assets/logo.png` substitui o texto "EMPATIA" no header.
-- Validação de auto-apoio: usuário não pode apoiar o próprio sonho.
+- `LocationService.cidadeDaLocalizacaoAtual()` usa Geolocator + Geocoding (cidade aproximada).
+- **Home:** preenche o filtro de cidade; botão **“minha localização”** no campo de cidade.
+- **Pesquisa:** preenche o campo de busca com a cidade detectada.
+
+### Android (`AndroidManifest.xml`)
+
+Já incluídos: `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, câmera e leitura de mídia para fotos.
+
+### iOS (`Info.plist`)
+
+Chaves: `NSLocationWhenInUseUsageDescription`, `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`.
 
 ---
 
-## 8. Índices necessários no Firebase
+## 7. Regras do Realtime Database
 
-Para que as queries `orderByChild` funcionem corretamente, adicione os índices
-abaixo em **Firebase Console → Realtime Database → Regras** (ou via `firebase.json`):
+Arquivos alinhados: `firebase_database_rules.json` e `database.rules.json` (usuários só escrevem o próprio nó; sonhos/apoios/notificações exigem autenticação e validação mínima de nós).
 
-```json
-{
-  "rules": {
-    "sonhos": {
-      ".indexOn": ["status", "responsavelId"]
-    },
-    "apoios": {
-      ".indexOn": ["doadorId", "responsavelId", "sonhoId"]
-    },
-    "notificacoes": {
-      ".indexOn": ["usuarioId"]
-    }
-  }
-}
-```
+**Nota de produção:** regras permissivas com `auth != null` não substituem validação server-side para integridade financeira ou anti-fraude; para ambientes críticos, avalie **Cloud Functions** para criação de apoios e incrementos.
 
-> O arquivo `firebase_database_rules.json` já inclui esses índices.
+---
+
+## 8. Contadores atômicos
+
+`SonhoService` usa `ServerValue.increment` para `sonhosCriados`, `apoiosDados`, `totalApoios` (ver código em `lib/features/auth/services/sonho_service.dart`).
+
+---
+
+## 9. Parsing defensivo
+
+Utilitário `lib/features/auth/utils/firebase_parse.dart` (`firebaseInt`, `firebaseBool`, `firebaseString`) usado em modelos/serviços onde o RTDB devolve tipos dinâmicos.

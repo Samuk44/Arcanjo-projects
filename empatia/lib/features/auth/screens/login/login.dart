@@ -1,6 +1,7 @@
 import '../register/register.dart';
 import '../home/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -30,21 +31,31 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    final erro = await _authService.login(
-      email: emailController.text.trim(),
-      senha: passwordController.text.trim(),
-    );
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    if (erro != null) {
+    try {
+      await _authService.login(
+        emailController.text.trim(),
+        passwordController.text.trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(erro), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(e.message ?? 'Falha no login.'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$e'), backgroundColor: Colors.red),
+      );
+      return;
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
+
+    if (!mounted) return;
 
     // Sucesso — navega pra home
     Navigator.pushReplacement(
@@ -89,10 +100,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
+                            color: Colors.white.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.12),
+                              color: Colors.white.withValues(alpha: 0.12),
                             ),
                           ),
                           child: const Center(
@@ -129,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Entre na sua conta para continuar.',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.45),
+                        color: Colors.white.withValues(alpha: 0.45),
                         height: 1.5,
                       ),
                     ),
@@ -277,7 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.black.withOpacity(0.25),
+                          color: Colors.black.withValues(alpha: 0.25),
                           height: 1.6,
                         ),
                       ),

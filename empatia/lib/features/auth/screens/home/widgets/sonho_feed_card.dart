@@ -6,160 +6,201 @@ import '../../../../app_colors.dart';
 
 class SonhoFeedCard extends StatelessWidget {
   final SonhoModel sonho;
-  final VoidCallback onApoiar;
   final VoidCallback onDetalhes;
+  final VoidCallback onApoiar;
 
   const SonhoFeedCard({
     super.key,
     required this.sonho,
-    required this.onApoiar,
     required this.onDetalhes,
+    required this.onApoiar,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onDetalhes,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Categoria + cidade
-              Row(
-                children: [
-                  _Chip(label: sonho.categoria, color: AppColors.pink),
-                  const SizedBox(width: 8),
-                  _Chip(label: sonho.cidade, color: AppColors.navyCard),
-                  const Spacer(),
-                  Text(
-                    _formatarData(sonho.criadoEm),
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.35),
-                      fontSize: 11,
-                    ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppColors.radiusCard),
+        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: AppColors.paddingCard,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Logo/Ícone "E" do projeto
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.pink.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(AppColors.radiusInput),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Nome da criança
-              Text(
-                sonho.nomesCrianca,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 6),
-              // Descrição
-              Text(
-                sonho.descricao,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.65),
-                  fontSize: 14,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 14),
-              // Rodapé
-              Row(
-                children: [
-                  Icon(
-                    Icons.person_outline,
-                    color: Colors.white.withValues(alpha: 0.4),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    sonho.responsavelNome,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Icon(Icons.volunteer_activism, color: AppColors.yellow, size: 14),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${sonho.totalApoios}',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Spacer(),
-                  // Botão Apoiar
-                  GestureDetector(
-                    onTap: onApoiar,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
+                  child: const Center(
+                    child: Text(
+                      'E',
+                      style: TextStyle(
                         color: AppColors.pink,
-                        borderRadius: BorderRadius.circular(20),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                      child: const Text(
-                        'APOIAR',
-                        style: TextStyle(
-                          color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        sonho.nomesCrianca.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppColors.navy,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          letterSpacing: 1,
+                          fontSize: 16,
+                          letterSpacing: 0.5,
                         ),
                       ),
+                      const SizedBox(height: 4),
+                      Text(
+                        sonho.descricao,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.navyLight,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.pink.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(AppColors.radiusChip),
+                              border: Border.all(
+                                color: AppColors.pink.withValues(alpha: 0.25),
+                              ),
+                            ),
+                            child: Text(
+                              sonho.categoria.toUpperCase(),
+                              style: const TextStyle(
+                                color: AppColors.pink,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.grayLight.withValues(alpha: 0.9),
+                              borderRadius: BorderRadius.circular(AppColors.radiusChip),
+                              border: Border.all(
+                                color: AppColors.border.withValues(alpha: 0.7),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 12,
+                                  color: AppColors.gray.withValues(alpha: 0.9),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  sonho.cidade,
+                                  style: const TextStyle(
+                                    color: AppColors.gray,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const Divider(height: 1, color: AppColors.grayLight),
+          
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                const Icon(Icons.favorite, color: AppColors.pink, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  '${sonho.totalApoios} apoiadores',
+                  style: const TextStyle(
+                    color: AppColors.gray,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: onDetalhes,
+                  child: const Text(
+                    'DETALHES',
+                    style: TextStyle(
+                      color: AppColors.pink,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      letterSpacing: 0.8,
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
 
-  String _formatarData(DateTime data) {
-    final agora = DateTime.now();
-    final diff = agora.difference(data);
-    if (diff.inDays == 0) return 'Hoje';
-    if (diff.inDays == 1) return 'Ontem';
-    if (diff.inDays < 7) return '${diff.inDays}d atrás';
-    return '${data.day}/${data.month}';
-  }
-}
-
-class _Chip extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _Chip({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color == AppColors.pink ? AppColors.pink : Colors.white.withValues(alpha: 0.6),
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
+          // Botão Principal ADOTAR ESTE SONHO (Amarelo)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: onApoiar,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.yellow,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppColors.radiusInput),
+                  ),
+                ),
+                child: const Text(
+                  'ADOTAR ESTE SONHO',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

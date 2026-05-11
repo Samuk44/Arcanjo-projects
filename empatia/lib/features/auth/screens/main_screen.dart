@@ -1,14 +1,12 @@
 // lib/features/auth/screens/main_screen.dart
 //
-// Shell de navegação principal com 4 abas:
-//   0 → Home
-//   1 → Pesquisa
-//   2 → Sonhos
-//   3 → Perfil
+// Navegação principal: Home, Pesquisa, Publicar, Sonhos, Perfil.
+// Notificações: apenas via ícone de coração no AppBar das telas relevantes.
 
 import 'package:flutter/material.dart';
 import 'home/home_screen.dart';
 import 'search/search_screen.dart';
+import 'publicar/publicar_tab_screen.dart';
 import 'sonhos/sonhos_screen.dart';
 import 'profile/profile_screen.dart';
 import '../../app_colors.dart';
@@ -26,6 +24,7 @@ class _MainScreenState extends State<MainScreen> {
   static const List<Widget> _telas = [
     HomeScreen(),
     SearchScreen(),
+    PublicarTabScreen(),
     SonhosScreen(),
     ProfileScreen(),
   ];
@@ -43,61 +42,45 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildBottomNav() {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.navyLight,
+      decoration: const BoxDecoration(
+        color: AppColors.white,
         border: Border(
           top: BorderSide(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: AppColors.grayLight,
             width: 1,
           ),
         ),
       ),
       child: NavigationBar(
-        backgroundColor: Colors.transparent,
-        indicatorColor: AppColors.pink.withValues(alpha: 0.15),
+        elevation: 0,
+        backgroundColor: AppColors.white,
         selectedIndex: _abaAtual,
         onDestinationSelected: (i) => setState(() => _abaAtual = i),
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: [
+        destinations: const [
           NavigationDestination(
-            icon: Icon(
-              Icons.home_outlined,
-              color: _abaAtual == 0
-                  ? AppColors.pink
-                  : Colors.white.withValues(alpha: 0.4),
-            ),
-            selectedIcon: const Icon(Icons.home, color: AppColors.pink),
-            label: 'Home',
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'INÍCIO',
           ),
           NavigationDestination(
-            icon: Icon(
-              Icons.search,
-              color: _abaAtual == 1
-                  ? AppColors.pink
-                  : Colors.white.withValues(alpha: 0.4),
-            ),
-            selectedIcon: const Icon(Icons.search, color: AppColors.pink),
-            label: 'Pesquisa',
+            icon: Icon(Icons.search),
+            selectedIcon: Icon(Icons.search),
+            label: 'PESQUISA',
           ),
           NavigationDestination(
-            icon: Icon(
-              Icons.star_border_rounded,
-              color: _abaAtual == 2
-                  ? AppColors.pink
-                  : Colors.white.withValues(alpha: 0.4),
-            ),
-            selectedIcon: const Icon(Icons.star_rounded, color: AppColors.pink),
-            label: 'Sonhos',
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
+            label: 'PUBLICAR',
           ),
           NavigationDestination(
-            icon: Icon(
-              Icons.person_outline,
-              color: _abaAtual == 3
-                  ? AppColors.pink
-                  : Colors.white.withValues(alpha: 0.4),
-            ),
-            selectedIcon: const Icon(Icons.person, color: AppColors.pink),
-            label: 'Perfil',
+            icon: Icon(Icons.volunteer_activism_outlined),
+            selectedIcon: Icon(Icons.volunteer_activism),
+            label: 'SONHOS',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'PERFIL',
           ),
         ],
       ),

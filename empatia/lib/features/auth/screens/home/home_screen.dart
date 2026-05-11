@@ -2,12 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:empatia/features/auth/screens/home/models/sonho_model.dart';
+import 'models/sonho_model.dart';
 import '../../services/sonho_service.dart';
 import '../../services/auth_service.dart';
 import '../sonhos/screens/detalhe_sonho_screen.dart';
-import '../notifications/notifications_screen.dart';
+import '../../widgets/notifications_app_bar_button.dart';
+import '../../services/location_service.dart';
 import 'widgets/sonho_feed_card.dart';
+import 'widgets/anuncio_banner.dart';
 import '../../../app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,10 +22,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _sonhoService = SonhoService();
   final _authService = AuthService();
+  final _searchCtrl = TextEditingController();
+  final _buscaGeralCtrl = TextEditingController();
+  bool _gpsCarregando = false;
 
   String _filtroCategoria = 'Todos';
   String _filtroCidade = '';
-  bool _filtroPorProximidade = false;
 
   String get _uid => FirebaseAuth.instance.currentUser!.uid;
 
@@ -40,31 +44,52 @@ class _HomeScreenState extends State<HomeScreen> {
     'Outro',
   ];
 
-  List<SonhoModel> _aplicarFiltros(List<SonhoModel> lista) {
-    return lista.where((s) {
-      final passaCategoria = _filtroCategoria == 'Todos' ||
-          s.categoria.toLowerCase() == _filtroCategoria.toLowerCase();
-      final passaCidade = _filtroCidade.isEmpty ||
-          s.cidade.toLowerCase().contains(_filtroCidade.toLowerCase());
-      return passaCategoria && passaCidade;
-    }).toList();
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    _buscaGeralCtrl.dispose();
+    super.dispose();
   }
 
-  void _abrirDetalhe(SonhoModel sonho) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => DetalheSonhoScreen(sonho: sonho)),
-    );
-  }
-
-  Future<void> _apoiarRapido(SonhoModel sonho) async {
-    // Impede auto-apoio
-    if (sonho.responsavelId == _uid) {
+  Future<void> _preencherCidadePorGps() async {
+    setState(() => _gpsCarregando = true);
+    final cidade = await LocationService.cidadeDaLocalizacaoAtual();
+    if (!mounted) return;
+    setState(() => _gpsCarregando = false);
+    if (cidade == null || cidade.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Você não pode apoiar o seu próprio sonho.'),
+          content: Text('Não foi possível obter a cidade (permissão ou GPS).'),
           backgroundColor: AppColors.pink,
         ),
       );
+      return;
+    }
+    setState(() {
+      _searchCtrl.text = cidade;
+      _filtroCidade = cidade;
+    });
+  }
+
+  Future<void> _adotarSonho(SonhoModel sonho) async {
+    if (sonho.responsavelId == _uid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Você não pode adotar o seu próprio sonho.'),
+          backgroundColor: AppColors.pink,
+        ),
+      );
+      return;
+    }
+    if (await _sonhoService.jaApoiou(sonho.id, _uid)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Você já se comprometeu com este sonho.'),
+            backgroundColor: AppColors.pink,
+          ),
+        );
+      }
       return;
     }
     final usuario = await _authService.buscarUsuario(_uid);
@@ -86,243 +111,174 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.navy,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildFiltros(),
-            Expanded(child: _buildFeed()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
-      child: Row(
-        children: [
-          // Logo oficial
-          Image.asset(
-            'assets/logo.png',
-            height: 36,
-            errorBuilder: (_, __, ___) => const Text(
-              'EMPATIA',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                letterSpacing: 2,
-              ),
-            ),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Image.asset(
+          'assets/logo.png',
+          height: 28,
+          errorBuilder: (_, __, ___) => const Text(
+            'EMPATIA',
+            style: AppColors.appBarTitle,
           ),
-          const Spacer(),
-          // Ícone de notificações com badge
-          StreamBuilder<List<dynamic>>(
-            stream: _sonhoService.streamNotificacoes(_uid),
-            builder: (context, snap) {
-              final naoLidas =
-                  (snap.data ?? []).where((n) => !(n.lida as bool)).length;
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const NotificationsScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.favorite_border,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                  if (naoLidas > 0)
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: const BoxDecoration(
-                          color: AppColors.pink,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            naoLidas > 9 ? '9+' : '$naoLidas',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
+        ),
+        actions: [
+          NotificationsAppBarButton(sonhoService: _sonhoService),
+          const SizedBox(width: 4),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Filtros
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              boxShadow: AppColors.cardShadow,
+            ),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'CATEGORIAS',
+                  style: AppColors.labelOverline,
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 36,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _categorias.length,
+                    itemBuilder: (_, i) {
+                      final cat = _categorias[i];
+                      final sel = _filtroCategoria == cat;
+                      return GestureDetector(
+                        onTap: () => setState(() => _filtroCategoria = cat),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: sel
+                                ? AppColors.pink
+                                : AppColors.grayLight.withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(AppColors.radiusChip),
+                            border: Border.all(
+                              color: sel
+                                  ? AppColors.pink
+                                  : AppColors.border.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              cat.toUpperCase(),
+                              style: TextStyle(
+                                color: sel ? AppColors.white : AppColors.gray,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.4,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFiltros() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Chips de categoria
-        SizedBox(
-          height: 38,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _categorias.length,
-            itemBuilder: (_, i) {
-              final cat = _categorias[i];
-              final selecionado = _filtroCategoria == cat;
-              return GestureDetector(
-                onTap: () => setState(() => _filtroCategoria = cat),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.only(right: 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: selecionado
-                        ? AppColors.pink
-                        : Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: selecionado
-                          ? AppColors.pink
-                          : Colors.white.withValues(alpha: 0.15),
-                    ),
+                      );
+                    },
                   ),
-                  child: Text(
-                    cat,
-                    style: TextStyle(
-                      color: selecionado
-                          ? Colors.white
-                          : Colors.white.withValues(alpha: 0.6),
-                      fontWeight:
-                          selecionado ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        // Campo de busca por cidade
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  style: const TextStyle(color: Colors.white),
-                  onChanged: (v) => setState(() => _filtroCidade = v),
-                  decoration: InputDecoration(
-                    hintText: 'Filtrar por cidade...',
-                    hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.3),
-                      fontSize: 13,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.location_on,
-                      color: Colors.white.withValues(alpha: 0.4),
-                      size: 18,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.07),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    isDense: true,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
-
-  Widget _buildFeed() {
-    return StreamBuilder<List<SonhoModel>>(
-      stream: _sonhoService.streamSonhosAprovados(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.pink),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Erro ao carregar sonhos.',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-            ),
-          );
-        }
-
-        final todos = snapshot.data ?? [];
-        final filtrados = _aplicarFiltros(todos);
-
-        if (filtrados.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.search_off,
-                  size: 56,
-                  color: Colors.white.withValues(alpha: 0.15),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  todos.isEmpty
-                      ? 'Nenhum sonho publicado ainda.'
-                      : 'Nenhum sonho encontrado com esses filtros.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontSize: 15,
+                TextField(
+                  controller: _buscaGeralCtrl,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar por nome, descrição, categoria...',
+                    prefixIcon: Icon(Icons.search_outlined, color: AppColors.gray, size: 22),
                   ),
-                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchCtrl,
+                        onChanged: (v) => setState(() => _filtroCidade = v),
+                        decoration: const InputDecoration(
+                          hintText: 'Cidade (manual ou GPS)',
+                          prefixIcon: Icon(Icons.location_on_outlined, color: AppColors.gray, size: 22),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Material(
+                      color: AppColors.pink.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(AppColors.radiusInput),
+                      child: IconButton(
+                        tooltip: 'Usar minha cidade (GPS)',
+                        onPressed: _gpsCarregando ? null : _preencherCidadePorGps,
+                        icon: _gpsCarregando
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.pink),
+                              )
+                            : const Icon(Icons.my_location, color: AppColors.pink),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-          itemCount: filtrados.length,
-          itemBuilder: (_, i) => SonhoFeedCard(
-            sonho: filtrados[i],
-            onDetalhes: () => _abrirDetalhe(filtrados[i]),
-            onApoiar: () => _apoiarRapido(filtrados[i]),
           ),
-        );
-      },
+          
+          // Feed
+          Expanded(
+            child: StreamBuilder<List<SonhoModel>>(
+              stream: _sonhoService.streamSonhosAprovados(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.pink));
+                }
+                
+                var lista = snapshot.data ?? [];
+                
+                // Aplicar filtros locais
+                if (_filtroCategoria != 'Todos') {
+                  lista = lista.where((s) => s.categoria == _filtroCategoria).toList();
+                }
+                if (_filtroCidade.isNotEmpty) {
+                  lista = lista.where((s) => s.cidade.toLowerCase().contains(_filtroCidade.toLowerCase())).toList();
+                }
+                final q = _buscaGeralCtrl.text.trim().toLowerCase();
+                if (q.isNotEmpty) {
+                  lista = lista.where((s) {
+                    return s.nomesCrianca.toLowerCase().contains(q) ||
+                        s.descricao.toLowerCase().contains(q) ||
+                        s.categoria.toLowerCase().contains(q) ||
+                        s.cidade.toLowerCase().contains(q);
+                  }).toList();
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  itemCount: lista.length + 1, // +1 para o AnuncioBanner
+                  itemBuilder: (_, i) {
+                    if (i == 0) return const AnuncioBanner();
+                    final sonho = lista[i - 1];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: SonhoFeedCard(
+                        sonho: sonho,
+                        onDetalhes: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => DetalheSonhoScreen(sonho: sonho)),
+                        ),
+                        onApoiar: () => _adotarSonho(sonho),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

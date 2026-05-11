@@ -15,30 +15,78 @@ class EmpatiaApp extends StatelessWidget {
       title: 'Empatia',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.dark(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        primaryColor: AppColors.pink,
+        scaffoldBackgroundColor: AppColors.background,
+        colorScheme: const ColorScheme.light(
           primary: AppColors.pink,
           secondary: AppColors.yellow,
-          surface: AppColors.navy,
+          surface: AppColors.white,
+          onSurface: AppColors.navy,
         ),
-        scaffoldBackgroundColor: AppColors.navy,
         fontFamily: 'Roboto',
-        // NavigationBar theme
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.navy,
+          foregroundColor: AppColors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: AppColors.white),
+          actionsIconTheme: IconThemeData(color: AppColors.white),
+          titleTextStyle: AppColors.appBarTitle,
+        ),
         navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: AppColors.navyLight,
-          indicatorColor: AppColors.pink.withValues(alpha: 0.15),
+          backgroundColor: AppColors.white,
+          indicatorColor: AppColors.pink.withValues(alpha: 0.1),
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return const TextStyle(
                 color: AppColors.pink,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 0.6,
               );
             }
             return TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
+              color: AppColors.gray.withValues(alpha: 0.95),
               fontSize: 11,
+              letterSpacing: 0.3,
             );
           }),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const IconThemeData(color: AppColors.pink);
+            }
+            return const IconThemeData(color: AppColors.gray);
+          }),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.yellow,
+            foregroundColor: AppColors.white,
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: AppColors.background,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppColors.radiusInput),
+            borderSide: BorderSide.none,
+          ),
+          hintStyle: const TextStyle(color: AppColors.gray, fontSize: 14),
+        ),
+        cardTheme: CardThemeData(
+          color: AppColors.white,
+          elevation: 0,
+          shadowColor: Colors.black.withValues(alpha: 0.05),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppColors.radiusCard),
+            side: BorderSide(color: AppColors.gray.withValues(alpha: 0.12)),
+          ),
         ),
       ),
       home: StreamBuilder<User?>(
@@ -46,7 +94,6 @@ class EmpatiaApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
-              backgroundColor: AppColors.navy,
               body: Center(
                 child: CircularProgressIndicator(color: AppColors.pink),
               ),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -35,23 +36,34 @@ class _RegisterDadosScreenState extends State<RegisterDadosScreen> {
 
     setState(() => _isLoading = true);
 
-    final erro = await _authService.salvarDadosPessoais(
-      nome: nomeController.text.trim(),
-      endereco: enderecoController.text.trim(),
-      telefone: telefoneController.text.trim(),
-      redeSocial: redeSocialController.text.trim(),
-    );
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    if (erro != null) {
-      _mostrarErro(erro);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
+      _mostrarErro('Sessão expirada. Faça o cadastro novamente.');
       return;
     }
 
-    // O StreamBuilder em MyApp já detecta que o usuário está logado
+    try {
+      await _authService.salvarDadosPessoais(
+        uid: user.uid,
+        nome: nomeController.text.trim(),
+        email: user.email ?? '',
+        endereco: enderecoController.text.trim(),
+        telefone: telefoneController.text.trim(),
+        redeSocial: redeSocialController.text.trim(),
+      );
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
+      _mostrarErro('Erro ao salvar: $e');
+      return;
+    }
+
+    if (mounted) setState(() => _isLoading = false);
+    if (!mounted) return;
+
+    // O StreamBuilder em EmpatiaApp já detecta que o usuário está logado
     // e exibe a HomeScreen — remove toda a pilha de navegação.
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
@@ -267,7 +279,7 @@ class _RegisterDadosScreenState extends State<RegisterDadosScreen> {
           CustomPaint(
             size: const Size(56, 56),
             painter: _SquigglePainter(
-                color: Colors.white.withOpacity(0.9)),
+                color: Colors.white.withValues(alpha: 0.9)),
           ),
           Container(
             width: 30,
@@ -385,7 +397,7 @@ class _RegisterDadosScreenState extends State<RegisterDadosScreen> {
           CustomPaint(
             size: const Size(56, 56),
             painter: _WavePainter(
-                color: const Color(0xFFE91E63).withOpacity(0.85)),
+                color: const Color(0xFFE91E63).withValues(alpha: 0.85)),
           ),
           const Icon(Icons.link, color: Colors.white, size: 26),
         ],
@@ -478,7 +490,7 @@ class _LogoPainter extends CustomPainter {
     for (int i = 0; i < bands.length; i++) {
       canvas.drawRect(
         Rect.fromLTWH(0, i * bandHeight, size.width, bandHeight),
-        Paint()..color = bands[i].withOpacity(0.55),
+        Paint()..color = bands[i].withValues(alpha: 0.55),
       );
     }
   }

@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../screens/home/models/sonho_model.dart';
 import '../models/apoio_model.dart';
 import '../models/notificacao_model.dart';
+import '../utils/firebase_parse.dart';
 
 class SonhoService {
   final _db = FirebaseDatabase.instance.ref();
@@ -12,16 +13,15 @@ class SonhoService {
   // SONHOS
   // ─────────────────────────────────────────────
 
-  /// Cria um novo sonho e incrementa o contador do responsável.
   Future<void> criarSonho(SonhoModel sonho) async {
     final ref = _db.child('sonhos').push();
     await ref.set(sonho.copyWith(id: ref.key!).toMap());
-    await _db
-        .child('usuarios/${sonho.responsavelId}/sonhosCriados')
+    
+    // REGRA SÊNIOR: Incremento atômico no servidor
+    await _db.child('usuarios/${sonho.responsavelId}/sonhosCriados')
         .set(ServerValue.increment(1));
   }
 
-  /// Edita os campos de um sonho existente.
   Future<void> editarSonho(SonhoModel sonho) async {
     await _db.child('sonhos/${sonho.id}').update({
       'nomesCrianca': sonho.nomesCrianca,
@@ -33,47 +33,41 @@ class SonhoService {
     });
   }
 
-  /// Remove permanentemente o sonho do banco (hard delete conforme decisão do usuário).
   Future<void> excluirSonho(String sonhoId, String responsavelId) async {
     await _db.child('sonhos/$sonhoId').remove();
-    await _db
-        .child('usuarios/$responsavelId/sonhosCriados')
+    
+    // REGRA SÊNIOR: Decremento atômico no servidor
+    await _db.child('usuarios/$responsavelId/sonhosCriados')
         .set(ServerValue.increment(-1));
   }
 
-  /// Stream de todos os sonhos aprovados (feed público).
   Stream<List<SonhoModel>> streamSonhosAprovados() {
-    return _db
-        .child('sonhos')
+    return _db.child('sonhos')
         .orderByChild('status')
         .equalTo('aprovado')
         .onValue
         .map((event) {
       final data = event.snapshot.value;
       if (data == null) return [];
-      final map = Map<String, dynamic>.from(data as Map);
-      return map.entries
-          .map((e) => SonhoModel.fromMap(e.key, Map<dynamic, dynamic>.from(e.value as Map)))
-          .toList()
-        ..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+      final map = Map<dynamic, dynamic>.from(data as Map);
+      return map.entries.map((e) {
+        return SonhoModel.fromMap(e.key.toString(), Map<dynamic, dynamic>.from(e.value as Map));
+      }).toList()..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
     });
   }
 
-  /// Stream dos sonhos criados pelo usuário logado.
   Stream<List<SonhoModel>> streamMeusSonhos(String uid) {
-    return _db
-        .child('sonhos')
+    return _db.child('sonhos')
         .orderByChild('responsavelId')
         .equalTo(uid)
         .onValue
         .map((event) {
       final data = event.snapshot.value;
       if (data == null) return [];
-      final map = Map<String, dynamic>.from(data as Map);
-      return map.entries
-          .map((e) => SonhoModel.fromMap(e.key, Map<dynamic, dynamic>.from(e.value as Map)))
-          .toList()
-        ..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+      final map = Map<dynamic, dynamic>.from(data as Map);
+      return map.entries.map((e) {
+        return SonhoModel.fromMap(e.key.toString(), Map<dynamic, dynamic>.from(e.value as Map));
+      }).toList()..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
     });
   }
 
@@ -81,19 +75,17 @@ class SonhoService {
   // APOIOS
   // ─────────────────────────────────────────────
 
-  /// Registra um apoio a um sonho.
-  /// Cria o nó em /apoios e gera notificação para o responsável.
   Future<void> apoiarSonho({
     required SonhoModel sonho,
     required String doadorId,
     required String doadorNome,
   }) async {
-    // Impede auto-apoio
     if (sonho.responsavelId == doadorId) return;
+    if (await jaApoiou(sonho.id, doadorId)) return;
 
-    final apoioRef = _db.child('apoios').push();
+    final ref = _db.child('apoios').push();
     final apoio = ApoioModel(
-      id: apoioRef.key!,
+      id: ref.key!,
       sonhoId: sonho.id,
       sonhoNomesCrianca: sonho.nomesCrianca,
       sonhoDescricao: sonho.descricao,
@@ -106,36 +98,24 @@ class SonhoService {
       criadoEm: DateTime.now(),
     );
 
-    await apoioRef.set(apoio.toMap());
+    await ref.set(apoio.toMap());
+    
+    // REGRA SÊNIOR: Incrementos atômicos
+    await _db.child('sonhos/${sonho.id}/totalApoios').set(ServerValue.increment(1));
+    await _db.child('usuarios/$doadorId/apoiosDados').set(ServerValue.increment(1));
 
-    // Incrementa contador do doador
-    await _db
-        .child('usuarios/$doadorId/apoiosDados')
-        .set(ServerValue.increment(1));
-
-    // Incrementa total de apoios do sonho
-    await _db
-        .child('sonhos/${sonho.id}/totalApoios')
-        .set(ServerValue.increment(1));
-
-    // Notifica o responsável
     await _criarNotificacao(
       usuarioId: sonho.responsavelId,
       titulo: 'Novo apoiador!',
       corpo: '$doadorNome quer entregar o sonho de ${sonho.nomesCrianca}.',
       tipo: 'novo_apoio',
       sonhoId: sonho.id,
-      apoioId: apoioRef.key,
+      apoioId: ref.key,
     );
   }
 
-  /// Doador confirma que entregou o item.
   Future<void> confirmarEntregaPeloDoador(ApoioModel apoio) async {
-    await _db.child('apoios/${apoio.id}').update({
-      'status': 'entregue_pelo_doador',
-    });
-
-    // Notifica o responsável para confirmar recebimento
+    await _db.child('apoios/${apoio.id}').update({'status': 'entregue_pelo_doador'});
     await _criarNotificacao(
       usuarioId: apoio.responsavelId,
       titulo: 'Item entregue!',
@@ -146,14 +126,8 @@ class SonhoService {
     );
   }
 
-  /// Responsável confirma que recebeu o item.
-  /// Se todos os apoios do sonho estiverem concluídos, marca o sonho como concluído.
   Future<void> confirmarRecebimentoPeloResponsavel(ApoioModel apoio) async {
-    await _db.child('apoios/${apoio.id}').update({
-      'status': 'entregue',
-    });
-
-    // Notifica o doador
+    await _db.child('apoios/${apoio.id}').update({'status': 'entregue'});
     await _criarNotificacao(
       usuarioId: apoio.doadorId,
       titulo: 'Recebimento confirmado!',
@@ -163,81 +137,59 @@ class SonhoService {
       apoioId: apoio.id,
     );
 
-    // Verifica se todos os apoios do sonho foram concluídos
-    // (sonho sai do feed apenas quando todos confirmaram)
-    final snapshot = await _db
-        .child('apoios')
-        .orderByChild('sonhoId')
-        .equalTo(apoio.sonhoId)
-        .get();
-
+    // Verificação de conclusão do sonho
+    final snapshot = await _db.child('apoios').orderByChild('sonhoId').equalTo(apoio.sonhoId).get();
     if (snapshot.exists) {
-      final map = Map<String, dynamic>.from(snapshot.value as Map);
-      final todos = map.values
-          .map((v) => ApoioModel.fromMap('', Map<dynamic, dynamic>.from(v as Map)))
-          .toList();
-
-      // Considera o apoio atual como já atualizado
-      final todosConcluidos = todos.every(
-        (a) => a.id == apoio.id ? true : a.status == 'entregue',
-      );
-
-      if (todosConcluidos) {
+      final map = Map<dynamic, dynamic>.from(snapshot.value as Map);
+      var todosEntregues = true;
+      for (final v in map.values) {
+        if (v is! Map) continue;
+        final m = Map<dynamic, dynamic>.from(v);
+        final st = firebaseString(m['status']);
+        if (st != 'entregue') {
+          todosEntregues = false;
+          break;
+        }
+      }
+      if (todosEntregues) {
         await _db.child('sonhos/${apoio.sonhoId}').update({'status': 'concluido'});
       }
     }
   }
 
-  /// Stream dos apoios feitos pelo usuário logado (Tab B — Apoios).
   Stream<List<ApoioModel>> streamMeusApoios(String uid) {
-    return _db
-        .child('apoios')
-        .orderByChild('doadorId')
-        .equalTo(uid)
-        .onValue
-        .map((event) {
+    return _db.child('apoios').orderByChild('doadorId').equalTo(uid).onValue.map((event) {
       final data = event.snapshot.value;
       if (data == null) return [];
-      final map = Map<String, dynamic>.from(data as Map);
-      return map.entries
-          .map((e) => ApoioModel.fromMap(e.key, Map<dynamic, dynamic>.from(e.value as Map)))
-          .toList()
-        ..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+      final map = Map<dynamic, dynamic>.from(data as Map);
+      return map.entries.map((e) {
+        return ApoioModel.fromMap(e.key.toString(), Map<dynamic, dynamic>.from(e.value as Map));
+      }).toList()..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
     });
   }
 
-  /// Stream dos apoios recebidos em um sonho específico (para o responsável confirmar).
   Stream<List<ApoioModel>> streamApoiosDeSonho(String sonhoId) {
-    return _db
-        .child('apoios')
-        .orderByChild('sonhoId')
-        .equalTo(sonhoId)
-        .onValue
-        .map((event) {
+    return _db.child('apoios').orderByChild('sonhoId').equalTo(sonhoId).onValue.map((event) {
       final data = event.snapshot.value;
       if (data == null) return [];
-      final map = Map<String, dynamic>.from(data as Map);
-      return map.entries
-          .map((e) => ApoioModel.fromMap(e.key, Map<dynamic, dynamic>.from(e.value as Map)))
-          .toList()
-        ..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+      final map = Map<dynamic, dynamic>.from(data as Map);
+      return map.entries.map((e) {
+        return ApoioModel.fromMap(e.key.toString(), Map<dynamic, dynamic>.from(e.value as Map));
+      }).toList()..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
     });
   }
 
-  /// Verifica se o usuário já apoiou um sonho específico.
+  /// Evita apoio duplicado do mesmo doador no mesmo sonho.
   Future<bool> jaApoiou(String sonhoId, String uid) async {
-    final snapshot = await _db
-        .child('apoios')
-        .orderByChild('sonhoId')
-        .equalTo(sonhoId)
-        .get();
-
+    final snapshot = await _db.child('apoios').orderByChild('sonhoId').equalTo(sonhoId).get();
     if (!snapshot.exists) return false;
-    final map = Map<String, dynamic>.from(snapshot.value as Map);
-    return map.values.any((v) {
-      final m = Map<dynamic, dynamic>.from(v as Map);
-      return m['doadorId'] == uid;
-    });
+    final map = Map<dynamic, dynamic>.from(snapshot.value as Map);
+    for (final v in map.values) {
+      if (v is! Map) continue;
+      final m = Map<dynamic, dynamic>.from(v);
+      if (firebaseString(m['doadorId']) == uid) return true;
+    }
+    return false;
   }
 
   // ─────────────────────────────────────────────
@@ -268,48 +220,33 @@ class SonhoService {
   }
 
   Stream<List<NotificacaoModel>> streamNotificacoes(String uid) {
-    return _db
-        .child('notificacoes')
-        .orderByChild('usuarioId')
-        .equalTo(uid)
-        .onValue
-        .map((event) {
+    return _db.child('notificacoes').orderByChild('usuarioId').equalTo(uid).onValue.map((event) {
       final data = event.snapshot.value;
       if (data == null) return [];
-      final map = Map<String, dynamic>.from(data as Map);
-      return map.entries
-          .map((e) => NotificacaoModel.fromMap(e.key, Map<dynamic, dynamic>.from(e.value as Map)))
-          .toList()
-        ..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+      final map = Map<dynamic, dynamic>.from(data as Map);
+      return map.entries.map((e) {
+        return NotificacaoModel.fromMap(e.key.toString(), Map<dynamic, dynamic>.from(e.value as Map));
+      }).toList()..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
     });
   }
 
-  Future<int> contarNaoLidas(String uid) async {
-    final snapshot = await _db
-        .child('notificacoes')
-        .orderByChild('usuarioId')
-        .equalTo(uid)
-        .get();
-    if (!snapshot.exists) return 0;
-    final map = Map<String, dynamic>.from(snapshot.value as Map);
-    return map.values.where((v) {
-      final m = Map<dynamic, dynamic>.from(v as Map);
-      return m['lida'] == false;
-    }).length;
+  Stream<int> streamTotalNotificacoesNaoLidas(String uid) {
+    return streamNotificacoes(uid).map((lista) => lista.where((n) => !n.lida).length);
   }
 
   Future<void> marcarTodasComoLidas(String uid) async {
-    final snapshot = await _db
-        .child('notificacoes')
-        .orderByChild('usuarioId')
-        .equalTo(uid)
-        .get();
+    final snapshot = await _db.child('notificacoes').orderByChild('usuarioId').equalTo(uid).get();
     if (!snapshot.exists) return;
-    final map = Map<String, dynamic>.from(snapshot.value as Map);
+    final map = Map<dynamic, dynamic>.from(snapshot.value as Map);
     final updates = <String, dynamic>{};
     for (final key in map.keys) {
-      updates['notificacoes/$key/lida'] = true;
+      final raw = map[key];
+      if (raw is! Map) continue;
+      final child = Map<dynamic, dynamic>.from(raw);
+      if (!firebaseBool(child['lida'])) {
+        updates['notificacoes/$key/lida'] = true;
+      }
     }
-    await _db.update(updates);
+    if (updates.isNotEmpty) await _db.update(updates);
   }
 }

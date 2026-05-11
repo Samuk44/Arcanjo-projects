@@ -1,15 +1,12 @@
 // lib/features/auth/services/auth_service.dart
 
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../models/usuario_model.dart';
 
 class AuthService {
   final _auth = FirebaseAuth.instance;
   final _db = FirebaseDatabase.instance.ref();
-  final _storage = FirebaseStorage.instance;
 
   User? get usuarioAtual => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -23,6 +20,10 @@ class AuthService {
       email: email.trim(),
       password: senha,
     );
+  }
+
+  Future<UserCredential> criarConta(String email, String senha) async {
+    return await cadastrar(email, senha);
   }
 
   Future<UserCredential> cadastrar(String email, String senha) async {
@@ -39,6 +40,26 @@ class AuthService {
   // ─────────────────────────────────────────────
   // USUÁRIO
   // ─────────────────────────────────────────────
+
+  Future<void> salvarDadosPessoais({
+    required String uid,
+    required String nome,
+    required String email,
+    String endereco = '',
+    String telefone = '',
+    String redeSocial = '',
+  }) async {
+    final usuario = UsuarioModel(
+      uid: uid,
+      nome: nome,
+      email: email,
+      endereco: endereco,
+      telefone: telefone,
+      redeSocial: redeSocial,
+      criadoEm: DateTime.now(),
+    );
+    await salvarDadosUsuario(usuario);
+  }
 
   Future<void> salvarDadosUsuario(UsuarioModel usuario) async {
     await _db.child('usuarios/${usuario.uid}').set(usuario.toMap());
@@ -64,19 +85,19 @@ class AuthService {
     required String uid,
     required String nome,
     required String bio,
+    String? fotoUrl,
   }) async {
-    await _db.child('usuarios/$uid').update({
+    final patch = <String, dynamic>{
       'nome': nome,
       'bio': bio,
-    });
+    };
+    if (fotoUrl != null) patch['fotoUrl'] = fotoUrl;
+    await _db.child('usuarios/$uid').update(patch);
   }
 
-  /// Faz upload da foto de perfil para o Firebase Storage e salva a URL no banco.
-  Future<String> uploadFotoPerfil(String uid, File foto) async {
-    final ref = _storage.ref().child('fotos_perfil/$uid.jpg');
-    await ref.putFile(foto);
-    final url = await ref.getDownloadURL();
-    await _db.child('usuarios/$uid').update({'fotoUrl': url});
-    return url;
+  /// Salva a string Base64 da foto diretamente no Realtime Database.
+  /// Não requer Firebase Storage habilitado.
+  Future<void> salvarFotoBase64(String uid, String base64String) async {
+    await _db.child('usuarios/$uid').update({'fotoUrl': base64String});
   }
 }

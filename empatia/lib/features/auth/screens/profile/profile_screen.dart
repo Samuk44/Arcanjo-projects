@@ -1,11 +1,14 @@
 // lib/features/auth/screens/profile/profile_screen.dart
+//
+// DNA visual: fundo cinza claro, cartões brancos com sombra suave, AppBar navy (tema global).
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/usuario_model.dart';
 import '../../services/auth_service.dart';
-import '../settings/settings_screen.dart';
 import 'editar_perfil_screen.dart';
+import '../settings/settings_screen.dart';
 import '../../../app_colors.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -18,7 +21,21 @@ class ProfileScreen extends StatelessWidget {
     final authService = AuthService();
 
     return Scaffold(
-      backgroundColor: AppColors.navy,
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('PERFIL'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Mais opções',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const SettingsScreen(),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: StreamBuilder<UsuarioModel?>(
         stream: authService.streamUsuario(_uid),
         builder: (context, snapshot) {
@@ -27,24 +44,45 @@ class ProfileScreen extends StatelessWidget {
               child: CircularProgressIndicator(color: AppColors.pink),
             );
           }
-
-          final usuario = snapshot.data;
-          if (usuario == null) {
+          final user = snapshot.data;
+          if (user == null) {
             return const Center(
               child: Text(
-                'Usuário não encontrado.',
-                style: TextStyle(color: Colors.white),
+                'Usuário não encontrado',
+                style: AppColors.bodyMuted,
               ),
             );
           }
 
-          return SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(child: _buildHeader(context, usuario)),
-                SliverToBoxAdapter(child: _buildEstatisticas(usuario)),
-                SliverToBoxAdapter(child: _buildBio(usuario)),
-                SliverToBoxAdapter(child: _buildBotaoEditar(context, usuario)),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+            child: Column(
+              children: [
+                _ProfileHeaderCard(user: user),
+                const SizedBox(height: 16),
+                _StatsRow(user: user),
+                const SizedBox(height: 20),
+                _ActionTile(
+                  icon: Icons.person_outline,
+                  title: 'EDITAR PERFIL',
+                  subtitle: 'Nome, bio e foto',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => EditarPerfilScreen(usuario: user),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _ActionTile(
+                  icon: Icons.settings_outlined,
+                  title: 'CONFIGURAÇÕES',
+                  subtitle: 'Preferências do app',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SettingsScreen(),
+                    ),
+                  ),
+                ),
               ],
             ),
           );
@@ -52,225 +90,245 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildHeader(BuildContext context, UsuarioModel usuario) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 16, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+class _ProfileHeaderCard extends StatelessWidget {
+  final UsuarioModel user;
+  const _ProfileHeaderCard({required this.user});
+
+  ImageProvider? _avatar(String fotoUrl) {
+    if (fotoUrl.isEmpty) return null;
+    if (fotoUrl.startsWith('data:image') || !fotoUrl.startsWith('http')) {
+      final base64Content =
+          fotoUrl.contains(',') ? fotoUrl.split(',').last : fotoUrl;
+      try {
+        return MemoryImage(base64.decode(base64Content));
+      } catch (_) {
+        return null;
+      }
+    }
+    return NetworkImage(fotoUrl);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppColors.radiusCard),
+        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.35)),
+      ),
+      child: Column(
         children: [
-          // Avatar
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: AppColors.pink.withValues(alpha: 0.2),
-            backgroundImage: usuario.fotoUrl.isNotEmpty
-                ? NetworkImage(usuario.fotoUrl)
-                : null,
-            child: usuario.fotoUrl.isEmpty
-                ? Text(
-                    usuario.nome.isNotEmpty
-                        ? usuario.nome[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      color: AppColors.pink,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              CircleAvatar(
+                radius: 52,
+                backgroundColor: AppColors.pink.withValues(alpha: 0.1),
+                backgroundImage: _avatar(user.fotoUrl),
+                child: user.fotoUrl.isEmpty
+                    ? const Icon(Icons.person, size: 52, color: AppColors.gray)
+                    : null,
+              ),
+              Positioned(
+                right: -4,
+                bottom: -4,
+                child: Material(
+                  color: AppColors.pink,
+                  shape: const CircleBorder(),
+                  elevation: 2,
+                  shadowColor: Colors.black.withValues(alpha: 0.12),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => EditarPerfilScreen(usuario: user),
+                      ),
                     ),
-                  )
-                : null,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(
-                  usuario.nome,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  usuario.email,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Menu ⋮
-          PopupMenuButton<String>(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white.withValues(alpha: 0.7),
-            ),
-            color: AppColors.navyLight,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            onSelected: (value) {
-              if (value == 'configuracoes') {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              }
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                value: 'configuracoes',
-                child: Row(
-                  children: [
-                    const Icon(Icons.settings_outlined, color: Colors.white, size: 18),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Configurações',
-                      style: TextStyle(color: Colors.white),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Icon(Icons.edit, color: AppColors.white, size: 18),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEstatisticas(UsuarioModel usuario) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _StatCard(
-              valor: usuario.sonhosCriados,
-              label: 'Sonhos\npublicados',
-              icone: Icons.star_outline,
-              cor: AppColors.yellow,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _StatCard(
-              valor: usuario.apoiosDados,
-              label: 'Apoios\ndados',
-              icone: Icons.volunteer_activism,
-              cor: AppColors.pink,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBio(UsuarioModel usuario) {
-    if (usuario.bio.isEmpty) return const SizedBox(height: 24);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Text(
-          usuario.bio,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
-            fontSize: 14,
-            height: 1.6,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBotaoEditar(BuildContext context, UsuarioModel usuario) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: OutlinedButton.icon(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => EditarPerfilScreen(usuario: usuario),
-              ),
-            );
-          },
-          icon: const Icon(Icons.edit_outlined, size: 18),
-          label: const Text(
-            'EDITAR PERFIL',
-            style: TextStyle(
+          const SizedBox(height: 16),
+          Text(
+            user.nome.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.navy,
               fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
+              fontSize: 18,
+              letterSpacing: 0.8,
             ),
           ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white,
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+          if (user.bio.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              user.bio,
+              textAlign: TextAlign.center,
+              style: AppColors.bodyMuted.copyWith(fontSize: 14),
             ),
-          ),
-        ),
+          ],
+        ],
       ),
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final int valor;
-  final String label;
-  final IconData icone;
-  final Color cor;
-
-  const _StatCard({
-    required this.valor,
-    required this.label,
-    required this.icone,
-    required this.cor,
-  });
+class _StatsRow extends StatelessWidget {
+  final UsuarioModel user;
+  const _StatsRow({required this.user});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
       decoration: BoxDecoration(
-        color: cor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cor.withValues(alpha: 0.2)),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppColors.radiusCard),
+        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.35)),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Icon(icone, color: cor, size: 28),
-          const SizedBox(height: 8),
-          Text(
-            '$valor',
-            style: TextStyle(
-              color: cor,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: _StatItem(
+              label: 'SONHOS CRIADOS',
+              value: user.sonhosCriados,
+              icon: Icons.volunteer_activism_outlined,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
-              fontSize: 12,
+          Container(
+            width: 1,
+            height: 48,
+            color: AppColors.grayLight,
+          ),
+          Expanded(
+            child: _StatItem(
+              label: 'APOIOS DADOS',
+              value: user.apoiosDados,
+              icon: Icons.favorite_border,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final int value;
+  final IconData icon;
+
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.pink.withValues(alpha: 0.85), size: 22),
+        const SizedBox(height: 8),
+        Text(
+          '$value',
+          style: const TextStyle(
+            color: AppColors.navy,
+            fontWeight: FontWeight.bold,
+            fontSize: 26,
+            height: 1,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: AppColors.labelOverline.copyWith(fontSize: 9, letterSpacing: 1.1),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(AppColors.radiusCard),
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppColors.radiusCard),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppColors.radiusCard),
+            boxShadow: AppColors.cardShadow,
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.35)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.pink.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppColors.radiusInput),
+                  ),
+                  child: Icon(icon, color: AppColors.pink, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: AppColors.navy,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          letterSpacing: 0.9,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(subtitle, style: AppColors.bodyMuted.copyWith(fontSize: 12)),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: AppColors.gray.withValues(alpha: 0.7),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

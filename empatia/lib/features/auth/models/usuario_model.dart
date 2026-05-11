@@ -5,7 +5,10 @@ class UsuarioModel {
   final String nome;
   final String email;
   final String bio;
-  final String fotoUrl; // URL do Firebase Storage
+  final String fotoUrl;
+  final String endereco;
+  final String telefone;
+  final String redeSocial;
   final int sonhosCriados;
   final int apoiosDados;
   final DateTime criadoEm;
@@ -16,6 +19,9 @@ class UsuarioModel {
     required this.email,
     this.bio = '',
     this.fotoUrl = '',
+    this.endereco = '',
+    this.telefone = '',
+    this.redeSocial = '',
     this.sonhosCriados = 0,
     this.apoiosDados = 0,
     required this.criadoEm,
@@ -24,14 +30,17 @@ class UsuarioModel {
   factory UsuarioModel.fromMap(String uid, Map<dynamic, dynamic> map) {
     return UsuarioModel(
       uid: uid,
-      nome: map['nome'] as String? ?? '',
-      email: map['email'] as String? ?? '',
-      bio: map['bio'] as String? ?? '',
-      fotoUrl: map['fotoUrl'] as String? ?? '',
-      sonhosCriados: (map['sonhosCriados'] as int?) ?? 0,
-      apoiosDados: (map['apoiosDados'] as int?) ?? 0,
+      nome: map['nome']?.toString() ?? '',
+      email: map['email']?.toString() ?? '',
+      bio: map['bio']?.toString() ?? '',
+      fotoUrl: map['fotoUrl']?.toString() ?? '',
+      endereco: map['endereco']?.toString() ?? '',
+      telefone: map['telefone']?.toString() ?? '',
+      redeSocial: map['redeSocial']?.toString() ?? '',
+      sonhosCriados: (map['sonhosCriados'] as num?)?.toInt() ?? 0,
+      apoiosDados: (map['apoiosDados'] as num?)?.toInt() ?? 0,
       criadoEm: DateTime.fromMillisecondsSinceEpoch(
-        (map['criadoEm'] as int?) ?? 0,
+        (map['criadoEm'] as num?)?.toInt() ?? DateTime.now().millisecondsSinceEpoch,
       ),
     );
   }
@@ -42,6 +51,9 @@ class UsuarioModel {
       'email': email,
       'bio': bio,
       'fotoUrl': fotoUrl,
+      'endereco': endereco,
+      'telefone': telefone,
+      'redeSocial': redeSocial,
       'sonhosCriados': sonhosCriados,
       'apoiosDados': apoiosDados,
       'criadoEm': criadoEm.millisecondsSinceEpoch,
@@ -54,6 +66,9 @@ class UsuarioModel {
     String? email,
     String? bio,
     String? fotoUrl,
+    String? endereco,
+    String? telefone,
+    String? redeSocial,
     int? sonhosCriados,
     int? apoiosDados,
     DateTime? criadoEm,
@@ -64,6 +79,9 @@ class UsuarioModel {
       email: email ?? this.email,
       bio: bio ?? this.bio,
       fotoUrl: fotoUrl ?? this.fotoUrl,
+      endereco: endereco ?? this.endereco,
+      telefone: telefone ?? this.telefone,
+      redeSocial: redeSocial ?? this.redeSocial,
       sonhosCriados: sonhosCriados ?? this.sonhosCriados,
       apoiosDados: apoiosDados ?? this.apoiosDados,
       criadoEm: criadoEm ?? this.criadoEm,

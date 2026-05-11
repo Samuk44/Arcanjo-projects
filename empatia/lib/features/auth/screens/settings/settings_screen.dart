@@ -12,128 +12,70 @@ class SettingsScreen extends StatelessWidget {
     final authService = AuthService();
 
     return Scaffold(
-      backgroundColor: AppColors.navy,
-      appBar: AppBar(
-        backgroundColor: AppColors.navy,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'CONFIGURAÇÕES',
-          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5),
-        ),
-      ),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(title: const Text('CONFIGURAÇÕES')),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          const SizedBox(height: 16),
-          _SectionLabel(label: 'CONTA'),
-          _SettingsTile(
+          _buildOption(
             icon: Icons.logout,
-            label: 'Sair',
-            cor: AppColors.pink,
+            title: 'Sair da conta',
+            subtitle: 'Encerra sua sessão atual',
             onTap: () async {
               final confirmar = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: AppColors.navyLight,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  title: const Text(
-                    'Sair',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  content: Text(
-                    'Tem certeza que deseja sair da sua conta?',
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                  ),
+                  title: const Text('SAIR'),
+                  content: const Text('Tem certeza que deseja encerrar sua sessão?'),
                   actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(
-                        'CANCELAR',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ),
+                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCELAR')),
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text(
-                        'SAIR',
-                        style: TextStyle(
-                          color: AppColors.pink,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: const Text('SAIR', style: TextStyle(color: AppColors.pink)),
                     ),
                   ],
                 ),
               );
               if (confirmar == true) {
                 await authService.logout();
+                if (context.mounted) {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
               }
             },
+            isDestructive: true,
+          ),
+          const SizedBox(height: 24),
+          const Center(
+            child: Text(
+              'Versão 2.0.0 (SRE Edition)',
+              style: TextStyle(color: AppColors.gray, fontSize: 12),
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-class _SectionLabel extends StatelessWidget {
-  final String label;
-  const _SectionLabel({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.35),
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.5,
-        ),
+  Widget _buildOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    final color = isDestructive ? AppColors.pink : AppColors.navy;
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
-    );
-  }
-}
-
-class _SettingsTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color cor;
-  final VoidCallback onTap;
-
-  const _SettingsTile({
-    required this.icon,
-    required this.label,
-    required this.cor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: cor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: cor, size: 20),
-      ),
-      title: Text(label, style: TextStyle(color: cor, fontWeight: FontWeight.w500)),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: Colors.white.withValues(alpha: 0.2),
+      child: ListTile(
+        onTap: onTap,
+        leading: Icon(icon, color: color),
+        title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle, style: const TextStyle(color: AppColors.gray, fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right, color: AppColors.grayLight),
       ),
     );
   }

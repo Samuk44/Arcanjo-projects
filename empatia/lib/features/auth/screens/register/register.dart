@@ -2,6 +2,7 @@ import '../login/login.dart';
 import 'register_dados.dart';
 import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -45,19 +46,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _isLoading = true);
 
-    final erro = await _authService.criarConta(
-      email: emailController.text.trim(),
-      senha: senhaController.text.trim(),
-    );
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    if (erro != null) {
-      _mostrarErro(erro);
+    try {
+      await _authService.criarConta(
+        emailController.text.trim(),
+        senhaController.text.trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
+      _mostrarErro(e.message ?? 'Não foi possível criar a conta.');
+      return;
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
+      _mostrarErro('$e');
       return;
     }
+
+    if (mounted) setState(() => _isLoading = false);
+    if (!mounted) return;
 
     Navigator.push(
       context,

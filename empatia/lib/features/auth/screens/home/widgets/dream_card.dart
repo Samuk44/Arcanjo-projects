@@ -18,31 +18,6 @@ class DreamCard extends StatelessWidget {
     this.onApoiar,
   });
 
-  Color _categoriaColor() {
-    return const Color(0xFF1A1A2E); // Azul escuro para o badge da categoria
-  }
-
-  Widget _buildCategoriaBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: _categoriaColor(),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        sonho.categoria,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
-
-
   Widget _buildIllustration() {
     switch (sonho.categoria) {
       case 'ARTE':
@@ -136,7 +111,7 @@ class DreamCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -426,13 +401,13 @@ class _ArtPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawCircle(Offset(size.width * 0.15, size.height * 0.25), 14,
-        Paint()..color = const Color(0xFFFF9800).withOpacity(0.5));
+        Paint()..color = const Color(0xFFFF9800).withValues(alpha: 0.5));
     canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 12,
-        Paint()..color = const Color(0xFF2196F3).withOpacity(0.4));
+        Paint()..color = const Color(0xFF2196F3).withValues(alpha: 0.4));
     canvas.drawCircle(Offset(size.width * 0.8, size.height * 0.3), 10,
-        Paint()..color = const Color(0xFFE91E63).withOpacity(0.4));
+        Paint()..color = const Color(0xFFE91E63).withValues(alpha: 0.4));
     canvas.drawCircle(Offset(size.width * 0.35, size.height * 0.75), 8,
-        Paint()..color = const Color(0xFF9C27B0).withOpacity(0.4));
+        Paint()..color = const Color(0xFF9C27B0).withValues(alpha: 0.4));
 
     final pX = size.width * 0.5;
     final pY = size.height * 0.48;

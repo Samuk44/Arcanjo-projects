@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>O Empatia usa sua localização apenas para sugerir a cidade no filtro de proximidade.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Usamos a câmera para a foto de perfil.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Usamos a galeria para a foto de perfil.</string>
 </dict>
 </plist>
