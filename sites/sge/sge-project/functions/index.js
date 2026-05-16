@@ -4,6 +4,7 @@
 const { initializeApp } = require("firebase-admin/app");
 const { getDatabase } = require("firebase-admin/database");
 const { getMessaging } = require("firebase-admin/messaging");
+const { getAuth } = require("firebase-admin/auth");
 const { setGlobalOptions } = require("firebase-functions/v2");
 const {
   onDocumentCreated,
@@ -123,6 +124,14 @@ exports.onApproval = onValueUpdated("/usuarios/{uid}", async (event) => {
       console.log(
         `[onApproval] Professor ${afterData.nome} (UID: ${uid}) aprovado. Enviando e-mail de boas-vindas.`,
       );
+
+      // Set custom claims for RBAC (role) to improve rules performance and security
+      try {
+        await getAuth().setCustomUserClaims(uid, { role: afterData.role });
+        console.log(`[onApproval] Custom claims set for ${uid}: role=${afterData.role}`);
+      } catch (claimErr) {
+        console.error(`[onApproval] Failed to set custom claims for ${uid}:`, claimErr);
+      }
 
       const subject = "Bem-vindo(a) ao SGE v2.0!";
       const body = `Olá ${afterData.nome},

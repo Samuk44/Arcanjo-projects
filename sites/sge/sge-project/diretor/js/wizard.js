@@ -2,35 +2,13 @@
 // SGE v2.0 • Diretor Registration Wizard • Firebase Integration
 // ES6 Modules • Async/Await • sessionStorage State Management
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import app, { auth, db as database } from "../../assets/js/firebase/config.js";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   updateProfile,
   deleteUser,
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  update,
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-
-// ===== FIREBASE CONFIG =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
-  authDomain: "farolescolar.firebaseapp.com",
-  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
-  projectId: "farolescolar",
-  storageBucket: "farolescolar.firebasestorage.app",
-  messagingSenderId: "31040592917",
-  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
-  measurementId: "G-1B6HPZNFFJ",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const database = getDatabase(app);
+import { ref, set, update } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 // ===== STATE MANAGEMENT =====
 const SESSION_KEY = "sge_diretor_wizard";

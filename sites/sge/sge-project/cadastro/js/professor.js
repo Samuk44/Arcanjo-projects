@@ -1,33 +1,12 @@
 // SGE v2.0 • Professor Registration Wizard • Firebase v9+ • ES6 Modules
 // 5-step wizard: Identificação → Acesso → Profissional → Turmas → Revisão
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import app, { auth, db } from "../../assets/js/firebase/config.js";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  get,
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
-  authDomain: "farolescolar.firebaseapp.com",
-  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
-  projectId: "farolescolar",
-  storageBucket: "farolescolar.firebasestorage.app",
-  messagingSenderId: "31040592917",
-  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
-  measurementId: "G-1B6HPZNFFJ",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 // ============ PROFESSOR WIZARD CLASS ============
 class ProfessorWizard {
