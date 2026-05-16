@@ -2,13 +2,18 @@
 // SGE v2.0 • Diretor Registration Wizard • Firebase Integration
 // ES6 Modules • Async/Await • sessionStorage State Management
 
-import app, { auth, db as database } from "../../assets/js/firebase/config.js";
+import { auth, db } from "../../assets/js/firebase/config.js";
 import {
   createUserWithEmailAndPassword,
   updateProfile,
   deleteUser,
+  fetchSignInMethodsForEmail,
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { ref, set, update } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+import {
+  ref,
+  set,
+  update,
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 // ===== STATE MANAGEMENT =====
 const SESSION_KEY = "sge_diretor_wizard";
@@ -26,7 +31,7 @@ const getSessionData = () => {
     }
     return parsed.data || {};
   } catch (e) {
-    console.error("Error reading session:", e);
+    log.error("Error reading session:", e);
     return {};
   }
 };
@@ -41,7 +46,7 @@ const setSessionData = (data) => {
       }),
     );
   } catch (e) {
-    console.error("Error saving session:", e);
+    log.error("Error saving session:", e);
   }
 };
 
@@ -49,8 +54,28 @@ const clearSessionData = () => {
   try {
     sessionStorage.removeItem(SESSION_KEY);
   } catch (e) {
-    console.error("Error clearing session:", e);
+    log.error("Error clearing session:", e);
   }
+};
+
+// ===== LOGGING (Conditional) =====
+const log = {
+  error: (msg, ...args) => {
+    if (window.location.hostname === "localhost") {
+      console.error(msg, ...args);
+    }
+  },
+  info: (msg, ...args) => {
+    if (window.location.hostname === "localhost") {
+      console.info(msg, ...args);
+    }
+  },
+};
+
+// ===== SANITIZATION =====
+const sanitizeInput = (str) => {
+  if (typeof str !== "string") return str;
+  return str.replace(/[<>]/g, "").trim();
 };
 
 // ===== VALIDATION FUNCTIONS =====
@@ -100,7 +125,7 @@ const validateCPF = (cpf) => {
 
 const validateEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
+  return regex.test(email) && email.length <= 254;
 };
 
 const validatePhone = (phone) => {
@@ -160,10 +185,13 @@ const formatPhone = (value) => {
 // ===== UI HELPERS =====
 const showFeedback = (message, type = "error") => {
   const feedback = document.getElementById("form-feedback");
-  if (!feedback) return;
+  if (!feedback) {
+    alert(message);
+    return;
+  }
 
   feedback.textContent = message;
-  feedback.className = `${type} show`;
+  feedback.className = `feedback ${type} show`;
   feedback.setAttribute("aria-live", "polite");
 
   setTimeout(() => {
@@ -190,9 +218,14 @@ const setLoading = (button, isLoading) => {
   if (isLoading) {
     button.classList.add("loading");
     button.disabled = true;
+    button.dataset.originalText = button.textContent;
+    button.textContent = "Processando...";
   } else {
     button.classList.remove("loading");
     button.disabled = false;
+    if (button.dataset.originalText) {
+      button.textContent = button.dataset.originalText;
+    }
   }
 };
 
@@ -242,20 +275,35 @@ const mapFirebaseError = (error) => {
   return errorMap[errorCode] || "Erro desconhecido. Tente novamente.";
 };
 
+// ===== EMAIL EXISTENCE CHECK =====
+const checkEmailExists = async (email) => {
+  try {
+    const methods = await fetchSignInMethodsForEmail(auth, email);
+    return methods.length > 0;
+  } catch {
+    return false;
+  }
+};
+
 // ===== STEP VALIDATION =====
 const validateStep1 = () => {
   clearErrors();
   const data = getSessionData();
 
-  const nomeEscola = document.getElementById("nomeEscola").value.trim();
-  const cnpjEscola = document.getElementById("cnpjEscola").value.trim();
-  const telefoneEscola = document.getElementById("telefoneEscola").value.trim();
-  const emailEscola = document.getElementById("emailEscola").value.trim();
+  const nomeEscola = document.getElementById("nomeEscola")?.value.trim();
+  const cnpjEscola = document.getElementById("cnpjEscola")?.value.trim();
+  const telefoneEscola = document
+    .getElementById("telefoneEscola")
+    ?.value.trim();
+  const emailEscola = document.getElementById("emailEscola")?.value.trim();
 
   let isValid = true;
 
   if (!nomeEscola) {
     showError("nomeEscola", "Nome da escola é obrigatório.");
+    isValid = false;
+  } else if (nomeEscola.length < 3) {
+    showError("nomeEscola", "Nome da escola deve ter pelo menos 3 caracteres.");
     isValid = false;
   }
 
@@ -276,10 +324,10 @@ const validateStep1 = () => {
 
   if (isValid) {
     data.step1 = {
-      nomeEscola,
+      nomeEscola: sanitizeInput(nomeEscola),
       cnpjEscola: cnpjEscola.replace(/\D/g, ""),
       telefoneEscola: telefoneEscola.replace(/\D/g, ""),
-      emailEscola,
+      emailEscola: sanitizeInput(emailEscola),
     };
     setSessionData(data);
   }
@@ -291,15 +339,21 @@ const validateStep2 = () => {
   clearErrors();
   const data = getSessionData();
 
-  const nomeCompleto = document.getElementById("nomeCompleto").value.trim();
-  const cpf = document.getElementById("cpf").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const telefone = document.getElementById("telefone").value.trim();
+  const nomeCompleto = document.getElementById("nomeCompleto")?.value.trim();
+  const cpf = document.getElementById("cpf")?.value.trim();
+  const email = document.getElementById("email")?.value.trim();
+  const telefone = document.getElementById("telefone")?.value.trim();
 
   let isValid = true;
 
   if (!nomeCompleto) {
     showError("nomeCompleto", "Nome completo é obrigatório.");
+    isValid = false;
+  } else if (nomeCompleto.length < 5) {
+    showError(
+      "nomeCompleto",
+      "Nome completo deve ter pelo menos 5 caracteres.",
+    );
     isValid = false;
   }
 
@@ -323,9 +377,9 @@ const validateStep2 = () => {
 
   if (isValid) {
     data.step2 = {
-      nomeCompleto,
+      nomeCompleto: sanitizeInput(nomeCompleto),
       cpf: cpf.replace(/\D/g, ""),
-      email,
+      email: sanitizeInput(email),
       telefone: telefone.replace(/\D/g, ""),
     };
     setSessionData(data);
@@ -338,8 +392,8 @@ const validateStep3 = () => {
   clearErrors();
   const data = getSessionData();
 
-  const senha = document.getElementById("senha").value;
-  const confirmarSenha = document.getElementById("confirmarSenha").value;
+  const senha = document.getElementById("senha")?.value || "";
+  const confirmarSenha = document.getElementById("confirmarSenha")?.value || "";
   const plano = document.querySelector('input[name="plano"]:checked');
 
   let isValid = true;
@@ -366,6 +420,9 @@ const validateStep3 = () => {
   if (!plano) {
     showError("plano", "Selecione um plano.");
     isValid = false;
+  } else if (!["simples", "completo"].includes(plano.value)) {
+    showError("plano", "Plano inválido.");
+    isValid = false;
   }
 
   if (isValid) {
@@ -384,7 +441,7 @@ const validateStep4 = () => {
 
   const aceiteTermos = document.getElementById("aceiteTermos");
 
-  if (!aceiteTermos.checked) {
+  if (!aceiteTermos || !aceiteTermos.checked) {
     showError(
       "aceiteTermos",
       "Você deve aceitar os termos e a política de privacidade.",
@@ -414,59 +471,6 @@ const goBack = () => {
   }
 };
 
-// ===== STEP 4 SUMMARY =====
-const renderSummary = () => {
-  const data = getSessionData();
-  const container = document.getElementById("summary-container");
-
-  if (!container) return;
-
-  const step1 = data.step1 || {};
-  const step2 = data.step2 || {};
-  const step3 = data.step3 || {};
-
-  const html = `
-        <div class="summary-item">
-            <span class="summary-label">Escola</span>
-            <span class="summary-value">${step1.nomeEscola || "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">CNPJ</span>
-            <span class="summary-value">${step1.cnpjEscola ? formatCNPJ(step1.cnpjEscola) : "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Telefone Escola</span>
-            <span class="summary-value">${step1.telefoneEscola ? formatPhone(step1.telefoneEscola) : "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">E-mail Escola</span>
-            <span class="summary-value">${step1.emailEscola || "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Diretor</span>
-            <span class="summary-value">${step2.nomeCompleto || "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">CPF</span>
-            <span class="summary-value">${step2.cpf ? formatCPF(step2.cpf) : "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">E-mail Pessoal</span>
-            <span class="summary-value">${step2.email || "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Telefone Pessoal</span>
-            <span class="summary-value">${step2.telefone ? formatPhone(step2.telefone) : "-"}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Plano</span>
-            <span class="summary-value">${step3.plano === "simples" ? "Simples" : "Completo"}</span>
-        </div>
-    `;
-
-  container.innerHTML = html;
-};
-
 // ===== FIREBASE SUBMISSION =====
 const submitRegistration = async () => {
   const data = getSessionData();
@@ -480,9 +484,25 @@ const submitRegistration = async () => {
   }
 
   const button = document.getElementById("btn-submit");
+
+  // Prevenção de submit duplo
+  if (button.disabled) {
+    log.info("Submit já em andamento, ignorando clique duplicado.");
+    return;
+  }
+
   setLoading(button, true);
 
   try {
+    // BACKEND: Verificar se email já existe antes de criar
+    const emailExists = await checkEmailExists(data.step2.email);
+    if (emailExists) {
+      throw new Error({
+        code: "auth/email-already-in-use",
+        message: "Este e-mail já está cadastrado.",
+      });
+    }
+
     // BACKEND: Create user in Firebase Auth
     const userCredential = await retryWithExponentialBackoff(() =>
       createUserWithEmailAndPassword(auth, data.step2.email, data.step3.senha),
@@ -497,17 +517,17 @@ const submitRegistration = async () => {
         displayName: data.step2.nomeCompleto,
       });
     } catch (profileError) {
-      console.error("Profile update error:", profileError);
+      log.error("Profile update error:", profileError);
     }
 
     try {
       // BACKEND: Write school data to database
       await retryWithExponentialBackoff(() =>
-        set(ref(database, "escola/info"), {
+        set(ref(db, "escola/info"), {
           nome: data.step1.nomeEscola,
-          cnpj: data.step1.cnpjEscola,
-          telefone: data.step1.telefoneEscola,
-          email: data.step1.emailEscola,
+          cnpj: data.step1.cnpjEscola || null,
+          telefone: data.step1.telefoneEscola || null,
+          email: data.step1.emailEscola || null,
           logoURL: null,
           planoEscola: data.step3.plano,
           anoLetivoAtivo: new Date().getFullYear(),
@@ -515,12 +535,14 @@ const submitRegistration = async () => {
         }),
       );
     } catch (schoolError) {
-      console.error("School data write error:", schoolError);
+      log.error("School data write error:", schoolError);
       // BACKEND: Rollback - delete user if school data fails
       try {
         await deleteUser(user);
       } catch (deleteError) {
-        console.error("User deletion error:", deleteError);
+        if (deleteError.code !== "auth/user-not-found") {
+          log.error("User deletion error:", deleteError);
+        }
       }
       throw new Error("Erro ao salvar dados da escola. Tente novamente.");
     }
@@ -528,11 +550,12 @@ const submitRegistration = async () => {
     try {
       // BACKEND: Write user data to database
       await retryWithExponentialBackoff(() =>
-        set(ref(database, `usuarios/${uid}`), {
+        set(ref(db, `usuarios/${uid}`), {
+          uid,
           nome: data.step2.nomeCompleto,
           email: data.step2.email,
-          cpf: data.step2.cpf,
-          telefone: data.step2.telefone,
+          cpf: data.step2.cpf || null,
+          telefone: data.step2.telefone || null,
           role: "diretor",
           status: "ativo",
           plano: data.step3.plano,
@@ -540,15 +563,18 @@ const submitRegistration = async () => {
           fcmToken: null,
           prefs: {},
           criadoEm: new Date().toISOString(),
+          ultimoAcesso: null,
         }),
       );
     } catch (userError) {
-      console.error("User data write error:", userError);
+      log.error("User data write error:", userError);
       // BACKEND: Rollback - delete user if user data fails
       try {
         await deleteUser(user);
       } catch (deleteError) {
-        console.error("User deletion error:", deleteError);
+        if (deleteError.code !== "auth/user-not-found") {
+          log.error("User deletion error:", deleteError);
+        }
       }
       throw new Error("Erro ao salvar dados do usuário. Tente novamente.");
     }
@@ -556,29 +582,32 @@ const submitRegistration = async () => {
     try {
       // BACKEND: Write audit log
       const logId = `log_${uid}_${Date.now()}`;
-      await set(ref(database, `logs/${logId}`), {
+      await set(ref(db, `logs/${logId}`), {
         uid,
         acao: "cadastro_diretor",
         email: data.step2.email,
         escola: data.step1.nomeEscola,
         plano: data.step3.plano,
         timestamp: new Date().toISOString(),
-        ip: "client-side", // IP real seria capturado no backend
+        ip: "client-side",
       });
     } catch (logError) {
-      console.error("Audit log error:", logError);
+      log.error("Audit log error:", logError);
       // Log errors don't block the flow
     }
 
     // Success
     clearSessionData();
-    showFeedback("Cadastro realizado com sucesso!", "success");
+    showFeedback(
+      "Cadastro realizado com sucesso! Redirecionando...",
+      "success",
+    );
 
     setTimeout(() => {
       window.location.href = "../../diretor/index.html";
     }, 2000);
   } catch (error) {
-    console.error("Registration error:", error);
+    log.error("Registration error:", error);
     setLoading(button, false);
 
     const errorMessage = mapFirebaseError(error);
@@ -617,8 +646,23 @@ const setupPasswordStrengthMeter = () => {
     senhaInput.addEventListener("input", (e) => {
       const strength = getPasswordStrength(e.target.value);
       const bar = document.getElementById("password-strength-bar");
+      const label = document.getElementById("password-strength-label");
+
       if (bar) {
         bar.className = `password-strength-bar ${strength}`;
+        const widths = { weak: "25%", medium: "50%", strong: "100%" };
+        const colors = {
+          weak: "#ef4444",
+          medium: "#f59e0b",
+          strong: "#10b981",
+        };
+        bar.style.width = widths[strength];
+        bar.style.backgroundColor = colors[strength];
+      }
+
+      if (label) {
+        const texts = { weak: "Fraca", medium: "Média", strong: "Forte" };
+        label.textContent = texts[strength];
       }
     });
   }
@@ -661,11 +705,20 @@ const setupFormSubmission = () => {
   } else if (currentStep === 4) {
     const form = document.getElementById("form-step-4");
     if (form) {
-      form.addEventListener("submit", (e) => {
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        if (validateStep4()) {
-          submitRegistration();
+        if (!validateStep4()) return;
+
+        // Confirmação antes de submit final
+        if (
+          !confirm(
+            "Confirma que todos os dados estão corretos? Esta ação não pode ser desfeita.",
+          )
+        ) {
+          return;
         }
+
+        await submitRegistration();
       });
     }
   }
@@ -689,47 +742,49 @@ const restoreFormData = () => {
 
   if (currentStep === 1 && data.step1) {
     const step1 = data.step1;
-    if (document.getElementById("nomeEscola")) {
-      document.getElementById("nomeEscola").value = step1.nomeEscola;
-    }
-    if (document.getElementById("cnpjEscola")) {
-      document.getElementById("cnpjEscola").value = formatCNPJ(
-        step1.cnpjEscola,
-      );
-    }
-    if (document.getElementById("telefoneEscola")) {
-      document.getElementById("telefoneEscola").value = formatPhone(
-        step1.telefoneEscola,
-      );
-    }
-    if (document.getElementById("emailEscola")) {
-      document.getElementById("emailEscola").value = step1.emailEscola;
-    }
+    const nomeEscola = document.getElementById("nomeEscola");
+    const cnpjEscola = document.getElementById("cnpjEscola");
+    const telefoneEscola = document.getElementById("telefoneEscola");
+    const emailEscola = document.getElementById("emailEscola");
+
+    if (nomeEscola) nomeEscola.value = step1.nomeEscola || "";
+    if (cnpjEscola) cnpjEscola.value = formatCNPJ(step1.cnpjEscola || "");
+    if (telefoneEscola)
+      telefoneEscola.value = formatPhone(step1.telefoneEscola || "");
+    if (emailEscola) emailEscola.value = step1.emailEscola || "";
   } else if (currentStep === 2 && data.step2) {
     const step2 = data.step2;
-    if (document.getElementById("nomeCompleto")) {
-      document.getElementById("nomeCompleto").value = step2.nomeCompleto;
-    }
-    if (document.getElementById("cpf")) {
-      document.getElementById("cpf").value = formatCPF(step2.cpf);
-    }
-    if (document.getElementById("email")) {
-      document.getElementById("email").value = step2.email;
-    }
-    if (document.getElementById("telefone")) {
-      document.getElementById("telefone").value = formatPhone(step2.telefone);
-    }
+    const nomeCompleto = document.getElementById("nomeCompleto");
+    const cpf = document.getElementById("cpf");
+    const email = document.getElementById("email");
+    const telefone = document.getElementById("telefone");
+
+    if (nomeCompleto) nomeCompleto.value = step2.nomeCompleto || "";
+    if (cpf) cpf.value = formatCPF(step2.cpf || "");
+    if (email) email.value = step2.email || "";
+    if (telefone) telefone.value = formatPhone(step2.telefone || "");
   } else if (currentStep === 3 && data.step3) {
     const step3 = data.step3;
-    if (document.getElementById("plano")) {
-      const planoRadio = document.querySelector(
-        `input[name="plano"][value="${step3.plano}"]`,
-      );
-      if (planoRadio) {
-        planoRadio.checked = true;
-      }
+    const planoRadio = document.querySelector(
+      `input[name="plano"][value="${step3.plano}"]`,
+    );
+    if (planoRadio) {
+      planoRadio.checked = true;
     }
   }
+};
+
+// ===== ENTER KEY NAVIGATION =====
+const setupEnterKeyNavigation = () => {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") {
+      e.preventDefault();
+      const form = e.target.closest("form");
+      if (form) {
+        form.requestSubmit();
+      }
+    }
+  });
 };
 
 // ===== INITIALIZATION =====
@@ -739,15 +794,13 @@ const init = () => {
   setupPasswordStrengthMeter();
   setupFormSubmission();
   setupBackButtons();
+  setupEnterKeyNavigation();
   restoreFormData();
-
-  const currentStep = getCurrentStep();
-  if (currentStep === 4) {
-    renderSummary();
-  }
 
   window.addEventListener("online", checkOnlineStatus);
   window.addEventListener("offline", checkOnlineStatus);
+
+  log.info("Wizard de cadastro do diretor inicializado.");
 };
 
 // Run on DOM ready
