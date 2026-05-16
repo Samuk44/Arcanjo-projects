@@ -1,25 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
-  authDomain: "farolescolar.firebaseapp.com",
-  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
-  projectId: "farolescolar",
-  storageBucket: "farolescolar.firebasestorage.app",
-  messagingSenderId: "31040592917",
-  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
-  measurementId: "G-1B6HPZNFFJ",
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import app, { firestore } from "../../assets/js/firebase/config.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 async function init() {
-  const snap = await getDocs(collection(db, "avisos"));
+  const snap = await getDocs(collection(firestore, "avisos"));
   const avisos = snap.docs.map((doc) => doc.data());
   renderChart(avisos);
   renderInativos(avisos);

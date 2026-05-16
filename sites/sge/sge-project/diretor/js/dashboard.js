@@ -1,35 +1,9 @@
 // SGE v2.0 • Diretor Dashboard • Firebase v9+ • ES6 Modules
 // Verificação de sessão, RBAC, métricas em tempo real, atividades
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  get,
-  onValue,
-  query,
-  limitToLast,
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
-  authDomain: "farolescolar.firebaseapp.com",
-  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
-  projectId: "farolescolar",
-  storageBucket: "farolescolar.firebasestorage.app",
-  messagingSenderId: "31040592917",
-  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
-  measurementId: "G-1B6HPZNFFJ",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+import app, { auth, db } from "../../assets/js/firebase/config.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { ref, get, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 let currentUser = null;
 let diretorData = null;

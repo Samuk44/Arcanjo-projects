@@ -1,30 +1,12 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import app, { auth, firestore } from "../../assets/js/firebase/config.js";
 import {
-  getFirestore,
   collection,
   query,
   where,
   getDocs,
   onSnapshot,
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
-  authDomain: "farolescolar.firebaseapp.com",
-  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
-  projectId: "farolescolar",
-  storageBucket: "farolescolar.firebasestorage.app",
-  messagingSenderId: "31040592917",
-  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
-  measurementId: "G-1B6HPZNFFJ",
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
 let dadosOriginais = [];
 
@@ -32,7 +14,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userDoc = await getDocs(
       query(
-        collection(db, "usuarios"),
+        collection(firestore, "usuarios"),
         where("uid", "==", user.uid),
         where("role", "==", "diretor"),
       ),
@@ -48,7 +30,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 function init() {
-  const q = query(collection(db, "chamadas"));
+  const q = query(collection(firestore, "chamadas"));
   onSnapshot(q, (snapshot) => {
     dadosOriginais = snapshot.docs.map((doc) => doc.data());
     render(processar(dadosOriginais));

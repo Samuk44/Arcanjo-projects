@@ -10,6 +10,7 @@ import {
   browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 import { getMessaging } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 
@@ -34,6 +35,7 @@ let auth;
 let db;
 let storage;
 let messaging;
+let firestore;
 
 try {
   app = initializeApp(firebaseConfig);
@@ -59,6 +61,13 @@ try {
     console.warn("App Check initialization failed:", acErr.message);
   }
 
+  // Firestore (opcional) - inicializa se a API estiver disponível
+  try {
+    firestore = getFirestore(app);
+  } catch (fsErr) {
+    console.warn("Firestore não disponível neste ambiente:", fsErr.message);
+  }
+
   // Configurar persistência de sessão local
   setPersistence(auth, browserLocalPersistence).catch((err) => {
     console.error("Erro ao configurar persistência:", err.message);
@@ -68,7 +77,7 @@ try {
   // Fallback read-only ou redirecionamento pode ser implementado aqui
 }
 
-export { auth, db, storage, messaging };
+export { auth, db, storage, messaging, firestore };
 export default app;
 
 // SGE v2.0 • Firebase Config • 2026-05-14

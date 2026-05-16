@@ -1,4 +1,4 @@
-import { auth, db } from "../assets/js/firebase/config.js";
+import { auth, db } from "../../assets/js/firebase/config.js";
 import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,

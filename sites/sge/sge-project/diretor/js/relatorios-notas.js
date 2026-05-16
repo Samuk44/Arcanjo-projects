@@ -1,23 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  query,
-  onSnapshot,
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
-  authDomain: "farolescolar.firebaseapp.com",
-  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
-  projectId: "farolescolar",
-  storageBucket: "farolescolar.firebasestorage.app",
-  messagingSenderId: "31040592917",
-  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
-  measurementId: "G-1B6HPZNFFJ",
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import app, { firestore } from "../../assets/js/firebase/config.js";
+import { collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 const formatter = new Intl.NumberFormat("pt-BR", {
   minimumFractionDigits: 1,
@@ -25,7 +7,7 @@ const formatter = new Intl.NumberFormat("pt-BR", {
 });
 
 function init() {
-  const q = query(collection(db, "notas"));
+  const q = query(collection(firestore, "notas"));
   onSnapshot(q, (snapshot) => {
     const notas = snapshot.docs.map((doc) => doc.data());
     render(processar(notas));
