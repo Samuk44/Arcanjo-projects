@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SGE - Cadastro de Professor</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/tabler-icons.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b23;
+      --bg-tertiary: #1e2530;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --color-amber: #f0a500;
+      --color-green: #22c55e;
+      --color-red: #f43f5e;
+      --color-yellow: #facc15;
+      --color-blue: #3b82f6;
+      --border-color: rgba(255,255,255,0.07);
+      --transition: 200ms ease-out;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+
+    button {
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border: none;
+      background: none;
+      transition: all var(--transition);
+    }
+
+    /* LAYOUT */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* HEADER */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-amber);
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* PROGRESS BAR */
+    .progress-container {
+      margin-bottom: 3rem;
+    }
+
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+
+    .progress-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 1.5rem;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background-color: var(--border-color);
+      z-index: 0;
+    }
+
+    .progress-step.completed:not(:last-child)::after {
+      background-color: var(--color-green);
+    }
+
+    .progress-circle {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      background-color: var(--bg-secondary);
+      z-index: 1;
+      position: relative;
+    }
+
+    .progress-step.active .progress-circle {
+      border-color: var(--color-amber);
+      background-color: var(--color-amber);
+      color: #000;
+    }
+
+    .progress-step.completed .progress-circle {
+      border-color: var(--color-green);
+      background-color: var(--color-green);
+      color: #fff;
+    }
+
+    .progress-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .progress-step.active .progress-label {
+      color: var(--color-amber);
+      font-weight: 600;
+    }
+
+    .progress-step.completed .progress-label {
+      color: var(--color-green);
+      font-weight: 600;
+    }
+
+    /* FORM */
+    .form-container {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-stage {
+      display: none;
+    }
+
+    .form-stage.active {
+      display: block;
+      animation: fadeIn 300ms ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--color-amber);
+      background-color: rgba(240, 165, 0, 0.05);
+    }
+
+    .form-group input.error,
+    .form-group select.error {
+      border-color: var(--color-red);
+      background-color: rgba(244, 63, 94, 0.05);
+    }
+
+    .form-group input.success {
+      border-color: var(--color-green);
+      background-color: rgba(34, 197, 94, 0.05);
+    }
+
+    .form-error {
+      display: none;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--color-red);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-error.show {
+      display: flex;
+    }
+
+    .form-success {
+      display: none;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--color-green);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-success.show {
+      display: flex;
+    }
+
+    .form-hint {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* PASSWORD STRENGTH */
+    .password-strength {
+      margin-top: 1rem;
+    }
+
+    .strength-bar {
+      width: 100%;
+      height: 4px;
+      background-color: var(--bg-tertiary);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: width var(--transition), background-color var(--transition);
+      background-color: var(--color-red);
+    }
+
+    .strength-fill.medium { width: 33%; background-color: var(--color-yellow); }
+    .strength-fill.strong { width: 66%; background-color: var(--color-green); }
+    .strength-fill.very-strong { width: 100%; background-color: #00ff00; }
+
+    .strength-criteria {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .criteria-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    .criteria-item.met {
+      color: var(--color-green);
+    }
+
+    .criteria-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* CHECKBOX GROUP */
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      cursor: pointer;
+      accent-color: var(--color-amber);
+    }
+
+    /* TAGS */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: var(--bg-tertiary);
+      border-radius: 6px;
+      min-height: 2.5rem;
+      align-content: flex-start;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      background-color: var(--color-amber);
+      color: #000;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .tag-remove {
+      cursor: pointer;
+      font-weight: 700;
+      opacity: 0.7;
+      transition: opacity var(--transition);
+    }
+
+    .tag-remove:hover {
+      opacity: 1;
+    }
+
+    /* DISCIPLINES SELECT */
+    .disciplines-select {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .discipline-btn {
+      padding: 0.75rem;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all var(--transition);
+    }
+
+    .discipline-btn:hover {
+      border-color: var(--color-amber);
+    }
+
+    .discipline-btn.selected {
+      border-color: var(--color-amber);
+      background-color: var(--color-amber);
+      color: #000;
+    }
+
+    /* CLASSES GRID */
+    .classes-section {
+      margin-bottom: 2rem;
+    }
+
+    .classes-section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--color-amber);
+    }
+
+    .classes-year {
+      margin-bottom: 1.5rem;
+    }
+
+    .classes-year-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .classes-year-label {
+      font-weight: 600;
+      min-width: 80px;
+    }
+
+    .classes-year-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .class-btn {
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .class-btn:hover:not(.disabled) {
+      border-color: var(--color-amber);
+    }
+
+    .class-btn.selected {
+      border-color: var(--color-amber);
+      background-color: var(--color-amber);
+      color: #000;
+    }
+
+    .class-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: var(--bg-tertiary);
+    }
+
+    .class-badge {
+      position: absolute;
+      top: -0.5rem;
+      right: -0.5rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      background-color: var(--color-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .class-btn.disabled .class-badge {
+      display: none;
+    }
+
+    .class-shortcut {
+      margin-left: auto;
+    }
+
+    .btn-shortcut {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .btn-shortcut:hover {
+      border-color: var(--color-amber);
+      color: var(--color-amber);
+    }
+
+    /* CLASS SELECTION PANEL */
+    .class-selection-panel {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+    }
+
+    .class-selection-panel.active {
+      display: block;
+      animation: slideDown 300ms ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .class-selection-panel h4 {
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .class-selection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .class-selection-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .class-selection-item select {
+      flex: 1;
+    }
+
+    .class-selection-item button {
+      padding: 0.5rem;
+      background-color: var(--color-red);
+      color: #fff;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .class-selection-item button:hover {
+      background-color: #e11d48;
+    }
+
+    .class-selection-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* SUMMARY */
+    .summary-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .summary-card {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .summary-card-title {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--color-amber);
+    }
+
+    .summary-item {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    /* REVIEW STAGE */
+    .review-section {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .review-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    .review-section-header h4 {
+      color: var(--color-amber);
+    }
+
+    .review-section-content {
+      display: none;
+    }
+
+    .review-section-content.expanded {
+      display: block;
+    }
+
+    .review-item {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .review-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .review-label {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .review-value {
+      color: var(--text-primary);
+    }
+
+    .review-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .review-tag {
+      padding: 0.375rem 0.75rem;
+      background-color: var(--color-amber);
+      color: #000;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .review-edit-btn {
+      padding: 0.5rem 1rem;
+      background-color: var(--color-amber);
+      color: #000;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .review-edit-btn:hover {
+      background-color: #e0950a;
+    }
+
+    /* BUTTONS */
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background-color: var(--color-amber);
+      color: #000;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: #e0950a;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-amber);
+      color: var(--color-amber);
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toast {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--color-amber);
+      border-radius: 6px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 300px;
+      animation: slideIn 300ms ease-out;
+    }
+
+    .toast.success { border-left-color: var(--color-green); }
+    .toast.danger { border-left-color: var(--color-red); }
+    .toast.warning { border-left-color: var(--color-yellow); }
+    .toast.info { border-left-color: var(--color-blue); }
+
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* SUCCESS SCREEN */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .success-screen.active {
+      display: block;
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 2rem;
+      background-color: var(--color-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      animation: scaleIn 500ms ease-out;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+
+    .success-title {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .success-message {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .success-info {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .success-info h4 {
+      margin-bottom: 1rem;
+      color: var(--color-amber);
+    }
+
+    .success-info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-info-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .success-info-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--color-green);
+      flex-shrink: 0;
+      margin-top: 0.125rem;
+    }
+
+    /* LOADING */
+    .loading-steps {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .loading-step {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+      transition: opacity var(--transition);
+    }
+
+    .loading-step.active {
+      opacity: 1;
+    }
+
+    .loading-step.completed {
+      opacity: 1;
+    }
+
+    .loading-step-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: var(--bg-primary);
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .loading-step.active .loading-step-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-step.completed .loading-step-icon {
+      background-color: var(--color-green);
+      color: #fff;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* PROFILE PHOTO */
+    .photo-upload {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .photo-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-amber), var(--color-yellow));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: #000;
+      flex-shrink: 0;
+    }
+
+    .photo-preview.has-image {
+      background: none;
+      overflow: hidden;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-upload-input {
+      flex: 1;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .form-container {
+        padding: 1.5rem;
+      }
+
+      .progress-bar {
+        flex-wrap: wrap;
+      }
+
+      .progress-step {
+        flex: 0 0 calc(50% - 0.5rem);
+      }
+
+      .progress-step:not(:last-child)::after {
+        display: none;
+      }
+
+      .summary-container {
+        grid-template-columns: 1fr;
+      }
+
+      .review-item {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .classes-year-buttons {
+        flex-direction: column;
+      }
+
+      .class-btn {
+        flex: 1;
+        width: auto;
+      }
+
+      .toast-container {
+        left: 1rem;
+        right: 1rem;
+      }
+
+      .toast {
+        min-width: auto;
+      }
+    }
+
+    /* UTILITIES */
+    .flex { display: flex; align-items: center; }
+    .flex-col { display: flex; flex-direction: column; }
+    .gap-1 { gap: 0.5rem; }
+    .gap-2 { gap: 1rem; }
+    .text-center { text-align: center; }
+    .text-muted { color: var(--text-muted); }
+    .text-sm { font-size: 0.85rem; }
+    .font-mono { font-family: 'DM Mono', monospace; }
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .opacity-50 { opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">SGE</div>
+    <div class="logo-subtitle">Sistema de Gestão Escolar</div>
+  </div>
+
+  <div class="container">
+    <!-- PROGRESS BAR -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-step active" data-step="1">
+          <div class="progress-circle">1</div>
+          <div class="progress-label">Identificação</div>
+        </div>
+        <div class="progress-step" data-step="2">
+          <div class="progress-circle">2</div>
+          <div class="progress-label">Acesso</div>
+        </div>
+        <div class="progress-step" data-step="3">
+          <div class="progress-circle">3</div>
+          <div class="progress-label">Profissional</div>
+        </div>
+        <div class="progress-step" data-step="4">
+          <div class="progress-circle">4</div>
+          <div class="progress-label">Turmas</div>
+        </div>
+        <div class="progress-step" data-step="5">
+          <div class="progress-circle">5</div>
+          <div class="progress-label">Revisão</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM CONTAINER -->
+    <div class="form-container">
+      <!-- STAGE 1: IDENTIFICATION -->
+      <div class="form-stage active" data-stage="1">
+        <h2 style="margin-bottom: 1.5rem;">Identificação Pessoal</h2>
+
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="fullName" placeholder="Ex: João Silva Santos" onblur="validateFullName()">
+          <div class="form-error" id="fullNameError"></div>
+          <div class="form-success" id="fullNameSuccess"></div>
+        </div>
+
+        <div class="form-group">
+          <label>CPF *</label>
+          <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" onkeyup="formatCPF()" onblur="validateCPF()">
+          <div class="form-error" id="cpfError"></div>
+          <div class="form-success" id="cpfSuccess"></div>
+          <div class="form-hint">CPF válido para teste: 123.456.789-09</div>
+        </div>
+
+        <div class="form-group">
+          <label>Data de Nascimento *</label>
+          <input type="date" id="birthDate" onchange="validateBirthDate()">
+          <div class="form-error" id="birthDateError"></div>
+          <div class="form-success" id="birthDateSuccess"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Telefone Celular *</label>
+          <input type="text" id="phone" placeholder="(00) 00000-0000" maxlength="15" onkeyup="formatPhone()" onblur="validatePhone()">
+          <div class="form-error" id="phoneError"></div>
+          <div class="form-success" id="phoneSuccess"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Foto de Perfil (opcional)</label>
+          <div class="photo-upload">
+            <div class="photo-preview" id="photoPreview">CM</div>
+            <div class="photo-upload-input">
+              <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload()">
+              <div class="form-hint">Formatos: JPG, PNG (máx. 5MB)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 2: ACCESS -->
+      <div class="form-stage" data-stage="2">
+        <h2 style="margin-bottom: 1.5rem;">Dados de Acesso</h2>
+
+        <div class="form-group">
+          <label>E-mail Institucional *</label>
+          <input type="email" id="email" placeholder="seu.email@escola.edu.br" onblur="validateEmail()">
+          <div class="form-error" id="emailError"></div>
+          <div class="form-success" id="emailSuccess"></div>
+          <div class="form-hint">E-mail já cadastrado para teste: professor@escola.edu.br</div>
+        </div>
+
+        <div class="form-group">
+          <label>Senha *</label>
+          <div style="position: relative;">
+            <input type="password" id="password" placeholder="Mín. 8 caracteres" onkeyup="validatePassword()">
+            <button type="button" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;" onclick="togglePasswordVisibility('password')">
+              <i class="ti ti-eye"></i>
+            </button>
+          </div>
+          <div class="password-strength">
+            <div class="strength-bar">
+              <div class="strength-fill" id="strengthFill"></div>
+            </div>
+            <div class="strength-criteria">
+              <div class="criteria-item" id="criteria-length">
+                <span class="criteria-icon">○</span>
+                <span>Mín. 8 caracteres</span>
+              </div>
+              <div class="criteria-item" id="criteria-uppercase">
+                <span class="criteria-icon">○</span>
+                <span>1 letra maiúscula</span>
+              </div>
+              <div class="criteria-item" id="criteria-number">
+                <span class="criteria-icon">○</span>
+                <span>1 número</span>
+              </div>
+              <div class="criteria-item" id="criteria-special">
+                <span class="criteria-icon">○</span>
+                <span>1 caractere especial</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar Senha *</label>
+          <div style="position: relative;">
+            <input type="password" id="passwordConfirm" placeholder="Repita a senha" onblur="validatePasswordMatch()">
+            <button type="button" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;" onclick="togglePasswordVisibility('passwordConfirm')">
+              <i class="ti ti-eye"></i>
+            </button>
+          </div>
+          <div class="form-error" id="passwordConfirmError"></div>
+          <div class="form-success" id="passwordConfirmSuccess"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Matrícula Funcional *</label>
+          <input type="text" id="registration" placeholder="Ex: MAT123456" onblur="validateRegistration()">
+          <div class="form-error" id="registrationError"></div>
+          <div class="form-success" id="registrationSuccess"></div>
+        </div>
+      </div>
+
+      <!-- STAGE 3: PROFESSIONAL -->
+      <div class="form-stage" data-stage="3">
+        <h2 style="margin-bottom: 1.5rem;">Dados Profissionais</h2>
+
+        <div class="form-group">
+          <label>Cargo *</label>
+          <select id="position" onchange="validatePosition()">
+            <option value="">Selecione um cargo</option>
+            <option value="professor">Professor</option>
+            <option value="substitute">Professor Substituto</option>
+            <option value="coordinator">Professor Coordenador</option>
+          </select>
+          <div class="form-error" id="positionError"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Turno(s) *</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" name="shift" value="morning"> Manhã
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="shift" value="afternoon"> Tarde
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="shift" value="night"> Noite
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="shift" value="full"> Integral
+            </label>
+          </div>
+          <div class="form-error" id="shiftError"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Disciplinas que Leciona *</label>
+          <div class="disciplines-select">
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Matemática')">Matemática</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Português')">Português</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'História')">História</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Geografia')">Geografia</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Ciências')">Ciências</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Física')">Física</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Química')">Química</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Biologia')">Biologia</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Inglês')">Inglês</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Artes')">Artes</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Educação Física')">Ed. Física</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Filosofia')">Filosofia</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Sociologia')">Sociologia</button>
+            <button type="button" class="discipline-btn" onclick="toggleDiscipline(this, 'Redação')">Redação</button>
+          </div>
+          <div class="tags-container" id="disciplinesTags"></div>
+          <div class="form-error" id="disciplinesError"></div>
+        </div>
+      </div>
+
+      <!-- STAGE 4: CLASSES -->
+      <div class="form-stage" data-stage="4">
+        <h2 style="margin-bottom: 1.5rem;">Vínculo com Turmas</h2>
+
+        <div class="summary-container" style="margin-bottom: 2rem;">
+          <div class="summary-card">
+            <div class="summary-card-title">Resumo de Seleção</div>
+            <div class="summary-item">Turmas selecionadas: <strong id="selectedClassesCount">0</strong></div>
+            <div class="summary-item">Vínculos confirmados: <strong id="confirmedVinculosCount">0</strong></div>
+            <div id="vinculosList" style="margin-top: 1rem;"></div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-card-title">Atalhos</div>
+            <button type="button" class="btn-shortcut" style="width: 100%; margin-bottom: 0.5rem;" onclick="clearClassSelection()">Limpar Seleção</button>
+          </div>
+        </div>
+
+        <!-- FUNDAMENTAL II -->
+        <div class="classes-section">
+          <div class="classes-section-title">Ensino Fundamental II</div>
+          <div class="classes-year">
+            <div class="classes-year-header">
+              <div class="classes-year-label">6º Ano</div>
+              <div class="classes-year-buttons" id="year6"></div>
+              <button type="button" class="btn-shortcut" onclick="selectYearClasses('6')">Selecionar Ano</button>
+            </div>
+          </div>
+          <div class="classes-year">
+            <div class="classes-year-header">
+              <div class="classes-year-label">7º Ano</div>
+              <div class="classes-year-buttons" id="year7"></div>
+              <button type="button" class="btn-shortcut" onclick="selectYearClasses('7')">Selecionar Ano</button>
+            </div>
+          </div>
+          <div class="classes-year">
+            <div class="classes-year-header">
+              <div class="classes-year-label">8º Ano</div>
+              <div class="classes-year-buttons" id="year8"></div>
+              <button type="button" class="btn-shortcut" onclick="selectYearClasses('8')">Selecionar Ano</button>
+            </div>
+          </div>
+          <div class="classes-year">
+            <div class="classes-year-header">
+              <div class="classes-year-label">9º Ano</div>
+              <div class="classes-year-buttons" id="year9"></div>
+              <button type="button" class="btn-shortcut" onclick="selectYearClasses('9')">Selecionar Ano</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HIGH SCHOOL -->
+        <div class="classes-section">
+          <div class="classes-section-title">Ensino Médio</div>
+          <div class="classes-year">
+            <div class="classes-year-header">
+              <div class="classes-year-label">1º Ano</div>
+              <div class="classes-year-buttons" id="year1"></div>
+              <button type="button" class="btn-shortcut" onclick="selectYearClasses('1')">Selecionar Ano</button>
+            </div>
+          </div>
+          <div class="classes-year">
+            <div class="classes-year-header">
+              <div class="classes-year-label">2º Ano</div>
+              <div class="classes-year-buttons" id="year2"></div>
+              <button type="button" class="btn-shortcut" onclick="selectYearClasses('2')">Selecionar Ano</button>
+            </div>
+          </div>
+          <div class="classes-year">
+            <div class="classes-year-header">
+              <div class="classes-year-label">3º Ano</div>
+              <div class="classes-year-buttons" id="year3"></div>
+              <button type="button" class="btn-shortcut" onclick="selectYearClasses('3')">Selecionar Ano</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLASS SELECTION PANEL -->
+        <div class="class-selection-panel" id="classSelectionPanel">
+          <h4 id="classSelectionTitle">Qual disciplina você leciona para o 7º Ano A?</h4>
+          <div class="class-selection-grid" id="classSelectionGrid"></div>
+          <div class="class-selection-actions">
+            <button type="button" class="btn btn-secondary" onclick="cancelClassSelection()">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="confirmClassSelection()">Confirmar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 5: REVIEW -->
+      <div class="form-stage" data-stage="5">
+        <h2 style="margin-bottom: 1.5rem;">Revisão do Cadastro</h2>
+
+        <!-- IDENTIFICATION REVIEW -->
+        <div class="review-section">
+          <div class="review-section-header" onclick="toggleReviewSection(this)">
+            <h4>Identificação</h4>
+            <i class="ti ti-chevron-down"></i>
+          </div>
+          <div class="review-section-content expanded">
+            <div class="review-item">
+              <div class="review-label">Nome</div>
+              <div class="review-value" id="reviewName">-</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">CPF</div>
+              <div class="review-value font-mono" id="reviewCPF">-</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Data de Nascimento</div>
+              <div class="review-value" id="reviewBirthDate">-</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Telefone</div>
+              <div class="review-value font-mono" id="reviewPhone">-</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Foto</div>
+              <div class="review-value">
+                <div class="photo-preview" id="reviewPhotoPreview" style="width: 50px; height: 50px; font-size: 1rem;">CM</div>
+              </div>
+            </div>
+            <button type="button" class="review-edit-btn" onclick="goToStage(1)">Editar</button>
+          </div>
+        </div>
+
+        <!-- ACCESS REVIEW -->
+        <div class="review-section">
+          <div class="review-section-header" onclick="toggleReviewSection(this)">
+            <h4>Acesso</h4>
+            <i class="ti ti-chevron-down"></i>
+          </div>
+          <div class="review-section-content">
+            <div class="review-item">
+              <div class="review-label">E-mail</div>
+              <div class="review-value font-mono" id="reviewEmail">-</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Matrícula</div>
+              <div class="review-value font-mono" id="reviewRegistration">-</div>
+            </div>
+            <button type="button" class="review-edit-btn" onclick="goToStage(2)">Editar</button>
+          </div>
+        </div>
+
+        <!-- PROFESSIONAL REVIEW -->
+        <div class="review-section">
+          <div class="review-section-header" onclick="toggleReviewSection(this)">
+            <h4>Profissional</h4>
+            <i class="ti ti-chevron-down"></i>
+          </div>
+          <div class="review-section-content">
+            <div class="review-item">
+              <div class="review-label">Cargo</div>
+              <div class="review-value" id="reviewPosition">-</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Turno(s)</div>
+              <div class="review-value" id="reviewShifts">-</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Disciplinas</div>
+              <div class="review-tags" id="reviewDisciplines"></div>
+            </div>
+            <button type="button" class="review-edit-btn" onclick="goToStage(3)">Editar</button>
+          </div>
+        </div>
+
+        <!-- CLASSES REVIEW -->
+        <div class="review-section">
+          <div class="review-section-header" onclick="toggleReviewSection(this)">
+            <h4>Turmas Vinculadas</h4>
+            <i class="ti ti-chevron-down"></i>
+          </div>
+          <div class="review-section-content">
+            <div id="reviewClasses"></div>
+            <button type="button" class="review-edit-btn" onclick="goToStage(4)">Editar</button>
+          </div>
+        </div>
+
+        <!-- TERMS -->
+        <div style="margin-top: 2rem; padding: 1.5rem; background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px;">
+          <label class="checkbox-item">
+            <input type="checkbox" id="termsAccept"> Aceito os termos de uso e política de privacidade
+          </label>
+          <div class="form-error" id="termsError"></div>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">✓</div>
+        <h2 class="success-title">Cadastro enviado com sucesso!</h2>
+        <p class="success-message">
+          Seu cadastro está em análise. A direção será notificada agora mesmo e você receberá um e-mail em <strong id="successEmail">seu@email.com</strong> assim que sua conta for aprovada. Isso geralmente leva menos de 24 horas.
+        </p>
+        <div class="success-info">
+          <h4>O que acontece agora?</h4>
+          <div class="success-info-item">
+            <i class="ti ti-check success-info-icon"></i>
+            <div>
+              <strong>Diretor recebe notificação</strong><br>
+              <span class="text-sm text-muted">FCM e e-mail com seus dados</span>
+            </div>
+          </div>
+          <div class="success-info-item">
+            <i class="ti ti-check success-info-icon"></i>
+            <div>
+              <strong>Diretor revisa e aprova</strong><br>
+              <span class="text-sm text-muted">Verificação de documentos e dados</span>
+            </div>
+          </div>
+          <div class="success-info-item">
+            <i class="ti ti-check success-info-icon"></i>
+            <div>
+              <strong>Você recebe e-mail de boas-vindas</strong><br>
+              <span class="text-sm text-muted">Com link de acesso ao painel</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed;">Voltar para página inicial</button>
+      </div>
+
+      <!-- FORM ACTIONS -->
+      <div class="form-actions" id="formActions">
+        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStage()" style="display: none;">← Voltar</button>
+        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStage()" disabled>Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ============================================
+    // STATE MANAGEMENT
+    // ============================================
+
+    const state = {
+      currentStage: 1,
+      formData: {
+        fullName: '',
+        cpf: '',
+        birthDate: '',
+        phone: '',
+        photo: null,
+        email: '',
+        password: '',
+        passwordConfirm: '',
+        registration: '',
+        position: '',
+        shifts: [],
+        disciplines: [],
+        classes: []
+      },
+      selectedClass: null,
+      selectedDisciplinesForClass: [],
+      validation: {
+        fullName: false,
+        cpf: false,
+        birthDate: false,
+        phone: false,
+        email: false,
+        password: false,
+        passwordConfirm: false,
+        registration: false,
+        position: false,
+        shifts: false,
+        disciplines: false,
+        classes: false,
+        terms: false
+      },
+      occupiedClasses: {
+        '7a': 'Matemática',
+        '8c': 'Português',
+        '9b': 'História'
+      },
+      registeredEmails: ['professor@escola.edu.br'],
+      registeredCPFs: ['123.456.789-09']
+    };
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeClasses();
+      setupEventListeners();
+    });
+
+    function initializeClasses() {
+      const years = ['6', '7', '8', '9', '1', '2', '3'];
+      const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+      years.forEach(year => {
+        const container = document.getElementById(`year${year}`);
+        letters.forEach(letter => {
+          const classId = `${year}${letter.toLowerCase()}`;
+          const isOccupied = state.occupiedClasses[classId];
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `class-btn ${isOccupied ? 'disabled' : ''}`;
+          btn.textContent = letter;
+          btn.dataset.classId = classId;
+          btn.title = isOccupied ? `Turma já possui professor de ${isOccupied}` : '';
+          btn.onclick = () => selectClass(classId);
+          btn.disabled = isOccupied;
+          container.appendChild(btn);
+        });
+      });
+    }
+
+    function setupEventListeners() {
+      document.querySelectorAll('input[name="shift"]').forEach(input => {
+        input.addEventListener('change', () => validateShifts());
+      });
+    }
+
+    // ============================================
+    // STAGE NAVIGATION
+    // ============================================
+
+    function nextStage() {
+      if (!validateCurrentStage()) {
+        highlightErrors();
+        return;
+      }
+      if (state.currentStage < 5) {
+        goToStage(state.currentStage + 1);
+      } else {
+        submitForm();
+      }
+    }
+
+    function previousStage() {
+      if (state.currentStage > 1) {
+        goToStage(state.currentStage - 1);
+      }
+    }
+
+    function goToStage(stage) {
+      if (stage < 1 || stage > 5) return;
+
+      document.querySelectorAll('.form-stage').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-stage="${stage}"]`).classList.add('active');
+
+      document.querySelectorAll('.progress-step').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-step="${stage}"]`).classList.add('active');
+
+      state.currentStage = stage;
+
+      // Update buttons
+      document.getElementById('prevBtn').style.display = stage === 1 ? 'none' : 'block';
+      document.getElementById('nextBtn').textContent = stage === 5 ? 'Enviar Cadastro' : 'Continuar →';
+      document.getElementById('nextBtn').disabled = false;
+
+      if (stage === 5) {
+        populateReview();
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    // ============================================
+    // VALIDATION
+    // ============================================
+
+    function validateCurrentStage() {
+      switch (state.currentStage) {
+        case 1:
+          return state.validation.fullName && state.validation.cpf && 
+                 state.validation.birthDate && state.validation.phone;
+        case 2:
+          return state.validation.email && state.validation.password && 
+                 state.validation.passwordConfirm && state.validation.registration;
+        case 3:
+          return state.validation.position && state.validation.shifts && 
+                 state.validation.disciplines;
+        case 4:
+          return state.formData.classes.length > 0;
+        case 5:
+          return state.validation.terms;
+        default:
+          return false;
+      }
+    }
+
+    function highlightErrors() {
+      const stage = state.currentStage;
+      if (stage === 1) {
+        if (!state.validation.fullName) document.getElementById('fullName').classList.add('error');
+        if (!state.validation.cpf) document.getElementById('cpf').classList.add('error');
+        if (!state.validation.birthDate) document.getElementById('birthDate').classList.add('error');
+        if (!state.validation.phone) document.getElementById('phone').classList.add('error');
+      }
+      // ... similar for other stages
+    }
+
+    // ============================================
+    // STAGE 1: IDENTIFICATION
+    // ============================================
+
+    function formatCPF() {
+      let value = document.getElementById('cpf').value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+      if (value.length > 8) {
+        value = value.slice(0, 3) + '.' + value.slice(3, 6) + '.' + value.slice(6, 9) + '-' + value.slice(9);
+      } else if (value.length > 6) {
+        value = value.slice(0, 3) + '.' + value.slice(3, 6) + '.' + value.slice(6);
+      } else if (value.length > 3) {
+        value = value.slice(0, 3) + '.' + value.slice(3);
+      }
+      document.getElementById('cpf').value = value;
+    }
+
+    function validateCPF() {
+      const cpf = document.getElementById('cpf').value;
+      const errorEl = document.getElementById('cpfError');
+      const successEl = document.getElementById('cpfSuccess');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+      document.getElementById('cpf').classList.remove('error', 'success');
+
+      if (!cpf) {
+        state.validation.cpf = false;
+        return;
+      }
+
+      if (state.registeredCPFs.includes(cpf)) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> CPF já cadastrado no sistema';
+        errorEl.classList.add('show');
+        document.getElementById('cpf').classList.add('error');
+        state.validation.cpf = false;
+        return;
+      }
+
+      const cleanCPF = cpf.replace(/\D/g, '');
+      if (cleanCPF.length !== 11 || !isValidCPF(cleanCPF)) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> CPF inválido';
+        errorEl.classList.add('show');
+        document.getElementById('cpf').classList.add('error');
+        state.validation.cpf = false;
+        return;
+      }
+
+      successEl.innerHTML = '<i class="ti ti-check"></i> CPF válido';
+      successEl.classList.add('show');
+      document.getElementById('cpf').classList.add('success');
+      state.validation.cpf = true;
+      state.formData.cpf = cpf;
+    }
+
+    function isValidCPF(cpf) {
+      let sum = 0;
+      let remainder;
+
+      for (let i = 1; i <= 9; i++) {
+        sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+      }
+
+      remainder = (sum * 10) % 11;
+      if (remainder === 10 || remainder === 11) remainder = 0;
+      if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+
+      sum = 0;
+      for (let i = 1; i <= 10; i++) {
+        sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+      }
+
+      remainder = (sum * 10) % 11;
+      if (remainder === 10 || remainder === 11) remainder = 0;
+      if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+
+      return true;
+    }
+
+    function validateFullName() {
+      const name = document.getElementById('fullName').value;
+      const errorEl = document.getElementById('fullNameError');
+      const successEl = document.getElementById('fullNameSuccess');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+      document.getElementById('fullName').classList.remove('error', 'success');
+
+      if (!name) {
+        state.validation.fullName = false;
+        return;
+      }
+
+      const parts = name.trim().split(/\s+/);
+      if (parts.length < 2) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> Digite nome e sobrenome';
+        errorEl.classList.add('show');
+        document.getElementById('fullName').classList.add('error');
+        state.validation.fullName = false;
+        return;
+      }
+
+      if (!/^[a-záàâãéèêíïóôõöúçñ\s]+$/i.test(name)) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> Apenas letras e espaços';
+        errorEl.classList.add('show');
+        document.getElementById('fullName').classList.add('error');
+        state.validation.fullName = false;
+        return;
+      }
+
+      successEl.innerHTML = '<i class="ti ti-check"></i> Nome válido';
+      successEl.classList.add('show');
+      document.getElementById('fullName').classList.add('success');
+      state.validation.fullName = true;
+      state.formData.fullName = name;
+    }
+
+    function validateBirthDate() {
+      const date = document.getElementById('birthDate').value;
+      const errorEl = document.getElementById('birthDateError');
+      const successEl = document.getElementById('birthDateSuccess');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+      document.getElementById('birthDate').classList.remove('error', 'success');
+
+      if (!date) {
+        state.validation.birthDate = false;
+        return;
+      }
+
+      const birthDate = new Date(date);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age < 18) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> Deve ter no mínimo 18 anos';
+        errorEl.classList.add('show');
+        document.getElementById('birthDate').classList.add('error');
+        state.validation.birthDate = false;
+        return;
+      }
+
+      successEl.innerHTML = '<i class="ti ti-check"></i> Data válida';
+      successEl.classList.add('show');
+      document.getElementById('birthDate').classList.add('success');
+      state.validation.birthDate = true;
+      state.formData.birthDate = date;
+    }
+
+    function formatPhone() {
+      let value = document.getElementById('phone').value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+      if (value.length > 7) {
+        value = '(' + value.slice(0, 2) + ') ' + value.slice(2, 7) + '-' + value.slice(7);
+      } else if (value.length > 2) {
+        value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
+      }
+      document.getElementById('phone').value = value;
+    }
+
+    function validatePhone() {
+      const phone = document.getElementById('phone').value;
+      const errorEl = document.getElementById('phoneError');
+      const successEl = document.getElementById('phoneSuccess');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+      document.getElementById('phone').classList.remove('error', 'success');
+
+      if (!phone) {
+        state.validation.phone = false;
+        return;
+      }
+
+      const cleanPhone = phone.replace(/\D/g, '');
+      if (cleanPhone.length !== 11) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> Telefone inválido';
+        errorEl.classList.add('show');
+        document.getElementById('phone').classList.add('error');
+        state.validation.phone = false;
+        return;
+      }
+
+      successEl.innerHTML = '<i class="ti ti-check"></i> Telefone válido';
+      successEl.classList.add('show');
+      document.getElementById('phone').classList.add('success');
+      state.validation.phone = true;
+      state.formData.phone = phone;
+    }
+
+    function handlePhotoUpload() {
+      const input = document.getElementById('photoInput');
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        state.formData.photo = e.target.result;
+        const preview = document.getElementById('photoPreview');
+        preview.classList.add('has-image');
+        preview.innerHTML = `<img src="${e.target.result}" alt="Foto de perfil">`;
+        showToast('Foto carregada com sucesso!', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ============================================
+    // STAGE 2: ACCESS
+    // ============================================
+
+    function validateEmail() {
+      const email = document.getElementById('email').value;
+      const errorEl = document.getElementById('emailError');
+      const successEl = document.getElementById('emailSuccess');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+      document.getElementById('email').classList.remove('error', 'success');
+
+      if (!email) {
+        state.validation.email = false;
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> E-mail inválido';
+        errorEl.classList.add('show');
+        document.getElementById('email').classList.add('error');
+        state.validation.email = false;
+        return;
+      }
+
+      // Simulate Firebase check
+      showToast('Verificando disponibilidade...', 'info');
+      setTimeout(() => {
+        if (state.registeredEmails.includes(email)) {
+          errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> E-mail já cadastrado';
+          errorEl.classList.add('show');
+          document.getElementById('email').classList.add('error');
+          state.validation.email = false;
+        } else {
+          successEl.innerHTML = '<i class="ti ti-check"></i> E-mail disponível';
+          successEl.classList.add('show');
+          document.getElementById('email').classList.add('success');
+          state.validation.email = true;
+          state.formData.email = email;
+        }
+      }, 800);
+    }
+
+    function validatePassword() {
+      const password = document.getElementById('password').value;
+      const strengthFill = document.getElementById('strengthFill');
+
+      const criteria = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+      };
+
+      // Update criteria display
+      document.getElementById('criteria-length').classList.toggle('met', criteria.length);
+      document.getElementById('criteria-uppercase').classList.toggle('met', criteria.uppercase);
+      document.getElementById('criteria-number').classList.toggle('met', criteria.number);
+      document.getElementById('criteria-special').classList.toggle('met', criteria.special);
+
+      // Calculate strength
+      const metCount = Object.values(criteria).filter(Boolean).length;
+      strengthFill.className = 'strength-fill';
+      if (metCount === 1) strengthFill.classList.add('medium');
+      if (metCount === 2 || metCount === 3) strengthFill.classList.add('strong');
+      if (metCount === 4) strengthFill.classList.add('very-strong');
+
+      state.validation.password = metCount === 4;
+      state.formData.password = password;
+      validatePasswordMatch();
+    }
+
+    function validatePasswordMatch() {
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('passwordConfirm').value;
+      const errorEl = document.getElementById('passwordConfirmError');
+      const successEl = document.getElementById('passwordConfirmSuccess');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+      document.getElementById('passwordConfirm').classList.remove('error', 'success');
+
+      if (!confirm) {
+        state.validation.passwordConfirm = false;
+        return;
+      }
+
+      if (password !== confirm) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> Senhas não conferem';
+        errorEl.classList.add('show');
+        document.getElementById('passwordConfirm').classList.add('error');
+        state.validation.passwordConfirm = false;
+        return;
+      }
+
+      successEl.innerHTML = '<i class="ti ti-check"></i> Senhas conferem';
+      successEl.classList.add('show');
+      document.getElementById('passwordConfirm').classList.add('success');
+      state.validation.passwordConfirm = true;
+      state.formData.passwordConfirm = confirm;
+    }
+
+    function validateRegistration() {
+      const registration = document.getElementById('registration').value;
+      const errorEl = document.getElementById('registrationError');
+      const successEl = document.getElementById('registrationSuccess');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+      document.getElementById('registration').classList.remove('error', 'success');
+
+      if (!registration) {
+        state.validation.registration = false;
+        return;
+      }
+
+      if (!/^[a-zA-Z0-9]{4,}$/.test(registration)) {
+        errorEl.innerHTML = '<i class="ti ti-alert-circle"></i> Mín. 4 caracteres alfanuméricos';
+        errorEl.classList.add('show');
+        document.getElementById('registration').classList.add('error');
+        state.validation.registration = false;
+        return;
+      }
+
+      successEl.innerHTML = '<i class="ti ti-check"></i> Matrícula válida';
+      successEl.classList.add('show');
+      document.getElementById('registration').classList.add('success');
+      state.validation.registration = true;
+      state.formData.registration = registration;
+    }
+
+    function togglePasswordVisibility(fieldId) {
+      const field = document.getElementById(fieldId);
+      field.type = field.type === 'password' ? 'text' : 'password';
+    }
+
+    // ============================================
+    // STAGE 3: PROFESSIONAL
+    // ============================================
+
+    function validatePosition() {
+      const position = document.getElementById('position').value;
+      state.validation.position = !!position;
+      state.formData.position = position;
+      document.getElementById('positionError').classList.remove('show');
+    }
+
+    function validateShifts() {
+      const shifts = Array.from(document.querySelectorAll('input[name="shift"]:checked')).map(el => el.value);
+      state.validation.shifts = shifts.length > 0;
+      state.formData.shifts = shifts;
+      document.getElementById('shiftError').classList.remove('show');
+    }
+
+    function toggleDiscipline(btn, discipline) {
+      btn.classList.toggle('selected');
+      if (btn.classList.contains('selected')) {
+        state.formData.disciplines.push(discipline);
+      } else {
+        state.formData.disciplines = state.formData.disciplines.filter(d => d !== discipline);
+      }
+      state.validation.disciplines = state.formData.disciplines.length > 0;
+      updateDisciplinesTags();
+      document.getElementById('disciplinesError').classList.remove('show');
+    }
+
+    function updateDisciplinesTags() {
+      const container = document.getElementById('disciplinesTags');
+      container.innerHTML = state.formData.disciplines.map(d => `
+        <div class="tag">
+          ${d}
+          <span class="tag-remove" onclick="removeDiscipline('${d}')">×</span>
+        </div>
+      `).join('');
+    }
+
+    function removeDiscipline(discipline) {
+      state.formData.disciplines = state.formData.disciplines.filter(d => d !== discipline);
+      document.querySelectorAll('.discipline-btn').forEach(btn => {
+        if (btn.textContent.trim() === discipline) {
+          btn.classList.remove('selected');
+        }
+      });
+      updateDisciplinesTags();
+      state.validation.disciplines = state.formData.disciplines.length > 0;
+    }
+
+    // ============================================
+    // STAGE 4: CLASSES
+    // ============================================
+
+    function selectClass(classId) {
+      const btn = document.querySelector(`[data-class-id="${classId}"]`);
+      if (btn.disabled) return;
+
+      if (btn.classList.contains('selected')) {
+        // Remove selection
+        if (confirm('Deseja remover o vínculo com esta turma?')) {
+          btn.classList.remove('selected');
+          state.formData.classes = state.formData.classes.filter(c => c.classId !== classId);
+          btn.innerHTML = classId[classId.length - 1].toUpperCase();
+          updateClassSummary();
+        }
+      } else {
+        // Open selection panel
+        state.selectedClass = classId;
+        state.selectedDisciplinesForClass = [];
+        openClassSelectionPanel(classId);
+      }
+    }
+
+    function openClassSelectionPanel(classId) {
+      const year = classId[0];
+      const letter = classId[1].toUpperCase();
+      const segment = year <= 3 ? 'Médio' : 'Fundamental II';
+      const yearLabel = year <= 3 ? `${year}º Ano` : `${year}º Ano`;
+
+      document.getElementById('classSelectionTitle').textContent = 
+        `Qual disciplina você leciona para o ${yearLabel} ${letter}?`;
+
+      const grid = document.getElementById('classSelectionGrid');
+      grid.innerHTML = state.formData.disciplines.map(d => `
+        <div class="class-selection-item">
+          <select onchange="addDisciplineToClass('${d}', this.value)">
+            <option value="">Selecione</option>
+            <option value="${d}" selected>${d}</option>
+          </select>
+          <button type="button" onclick="removeDisciplineFromClass('${d}')">×</button>
+        </div>
+      `).join('');
+
+      document.getElementById('classSelectionPanel').classList.add('active');
+    }
+
+    function addDisciplineToClass(discipline, value) {
+      if (!state.selectedDisciplinesForClass.includes(discipline)) {
+        state.selectedDisciplinesForClass.push(discipline);
+      }
+    }
+
+    function removeDisciplineFromClass(discipline) {
+      state.selectedDisciplinesForClass = state.selectedDisciplinesForClass.filter(d => d !== discipline);
+    }
+
+    function confirmClassSelection() {
+      if (state.selectedDisciplinesForClass.length === 0) {
+        showToast('Selecione pelo menos uma disciplina', 'warning');
+        return;
+      }
+
+      state.selectedDisciplinesForClass.forEach(discipline => {
+        state.formData.classes.push({
+          classId: state.selectedClass,
+          discipline: discipline
+        });
+      });
+
+      const btn = document.querySelector(`[data-class-id="${state.selectedClass}"]`);
+      btn.classList.add('selected');
+      const letter = state.selectedClass[1].toUpperCase();
+      btn.innerHTML = `${letter}<div class="class-badge">${state.selectedDisciplinesForClass[0][0]}</div>`;
+
+      cancelClassSelection();
+      updateClassSummary();
+      showToast('Turma vinculada com sucesso!', 'success');
+    }
+
+    function cancelClassSelection() {
+      document.getElementById('classSelectionPanel').classList.remove('active');
+      state.selectedClass = null;
+      state.selectedDisciplinesForClass = [];
+    }
+
+    function selectYearClasses(year) {
+      const letters = ['a', 'b', 'c', 'd', 'e', 'f'];
+      letters.forEach(letter => {
+        const classId = `${year}${letter}`;
+        const btn = document.querySelector(`[data-class-id="${classId}"]`);
+        if (!btn.disabled && !btn.classList.contains('selected')) {
+          state.selectedClass = classId;
+          openClassSelectionPanel(classId);
+          // Auto-select first discipline
+          if (state.formData.disciplines.length > 0) {
+            state.selectedDisciplinesForClass = [state.formData.disciplines[0]];
+            confirmClassSelection();
+          }
+        }
+      });
+    }
+
+    function clearClassSelection() {
+      document.querySelectorAll('.class-btn.selected').forEach(btn => {
+        btn.classList.remove('selected');
+        const letter = btn.dataset.classId[1].toUpperCase();
+        btn.innerHTML = letter;
+      });
+      state.formData.classes = [];
+      updateClassSummary();
+      showToast('Seleção de turmas limpa', 'info');
+    }
+
+    function updateClassSummary() {
+      document.getElementById('selectedClassesCount').textContent = 
+        new Set(state.formData.classes.map(c => c.classId)).size;
+      document.getElementById('confirmedVinculosCount').textContent = 
+        state.formData.classes.length;
+
+      const vinculosList = document.getElementById('vinculosList');
+      const grouped = {};
+      state.formData.classes.forEach(c => {
+        const year = c.classId[0];
+        const letter = c.classId[1].toUpperCase();
+        const key = `${year}º ${letter}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(c.discipline);
+      });
+
+      vinculosList.innerHTML = Object.entries(grouped).map(([key, disciplines]) => `
+        <div style="font-size: 0.85rem; margin-bottom: 0.25rem;">
+          <strong>${key}</strong> — ${disciplines.join(', ')}
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // STAGE 5: REVIEW
+    // ============================================
+
+    function populateReview() {
+      document.getElementById('reviewName').textContent = state.formData.fullName;
+      document.getElementById('reviewCPF').textContent = state.formData.cpf;
+      document.getElementById('reviewBirthDate').textContent = new Date(state.formData.birthDate).toLocaleDateString('pt-BR');
+      document.getElementById('reviewPhone').textContent = state.formData.phone;
+      document.getElementById('reviewEmail').textContent = state.formData.email;
+      document.getElementById('reviewRegistration').textContent = state.formData.registration;
+
+      const positionLabels = { professor: 'Professor', substitute: 'Professor Substituto', coordinator: 'Professor Coordenador' };
+      document.getElementById('reviewPosition').textContent = positionLabels[state.formData.position];
+
+      const shiftLabels = { morning: 'Manhã', afternoon: 'Tarde', night: 'Noite', full: 'Integral' };
+      document.getElementById('reviewShifts').textContent = state.formData.shifts.map(s => shiftLabels[s]).join(', ');
+
+      document.getElementById('reviewDisciplines').innerHTML = state.formData.disciplines.map(d => 
+        `<div class="review-tag">${d}</div>`
+      ).join('');
+
+      const classesHtml = state.formData.classes.map(c => {
+        const year = c.classId[0];
+        const letter = c.classId[1].toUpperCase();
+        const segment = year <= 3 ? 'Médio' : 'Fundamental II';
+        return `
+          <div class="review-item">
+            <div class="review-label">${year}º ${letter}</div>
+            <div class="review-value">${c.discipline} (${segment})</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('reviewClasses').innerHTML = classesHtml;
+
+      if (state.formData.photo) {
+        const preview = document.getElementById('reviewPhotoPreview');
+        preview.classList.add('has-image');
+        preview.innerHTML = `<img src="${state.formData.photo}" alt="Foto">`;
+      }
+    }
+
+    function toggleReviewSection(header) {
+      const content = header.nextElementSibling;
+      content.classList.toggle('expanded');
+      header.querySelector('i').style.transform = content.classList.contains('expanded') ? 'rotate(0deg)' : 'rotate(-90deg)';
+    }
+
+    // ============================================
+    // FORM SUBMISSION
+    // ============================================
+
+    function submitForm() {
+      if (!document.getElementById('termsAccept').checked) {
+        document.getElementById('termsError').innerHTML = '<i class="ti ti-alert-circle"></i> Aceite os termos';
+        document.getElementById('termsError').classList.add('show');
+        return;
+      }
+
+      showLoadingSteps();
+    }
+
+    function showLoadingSteps() {
+      document.getElementById('formActions').style.display = 'none';
+      document.querySelector('[data-stage="5"]').style.display = 'none';
+
+      const stepsHtml = `
+        <div class="loading-steps">
+          <div class="loading-step active">
+            <div class="loading-step-icon">⟳</div>
+            <div>Criando conta no Firebase Auth...</div>
+          </div>
+          <div class="loading-step">
+            <div class="loading-step-icon">○</div>
+            <div>Salvando dados no Firestore...</div>
+          </div>
+          <div class="loading-step">
+            <div class="loading-step-icon">○</div>
+            <div>Verificando e criando turmas...</div>
+          </div>
+          <div class="loading-step">
+            <div class="loading-step-icon">○</div>
+            <div>Notificando a direção...</div>
+          </div>
+          <div class="loading-step">
+            <div class="loading-step-icon">○</div>
+            <div>Cadastro enviado!</div>
+          </div>
+        </div>
+      `;
+
+      document.querySelector('.form-container').innerHTML = stepsHtml;
+
+      const steps = document.querySelectorAll('.loading-step');
+      let currentStep = 0;
+
+      const interval = setInterval(() => {
+        if (currentStep > 0) {
+          steps[currentStep - 1].classList.remove('active');
+          steps[currentStep - 1].classList.add('completed');
+        }
+        if (currentStep < steps.length) {
+          steps[currentStep].classList.add('active');
+          currentStep++;
+        } else {
+          clearInterval(interval);
+          showSuccessScreen();
+        }
+      }, 600);
+    }
+
+    function showSuccessScreen() {
+      document.querySelector('.form-container').innerHTML = '';
+      document.getElementById('successEmail').textContent = state.formData.email;
+      document.getElementById('successScreen').classList.add('active');
+      document.getElementById('formActions').style.display = 'none';
+    }
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: 'ti-check',
+        danger: 'ti-x',
+        warning: 'ti-alert-triangle',
+        info: 'ti-info-circle'
+      };
+
+      toast.innerHTML = `
+        <i class="ti ${icons[type]}"></i>
+        <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+  </script>
+</body>
+</html>

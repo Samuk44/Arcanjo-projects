@@ -1,0 +1,47 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Fotos de perfil
+    match /profile_photos/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.uid == userId && 
+                     request.resource.size < 5 * 1024 * 1024 && // 5MB max
+                     request.resource.contentType.matches('image/.*');
+    }
+    
+    // Logo da escola
+    match /escola/logo/{fileName} {
+      allow read: if true; // Público
+      allow write: if request.auth != null && 
+                     request.resource.size < 2 * 1024 * 1024 &&
+                     firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.role == 'diretor';
+    }
+    
+    // Anexos de comunicados
+    match /comunicados/{fileId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+                     request.resource.size < 10 * 1024 * 1024; // 10MB
+    }
+    
+    // Uploads genéricos - RESTRITO
+    match /uploads/{userId}/{allPaths=**} {
+      allow read: if request.auth.uid == userId ||
+                    request.auth.token.role == 'diretor';
+      allow write: if request.auth.uid == userId &&
+                     request.resource.size < 5 * 1024 * 1024 &&
+                     request.resource.contentType.matches('image/(jpeg|png|jpg)');
+    }
+    
+    // Bloquear tudo mais
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+match /uploads/{userId}/{file} {
+  allow write: if request.auth.uid == userId &&
+                 request.resource.size < 5 * 1024 * 1024 &&
+                 request.resource.contentType.matches('image/(jpeg|png|jpg)') &&
+                 request.resource.metadata.containsKey('sha256Hash'); // Validar integridade
+}

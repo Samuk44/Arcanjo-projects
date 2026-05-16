@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#0f1115" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="SGE v2.0 - Sistema de Gestão Escolar" />
+    <link rel="preconnect" href="https://firebase.googleapis.com" />
+    <link
+      rel="preconnect"
+      href="https://firebaseinstallations.googleapis.com"
+    />
+    <title>SGE v2.0 - Sistema de Gestão Escolar</title>
+
+    <style>
+      :root {
+        --bg: #0f1115;
+        --surface: #181b21;
+        --surface-alt: #1f2329;
+        --primary: #f0a500;
+        --primary-hover: #e09500;
+        --text: #e6e9ed;
+        --text-secondary: #a8adb5;
+        --text-tertiary: #7a8089;
+        --border: #2d3139;
+        --success: #22c55e;
+        --error: #f43f5e;
+        --warning: #facc15;
+        --info: #3b82f6;
+        --radius: 0.5rem;
+        --transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          "DM Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      .loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%);
+        display: grid;
+        place-items: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity var(--transition);
+      }
+
+      .loader-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loader-container {
+        text-align: center;
+      }
+
+      .loader-spinner {
+        width: 56px;
+        height: 56px;
+        border: 4px solid rgba(240, 165, 0, 0.15);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        margin: 0 auto 2rem;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loader-text {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+      }
+
+      .loader-text.fallback {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        opacity: 0.6;
+      }
+
+      .portal {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+      }
+
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(15, 17, 21, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 2rem;
+      }
+
+      .header-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-decoration: none;
+        transition: color var(--transition);
+      }
+
+      .logo:hover {
+        color: var(--primary-hover);
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--primary);
+        border-radius: var(--radius);
+        display: grid;
+        place-items: center;
+        color: var(--bg);
+        font-weight: 900;
+        font-size: 0.875rem;
+      }
+
+      .header-nav {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color var(--transition);
+      }
+
+      .nav-link:hover {
+        color: var(--primary);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius);
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+        text-decoration: none;
+        font-family: inherit;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--bg);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .hero {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        width: 100%;
+      }
+
+      .hero-content h1 {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+
+      .hero-content p {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.8;
+      }
+
+      .hero-cta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .hero-illustration {
+        display: grid;
+        place-items: center;
+        background: linear-gradient(
+          135deg,
+          var(--surface) 0%,
+          var(--surface-alt) 100%
+        );
+        border-radius: 1rem;
+        min-height: 400px;
+        border: 1px solid var(--border);
+      }
+
+      .illustration-svg {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+      }
+
+      .features {
+        padding: 4rem 2rem;
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(240, 165, 0, 0.05) 100%
+        );
+        border-top: 1px solid var(--border);
+      }
+
+      .features-container {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      .features-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .features-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .features-header p {
+        color: var(--text-secondary);
+        font-size: 1.125rem;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .feature-card {
+        padding: 2rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        transition: all var(--transition);
+      }
+
+      .feature-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        background: var(--surface-alt);
+      }
+
+      .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(240, 165, 0, 0.1);
+        border-radius: var(--radius);
+        display: grid;
+        place-items: center;
+        color: var(--primary);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .feature-card p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      .feature-list {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .feature-list li {
+        list-style: none;
+        padding: 0.5rem 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .feature-list li:before {
+        content: "✓";
+        color: var(--success);
+        font-weight: bold;
+      }
+
+      .footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 3rem 2rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .footer-section h4 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+
+      .footer-section p,
+      .footer-section a {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: color var(--transition);
+      }
+
+      .footer-section a:hover {
+        color: var(--primary);
+      }
+
+      .footer-bottom {
+        border-top: 1px solid var(--border);
+        padding-top: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--text-tertiary);
+        font-size: 0.85rem;
+      }
+
+      @media (max-width: 768px) {
+        .header-content {
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .header-nav {
+          flex-direction: column;
+          width: 100%;
+          gap: 1rem;
+        }
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+          padding: 2rem 1rem;
+        }
+        .hero-illustration {
+          min-height: 300px;
+        }
+        .features {
+          padding: 2rem 1rem;
+        }
+        .features-header h2 {
+          font-size: 1.5rem;
+        }
+        .footer-content {
+          grid-template-columns: 1fr;
+        }
+        .footer-bottom {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader-overlay" id="loaderOverlay">
+      <div class="loader-container">
+        <div class="loader-spinner"></div>
+        <p class="loader-text" id="loaderText">Validando sessão...</p>
+        <p
+          class="loader-text fallback"
+          id="loaderFallback"
+          style="display: none"
+        >
+          Verificando credenciais...
+        </p>
+      </div>
+    </div>
+
+    <div class="portal" id="portal">
+      <header class="header">
+        <div class="header-content">
+          <a href="#" class="logo">
+            <div class="logo-icon">S</div>
+            <span>SGE v2.0</span>
+          </a>
+          <nav class="header-nav">
+            <a href="#features" class="nav-link">Recursos</a>
+            <a href="#footer" class="nav-link">Contato</a>
+            <button class="btn btn-primary" id="loginBtn">
+              Acessar Sistema
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Gestão Escolar Integrada</h1>
+          <p>
+            Conecte pais, professores e direção em uma plataforma única.
+            Comunicação em tempo real, notificações instantâneas e
+            acompanhamento completo do desempenho dos alunos.
+          </p>
+          <div class="hero-cta">
+            <button class="btn btn-primary" id="ctaBtn">Acessar Agora</button>
+            <button
+              class="btn"
+              style="
+                background: var(--surface);
+                border: 1px solid var(--border);
+                color: var(--text);
+              "
+            >
+              Saiba Mais
+            </button>
+          </div>
+        </div>
+        <div class="hero-illustration">
+          <svg
+            class="illustration-svg"
+            viewBox="0 0 400 400"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="400" height="400" fill="none" />
+            <circle
+              cx="200"
+              cy="200"
+              r="180"
+              fill="rgba(240, 165, 0, 0.1)"
+              stroke="#f0a500"
+              stroke-width="2"
+            />
+            <circle
+              cx="200"
+              cy="200"
+              r="120"
+              fill="rgba(240, 165, 0, 0.05)"
+              stroke="#f0a500"
+              stroke-width="1"
+              opacity="0.5"
+            />
+            <g transform="translate(200, 200)">
+              <circle r="40" fill="#f0a500" opacity="0.8" />
+              <circle cx="-80" cy="-80" r="30" fill="#22c55e" opacity="0.6" />
+              <circle cx="80" cy="-80" r="30" fill="#3b82f6" opacity="0.6" />
+              <circle cx="-80" cy="80" r="30" fill="#facc15" opacity="0.6" />
+              <circle cx="80" cy="80" r="30" fill="#f43f5e" opacity="0.6" />
+            </g>
+            <text
+              x="200"
+              y="350"
+              text-anchor="middle"
+              fill="#a8adb5"
+              font-size="14"
+            >
+              Conectando Comunidade Escolar
+            </text>
+          </svg>
+        </div>
+      </section>
+
+      <section class="features" id="features">
+        <div class="features-container">
+          <div class="features-header">
+            <h2>Para Quem é o SGE?</h2>
+            <p>Uma solução completa para toda a comunidade escolar</p>
+          </div>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">👨‍👩‍👧</div>
+              <h3>Para Pais</h3>
+              <p>
+                Acompanhe o desempenho dos seus filhos em tempo real. Receba
+                notificações sobre faltas, notas, bilhetes dos professores e
+                avisos importantes da escola.
+              </p>
+              <ul class="feature-list">
+                <li>Notificações em tempo real</li>
+                <li>Histórico de notas e faltas</li>
+                <li>Comunicação com professores</li>
+                <li>Avisos da coordenação</li>
+              </ul>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">👨‍🏫</div>
+              <h3>Para Professores</h3>
+              <p>
+                Gerencie suas turmas com eficiência. Registre chamada, lance
+                notas, envie bilhetes e comunique-se diretamente com os pais dos
+                alunos.
+              </p>
+              <ul class="feature-list">
+                <li>Registro de chamada digital</li>
+                <li>Lançamento de notas</li>
+                <li>Envio de bilhetes</li>
+                <li>Histórico de atividades</li>
+              </ul>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">👔</div>
+              <h3>Para Diretores</h3>
+              <p>
+                Monitore toda a instituição. Acesse relatórios, gerencie
+                usuários, visualize métricas de desempenho e tome decisões
+                baseadas em dados.
+              </p>
+              <ul class="feature-list">
+                <li>Painel administrativo</li>
+                <li>Relatórios detalhados</li>
+                <li>Gestão de usuários</li>
+                <li>Métricas de desempenho</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer" id="footer">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>SGE v2.0</h4>
+            <p>
+              Sistema de Gestão Escolar integrado para comunicação em tempo real
+              e acompanhamento completo do desempenho dos alunos.
+            </p>
+          </div>
+          <div class="footer-section">
+            <h4>Links Rápidos</h4>
+            <a href="#" style="display: block; margin-bottom: 0.5rem">Sobre</a>
+            <a href="#" style="display: block; margin-bottom: 0.5rem"
+              >Contato</a
+            >
+            <a href="#" style="display: block">Suporte</a>
+          </div>
+          <div class="footer-section">
+            <h4>Legal</h4>
+            <a href="#" style="display: block; margin-bottom: 0.5rem"
+              >Privacidade</a
+            >
+            <a href="#" style="display: block; margin-bottom: 0.5rem">Termos</a>
+            <a href="#" style="display: block">Cookies</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 SGE v2.0. Todos os direitos reservados.</p>
+          <p>Versão 2.0 • Última atualização: maio 2026</p>
+        </div>
+      </footer>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+      } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+
+      const firebaseConfig = {
+  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
+  authDomain: "farolescolar.firebaseapp.com",
+  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
+  projectId: "farolescolar",
+  storageBucket: "farolescolar.firebasestorage.app",
+  messagingSenderId: "31040592917",
+  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
+  measurementId: "G-1B6HPZNFFJ",
+};
+
+      const state = {
+        user: null,
+        userData: null,
+        abortController: null,
+        retryCount: 0,
+        fallbackTimeout: null,
+      };
+      const RETRY_DELAYS = [1000, 2000, 4000];
+      const DB_TIMEOUT = 5000;
+      const FALLBACK_DELAY = 2500;
+      const CACHE_KEY = "sge_session_cache";
+      const CACHE_TTL = 5 * 60 * 1000;
+      const ROLE_ALLOWLIST = ["pai", "professor", "diretor", "admin"];
+      const UUID_REGEX = /^[a-zA-Z0-9_-]{20,}$/;
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getDatabase(app);
+
+      function isValidUUID(uid) {
+        return uid && typeof uid === "string" && UUID_REGEX.test(uid);
+      }
+      function isValidRole(role) {
+        return ROLE_ALLOWLIST.includes(role);
+      }
+      function isValidStatus(status) {
+        return ["ativo", "pendente", "desativado"].includes(status);
+      }
+
+      function getCachedSession() {
+        try {
+          const cached = sessionStorage.getItem(CACHE_KEY);
+          if (!cached) return null;
+          const { data, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp > CACHE_TTL) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+          }
+          return data;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function setCachedSession(userData) {
+        try {
+          sessionStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({ data: userData, timestamp: Date.now() }),
+          );
+        } catch (error) {}
+      }
+
+      function hideLoader() {
+        const loader = document.getElementById("loaderOverlay");
+        if (loader) {
+          loader.classList.add("hidden");
+          setTimeout(() => {
+            loader.style.display = "none";
+          }, 300);
+        }
+      }
+
+      async function fetchUserData(uid) {
+        return new Promise((resolve, reject) => {
+          state.abortController = new AbortController();
+          const timeoutId = setTimeout(() => {
+            state.abortController.abort();
+            reject(new Error("Database query timeout"));
+          }, DB_TIMEOUT);
+
+          try {
+            const userRef = ref(db, `usuarios/${uid}`);
+            get(userRef)
+              .then((snapshot) => {
+                clearTimeout(timeoutId);
+                if (!snapshot.exists()) {
+                  reject(new Error("User data not found"));
+                  return;
+                }
+                resolve(snapshot.val());
+              })
+              .catch((error) => {
+                clearTimeout(timeoutId);
+                reject(error);
+              });
+          } catch (error) {
+            clearTimeout(timeoutId);
+            reject(error);
+          }
+        });
+      }
+
+      function performRouting(userData) {
+        const { status, role } = userData;
+        if (!isValidStatus(status)) throw new Error("Invalid user status");
+        if (status === "pendente" || status === "desativado") {
+          location.replace("./auth/status.html");
+          return;
+        }
+        if (status !== "ativo") throw new Error("Unknown status");
+        if (!isValidRole(role)) throw new Error("Invalid user role");
+
+        const routes = {
+          pai: "./pai/index.html",
+          professor: "./professor/index.html",
+          diretor: "./diretor/index.html",
+          admin: "./admin/index.html",
+        };
+        const targetRoute = routes[role];
+        if (!targetRoute) throw new Error("Unknown role");
+
+        location.replace(targetRoute);
+      }
+
+      async function initializeRouter() {
+        try {
+          const cachedSession = getCachedSession();
+          if (cachedSession) {
+            state.userData = cachedSession;
+            performRouting(cachedSession);
+            return;
+          }
+
+          const user = await new Promise((resolve, reject) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+              unsubscribe();
+              if (user) resolve(user);
+              else reject(new Error("No authenticated user"));
+            });
+            setTimeout(() => {
+              unsubscribe();
+              reject(new Error("Auth state timeout"));
+            }, 5000);
+          });
+
+          state.user = user;
+          if (!isValidUUID(user.uid)) {
+            await signOut(auth);
+            throw new Error("Invalid user ID");
+          }
+
+          const userData = await fetchUserData(user.uid);
+          if (!userData || typeof userData !== "object")
+            throw new Error("Invalid user data structure");
+          if (!isValidStatus(userData.status) || !isValidRole(userData.role))
+            throw new Error("Invalid user data values");
+
+          setCachedSession(userData);
+          state.userData = userData;
+          performRouting(userData);
+        } catch (error) {
+          if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
+          hideLoader();
+        }
+      }
+
+      window.addEventListener("pagehide", () => {
+        if (state.abortController) state.abortController.abort();
+        if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
+      });
+
+      document.getElementById("loginBtn")?.addEventListener("click", () => {
+        location.replace("./auth/login.html");
+      });
+      document.getElementById("ctaBtn")?.addEventListener("click", () => {
+        location.replace("./auth/login.html");
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        state.fallbackTimeout = setTimeout(() => {
+          document.getElementById("loaderFallback").style.display = "block";
+        }, FALLBACK_DELAY);
+        initializeRouter().catch(() => {
+          hideLoader();
+        });
+      });
+    </script>
+  </body>
+</html>
+<!-- SGE v2.0 • Hybrid Portal & Session Router • 2026-05-14 -->

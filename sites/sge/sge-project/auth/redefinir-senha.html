@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Redefinir sua senha SGE" />
+    <title>Redefinir Senha - SGE</title>
+
+    <!-- Fonts -->
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
+      as="style"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #0f1115;
+        --surface: #181b21;
+        --surface-light: #1f2329;
+        --primary: #f0a500;
+        --primary-dark: #d48800;
+        --text: #e6e9ed;
+        --text-secondary: #a8adb5;
+        --text-tertiary: #7a7f87;
+        --error: #ff6b6b;
+        --success: #51cf66;
+        --warning: #ffd93d;
+        --info: #4dabf7;
+        --border: #2a2e35;
+        --shadow: rgba(0, 0, 0, 0.3);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%);
+        color: var(--text);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      /* Container */
+      .auth-container {
+        width: 100%;
+        max-width: 420px;
+      }
+
+      /* Card */
+      .auth-card {
+        background-color: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 2.5rem 2rem;
+        box-shadow: 0 20px 60px var(--shadow);
+      }
+
+      /* Logo */
+      .auth-logo {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .auth-logo-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .auth-logo-text {
+        font-family: "Syne", sans-serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .auth-logo-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      /* Title */
+      .auth-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        text-align: center;
+      }
+
+      .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        line-height: 1.5;
+      }
+
+      /* Form Group */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--surface-light);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(240, 165, 0, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: var(--text-tertiary);
+      }
+
+      .form-input.error {
+        border-color: var(--error);
+        background-color: rgba(255, 107, 107, 0.05);
+      }
+
+      .form-error {
+        color: var(--error);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        display: none;
+      }
+
+      .form-error.show {
+        display: block;
+      }
+
+      /* Password Strength Indicator */
+      .password-strength {
+        margin-top: 0.75rem;
+      }
+
+      .strength-bar {
+        width: 100%;
+        height: 6px;
+        background-color: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+      }
+
+      .strength-bar-fill {
+        height: 100%;
+        width: 0%;
+        background-color: var(--error);
+        transition:
+          width 0.3s ease,
+          background-color 0.3s ease;
+      }
+
+      .strength-bar-fill.weak {
+        width: 33%;
+        background-color: var(--error);
+      }
+
+      .strength-bar-fill.fair {
+        width: 66%;
+        background-color: var(--warning);
+      }
+
+      .strength-bar-fill.strong {
+        width: 100%;
+        background-color: var(--success);
+      }
+
+      .strength-text {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .strength-text.weak {
+        color: var(--error);
+      }
+
+      .strength-text.fair {
+        color: var(--warning);
+      }
+
+      .strength-text.strong {
+        color: var(--success);
+      }
+
+      /* Password Requirements */
+      .password-requirements {
+        background-color: var(--surface-light);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+      }
+
+      .requirement {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+      }
+
+      .requirement:last-child {
+        margin-bottom: 0;
+      }
+
+      .requirement-icon {
+        font-size: 1rem;
+      }
+
+      .requirement.met {
+        color: var(--success);
+      }
+
+      /* Buttons */
+      .btn {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        background-color: var(--primary);
+        color: var(--bg);
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+        font-family: "DM Sans", sans-serif;
+      }
+
+      .btn:hover:not(:disabled) {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(240, 165, 0, 0.3);
+      }
+
+      .btn:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-loading {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn-loading::before {
+        content: "";
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Links */
+      .auth-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+      }
+
+      .auth-link {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .auth-link:hover {
+        color: var(--primary-light);
+        text-decoration: underline;
+      }
+
+      .auth-link-text {
+        color: var(--text-secondary);
+      }
+
+      /* Alert */
+      .alert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        animation: slideDown 0.3s ease;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .alert-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+
+      .alert-content {
+        flex: 1;
+      }
+
+      .alert-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .alert-success {
+        background-color: rgba(81, 207, 102, 0.1);
+        border: 1px solid rgba(81, 207, 102, 0.3);
+        color: var(--success);
+      }
+
+      .alert-error {
+        background-color: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: var(--error);
+      }
+
+      .alert-info {
+        background-color: rgba(77, 171, 247, 0.1);
+        border: 1px solid rgba(77, 171, 247, 0.3);
+        color: var(--info);
+      }
+
+      .alert-warning {
+        background-color: rgba(255, 217, 61, 0.1);
+        border: 1px solid rgba(255, 217, 61, 0.3);
+        color: var(--warning);
+      }
+
+      /* Success State */
+      .success-state {
+        text-align: center;
+      }
+
+      .success-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: scaleIn 0.5s ease;
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .success-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--success);
+        margin-bottom: 0.5rem;
+      }
+
+      .success-message {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+      }
+
+      /* Error State */
+      .error-state {
+        text-align: center;
+      }
+
+      .error-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: shake 0.5s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-10px);
+        }
+        75% {
+          transform: translateX(10px);
+        }
+      }
+
+      .error-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--error);
+        margin-bottom: 0.5rem;
+      }
+
+      .error-message {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+      }
+
+      /* Loading State */
+      .loading-state {
+        text-align: center;
+        padding: 2rem 0;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(240, 165, 0, 0.2);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+      }
+
+      .loading-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 480px) {
+        .auth-card {
+          padding: 2rem 1.5rem;
+        }
+
+        .auth-title {
+          font-size: 1.25rem;
+        }
+
+        .auth-subtitle {
+          font-size: 0.85rem;
+        }
+
+        .password-requirements {
+          padding: 0.75rem;
+        }
+      }
+
+      /* Accessibility */
+      input:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      button:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+          <div class="auth-logo-icon">🔐</div>
+          <div class="auth-logo-text">SGE</div>
+          <div class="auth-logo-subtitle">Sistema de Gestão Escolar</div>
+        </div>
+
+        <!-- Loading State (Initial) -->
+        <div id="loadingContainer">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Validando link de recuperação...</p>
+          </div>
+        </div>
+
+        <!-- Form Container -->
+        <div id="formContainer" style="display: none">
+          <!-- Title -->
+          <h1 class="auth-title">Redefinir Senha</h1>
+          <p class="auth-subtitle">
+            Digite uma nova senha forte para sua conta.
+          </p>
+
+          <!-- Alerts -->
+          <div id="alertContainer"></div>
+
+          <!-- Form -->
+          <form id="resetForm" onsubmit="handleSubmit(event)">
+            <div class="form-group">
+              <label for="newPassword" class="form-label">Nova Senha</label>
+              <input
+                type="password"
+                id="newPassword"
+                class="form-input"
+                placeholder="Digite uma senha forte"
+                required
+                autocomplete="new-password"
+              />
+              <div class="form-error" id="newPasswordError"></div>
+
+              <!-- Password Strength Indicator -->
+              <div class="password-strength">
+                <div class="strength-bar">
+                  <div class="strength-bar-fill" id="strengthBar"></div>
+                </div>
+                <div class="strength-text" id="strengthText">Força: Fraca</div>
+              </div>
+
+              <!-- Password Requirements -->
+              <div class="password-requirements">
+                <div class="requirement" id="req-length">
+                  <span class="requirement-icon">○</span>
+                  <span>Mínimo 8 caracteres</span>
+                </div>
+                <div class="requirement" id="req-uppercase">
+                  <span class="requirement-icon">○</span>
+                  <span>Letra maiúscula (A-Z)</span>
+                </div>
+                <div class="requirement" id="req-lowercase">
+                  <span class="requirement-icon">○</span>
+                  <span>Letra minúscula (a-z)</span>
+                </div>
+                <div class="requirement" id="req-number">
+                  <span class="requirement-icon">○</span>
+                  <span>Número (0-9)</span>
+                </div>
+                <div class="requirement" id="req-special">
+                  <span class="requirement-icon">○</span>
+                  <span>Caractere especial (!@#$%^&*)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword" class="form-label"
+                >Confirmar Senha</label
+              >
+              <input
+                type="password"
+                id="confirmPassword"
+                class="form-input"
+                placeholder="Confirme sua nova senha"
+                required
+                autocomplete="new-password"
+              />
+              <div class="form-error" id="confirmPasswordError"></div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+              Redefinir Senha
+            </button>
+          </form>
+
+          <!-- Links -->
+          <div class="auth-links">
+            <span class="auth-link-text">Lembrou a senha?</span>
+            <a href="login.html" class="auth-link">Voltar ao login</a>
+          </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="successContainer" style="display: none">
+          <div class="success-state">
+            <div class="success-icon">✓</div>
+            <h2 class="success-title">Senha Redefinida!</h2>
+            <p class="success-message">
+              Sua senha foi alterada com sucesso. Você será redirecionado para o
+              login em alguns segundos.
+            </p>
+          </div>
+
+          <!-- Back Link -->
+          <div class="auth-links" style="margin-top: 2rem">
+            <a href="login.html" class="auth-link">← Ir para login</a>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorContainer" style="display: none">
+          <div class="error-state">
+            <div class="error-icon">✕</div>
+            <h2 class="error-title" id="errorTitle">Link Inválido</h2>
+            <p class="error-message" id="errorMessage">
+              O link de recuperação expirou ou é inválido. Solicite um novo
+              link.
+            </p>
+          </div>
+
+          <!-- Action Links -->
+          <div class="auth-links" style="margin-top: 2rem">
+            <a href="recuperar-senha.html" class="auth-link"
+              >← Solicitar novo link</a
+            >
+          </div>
+
+          <div class="auth-links" style="margin-top: 1rem">
+            <a href="login.html" class="auth-link">← Voltar ao login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+      import {
+        getAuth,
+        verifyPasswordResetCode,
+        confirmPasswordReset,
+      } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+      // Firebase Configuration
+      const firebaseConfig = {
+  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
+  authDomain: "farolescolar.firebaseapp.com",
+  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
+  projectId: "farolescolar",
+  storageBucket: "farolescolar.firebasestorage.app",
+  messagingSenderId: "31040592917",
+  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
+  measurementId: "G-1B6HPZNFFJ",
+};
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // State
+      let resetCode = null;
+      let userEmail = null;
+
+      // Localization
+      const i18n = {
+        invalidCode: "Link de recuperação inválido ou expirado",
+        expiredCode: "Link de recuperação expirou",
+        passwordMismatch: "As senhas não correspondem",
+        weakPassword: "Senha fraca. Use letras, números e símbolos",
+        resetSuccess: "Senha redefinida com sucesso!",
+        resetError: "Erro ao redefinir senha",
+        networkError: "Erro de conexão. Verifique sua internet",
+      };
+
+      /**
+       * Get URL parameter
+       */
+      function getUrlParameter(name) {
+        const url = new URL(window.location);
+        return url.searchParams.get(name);
+      }
+
+      /**
+       * Show alert
+       */
+      function showAlert(message, type = "info") {
+        const alertContainer = document.getElementById("alertContainer");
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type}`;
+
+        const icons = {
+          success: "✓",
+          error: "✕",
+          warning: "⚠",
+          info: "ℹ",
+        };
+
+        alert.innerHTML = `
+                <span class="alert-icon">${icons[type]}</span>
+                <div class="alert-content">
+                    <div class="alert-title">${type === "success" ? "Sucesso" : type === "error" ? "Erro" : "Aviso"}</div>
+                    <div>${message}</div>
+                </div>
+            `;
+
+        alertContainer.innerHTML = "";
+        alertContainer.appendChild(alert);
+
+        if (type !== "error") {
+          setTimeout(() => {
+            alert.style.animation = "slideDown 0.3s ease reverse";
+            setTimeout(() => alert.remove(), 300);
+          }, 5000);
+        }
+      }
+
+      /**
+       * Show form error
+       */
+      function showFormError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        const error = document.getElementById(`${fieldId}Error`);
+
+        if (message) {
+          field.classList.add("error");
+          error.textContent = message;
+          error.classList.add("show");
+        } else {
+          field.classList.remove("error");
+          error.classList.remove("show");
+        }
+      }
+
+      /**
+       * Check password strength
+       */
+      function checkPasswordStrength(password) {
+        const requirements = {
+          length: password.length >= 8,
+          uppercase: /[A-Z]/.test(password),
+          lowercase: /[a-z]/.test(password),
+          number: /[0-9]/.test(password),
+          special: /[!@#$%^&*]/.test(password),
+        };
+
+        // Update requirements display
+        Object.entries(requirements).forEach(([key, met]) => {
+          const element = document.getElementById(`req-${key}`);
+          if (element) {
+            if (met) {
+              element.classList.add("met");
+              element.querySelector(".requirement-icon").textContent = "✓";
+            } else {
+              element.classList.remove("met");
+              element.querySelector(".requirement-icon").textContent = "○";
+            }
+          }
+        });
+
+        // Calculate strength
+        const metCount = Object.values(requirements).filter(Boolean).length;
+        const strength =
+          metCount <= 2 ? "weak" : metCount <= 4 ? "fair" : "strong";
+
+        // Update strength bar
+        const strengthBar = document.getElementById("strengthBar");
+        const strengthText = document.getElementById("strengthText");
+
+        strengthBar.className = `strength-bar-fill ${strength}`;
+        strengthText.className = `strength-text ${strength}`;
+
+        const strengthLabels = {
+          weak: "Força: Fraca",
+          fair: "Força: Média",
+          strong: "Força: Forte",
+        };
+        strengthText.textContent = strengthLabels[strength];
+
+        return Object.values(requirements).every(Boolean);
+      }
+
+      /**
+       * Verify password reset code
+       */
+      async function verifyResetCode() {
+        try {
+          const code = getUrlParameter("oobCode");
+
+          if (!code) {
+            showErrorState("Link Inválido", i18n.invalidCode);
+            return;
+          }
+
+          resetCode = code;
+
+          // Verify the code
+          userEmail = await verifyPasswordResetCode(auth, code);
+
+          // Show form
+          document.getElementById("loadingContainer").style.display = "none";
+          document.getElementById("formContainer").style.display = "block";
+        } catch (error) {
+          console.error("Error verifying reset code:", error);
+
+          let title = "Link Inválido";
+          let message = i18n.invalidCode;
+
+          if (error.code === "auth/expired-action-code") {
+            title = "Link Expirado";
+            message = i18n.expiredCode;
+          }
+
+          showErrorState(title, message);
+        }
+      }
+
+      /**
+       * Show error state
+       */
+      function showErrorState(title, message) {
+        document.getElementById("loadingContainer").style.display = "none";
+        document.getElementById("formContainer").style.display = "none";
+        document.getElementById("errorContainer").style.display = "block";
+        document.getElementById("errorTitle").textContent = title;
+        document.getElementById("errorMessage").textContent = message;
+      }
+
+      /**
+       * Handle form submission
+       */
+      window.handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+        const submitBtn = document.getElementById("submitBtn");
+
+        // Validate passwords
+        if (!newPassword || !confirmPassword) {
+          showFormError("newPassword", "Todos os campos são obrigatórios");
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          showFormError("confirmPassword", i18n.passwordMismatch);
+          return;
+        }
+
+        if (!checkPasswordStrength(newPassword)) {
+          showFormError("newPassword", i18n.weakPassword);
+          return;
+        }
+
+        showFormError("newPassword", "");
+        showFormError("confirmPassword", "");
+
+        try {
+          // Disable button and show loading state
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<span class="btn-loading">Redefinindo...</span>';
+
+          // Confirm password reset
+          await confirmPasswordReset(auth, resetCode, newPassword);
+
+          // Show success state
+          document.getElementById("formContainer").style.display = "none";
+          document.getElementById("successContainer").style.display = "block";
+
+          showAlert(i18n.resetSuccess, "success");
+
+          // Redirect to login after 3 seconds
+          setTimeout(() => {
+            window.location.href = "../index.html";
+          }, 3000);
+        } catch (error) {
+          console.error("Error resetting password:", error);
+
+          // Re-enable button
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Redefinir Senha";
+
+          // Handle specific errors
+          if (error.code === "auth/weak-password") {
+            showAlert(i18n.weakPassword, "error");
+          } else if (error.message.includes("Network")) {
+            showAlert(i18n.networkError, "error");
+          } else {
+            showAlert(i18n.resetError, "error");
+          }
+        }
+      };
+
+      /**
+       * Setup password input listener
+       */
+      document.getElementById("newPassword").addEventListener("input", (e) => {
+        checkPasswordStrength(e.target.value);
+      });
+
+      // Verify reset code on page load
+      verifyResetCode();
+    </script>
+  </body>
+</html>

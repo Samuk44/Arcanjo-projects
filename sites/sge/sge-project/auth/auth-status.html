@@ -1,0 +1,926 @@
+<!-- SGE v2.0 • Status Router • 2026-05-14 -->
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f1115" />
+    <meta name="description" content="SGE Status - Verificação de conta" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml" />
+    <title>Verificando Status - SGE</title>
+
+    <!-- Fonts -->
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
+      as="style"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #0f1115;
+        --surface: #181b21;
+        --surface-light: #1f2329;
+        --primary: #f0a500;
+        --primary-dark: #d48800;
+        --text: #e6e9ed;
+        --text-secondary: #a8adb5;
+        --text-tertiary: #7a7f87;
+        --error: #ff6b6b;
+        --success: #51cf66;
+        --warning: #ffd93d;
+        --info: #4dabf7;
+        --border: #2a2e35;
+        --shadow: rgba(0, 0, 0, 0.3);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%);
+        color: var(--text);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+      }
+
+      /* Loader */
+      .loader-container {
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+      }
+
+      .loader-container.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loader-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid rgba(240, 165, 0, 0.2);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loader-text {
+        margin-top: 1.5rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      /* Container */
+      .status-container {
+        width: 100%;
+        max-width: 480px;
+        display: none;
+      }
+
+      .status-container.visible {
+        display: block;
+        animation: fadeSlide 0.5s ease;
+      }
+
+      @keyframes fadeSlide {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Card */
+      .status-card {
+        background: var(--surface);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px var(--shadow);
+        text-align: center;
+      }
+
+      @supports not (backdrop-filter: blur(12px)) {
+        .status-card {
+          background: rgba(24, 27, 33, 0.98);
+        }
+      }
+
+      /* Icon */
+      .status-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        animation: iconBounce 0.6s ease;
+      }
+
+      @keyframes iconBounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      /* Title */
+      .status-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.75rem;
+      }
+
+      /* Message */
+      .status-message {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+      }
+
+      .status-detail {
+        color: var(--text-tertiary);
+        font-size: 0.85rem;
+        margin-top: 0.75rem;
+        font-family: "DM Mono", monospace;
+      }
+
+      /* Buttons */
+      .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        font-family: "DM Sans", sans-serif;
+        transition: all 0.2s;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        color: var(--bg);
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background-color: #d49200;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(240, 165, 0, 0.3);
+      }
+
+      .btn-primary:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .btn-secondary {
+        background-color: transparent;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background-color: var(--surface);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .btn-secondary:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-loading {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn-loading::before {
+        content: "";
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      /* Alert Banner */
+      .alert-banner {
+        background-color: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: none;
+        animation: slideDown 0.3s ease;
+      }
+
+      .alert-banner.visible {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .alert-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        color: var(--error);
+      }
+
+      .alert-content {
+        flex: 1;
+        text-align: left;
+      }
+
+      .alert-title {
+        font-weight: 600;
+        color: var(--error);
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+      }
+
+      .alert-text {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        line-height: 1.5;
+      }
+
+      /* Status-specific styles */
+      .status-pending .status-icon {
+        color: var(--warning);
+      }
+
+      .status-pending .status-title {
+        color: var(--warning);
+      }
+
+      .status-deactivated .status-icon {
+        color: var(--error);
+      }
+
+      .status-deactivated .status-title {
+        color: var(--error);
+      }
+
+      .status-error .status-icon {
+        color: var(--error);
+      }
+
+      .status-error .status-title {
+        color: var(--error);
+      }
+
+      /* Countdown */
+      .countdown {
+        font-family: "DM Mono", monospace;
+        font-size: 0.9rem;
+        color: var(--primary);
+        margin-top: 1rem;
+        font-weight: 600;
+      }
+
+      /* Link */
+      .status-link {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .status-link:hover {
+        color: #d49200;
+        text-decoration: underline;
+      }
+
+      /* Responsive */
+      @media (max-width: 480px) {
+        .status-card {
+          padding: 1.5rem;
+        }
+
+        .status-title {
+          font-size: 1.5rem;
+        }
+
+        .status-message {
+          font-size: 0.9rem;
+        }
+
+        .button-group {
+          gap: 0.75rem;
+        }
+
+        .btn {
+          padding: 0.65rem 1.25rem;
+          font-size: 0.9rem;
+        }
+      }
+
+      /* Accessibility */
+      [role="alert"] {
+        position: relative;
+      }
+
+      button:focus-visible,
+      a:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loader -->
+    <div class="loader-container" id="loaderContainer">
+      <div>
+        <div class="loader-spinner"></div>
+        <p class="loader-text">Verificando status da sua conta...</p>
+      </div>
+    </div>
+
+    <!-- Status Container -->
+    <div class="status-container" id="statusContainer">
+      <!-- Alert Banner (for errors) -->
+      <div
+        class="alert-banner"
+        id="alertBanner"
+        role="alert"
+        aria-live="polite"
+      >
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <div class="alert-title" id="alertTitle">Erro de Conexão</div>
+          <div class="alert-text" id="alertText">
+            Não foi possível conectar ao servidor. Verifique sua internet.
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Card -->
+      <div class="status-card" id="statusCard">
+        <!-- Pending State -->
+        <div id="pendingState" style="display: none">
+          <div class="status-icon">⏳</div>
+          <h1 class="status-title">Conta em Análise</h1>
+          <p class="status-message">
+            Sua solicitação de cadastro está sendo analisada pela administração
+            da escola.
+          </p>
+          <p class="status-message">
+            Tempo estimado: <strong>~24 horas</strong>
+          </p>
+          <p class="status-detail">
+            Você receberá um e-mail de confirmação assim que sua conta for
+            aprovada.
+          </p>
+          <div class="button-group">
+            <button
+              class="btn btn-primary"
+              id="resendEmailBtn"
+              onclick="handleResendEmail()"
+            >
+              Reenviar Confirmação
+            </button>
+            <button
+              class="btn btn-secondary"
+              id="logoutBtnPending"
+              onclick="handleLogout()"
+            >
+              Voltar ao Login
+            </button>
+          </div>
+        </div>
+
+        <!-- Deactivated State -->
+        <div id="deactivatedState" style="display: none">
+          <div class="status-icon">🔒</div>
+          <h1 class="status-title">Conta Desativada</h1>
+          <p class="status-message">
+            Sua conta foi desativada pela administração da escola.
+          </p>
+          <p class="status-detail">
+            Se você acredita que isso é um erro, entre em contato com a
+            secretaria.
+          </p>
+          <div class="button-group">
+            <a href="mailto:suporte@escola.edu.br" class="btn btn-primary">
+              Falar com Secretaria
+            </a>
+            <button
+              class="btn btn-secondary"
+              id="logoutBtnDeactivated"
+              onclick="handleLogout()"
+            >
+              Voltar ao Login
+            </button>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" style="display: none">
+          <div class="status-icon">❌</div>
+          <h1 class="status-title">Erro ao Verificar Status</h1>
+          <p class="status-message">
+            Não foi possível verificar o status da sua conta.
+          </p>
+          <p class="status-detail" id="errorDetail">
+            Tente novamente em alguns momentos.
+          </p>
+          <div class="button-group">
+            <button
+              class="btn btn-primary"
+              id="retryBtn"
+              onclick="handleRetry()"
+            >
+              Tentar Novamente
+            </button>
+            <button
+              class="btn btn-secondary"
+              id="logoutBtnError"
+              onclick="handleLogout()"
+            >
+              Voltar ao Login
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        update,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+
+      // Firebase Configuration
+      const firebaseConfig = {
+  apiKey: "AIzaSyCOug2MkZHwH5rzGXxzlPpVZEu4IHbt0Ck",
+  authDomain: "farolescolar.firebaseapp.com",
+  databaseURL: "https://farolescolar-default-rtdb.firebaseio.com",
+  projectId: "farolescolar",
+  storageBucket: "farolescolar.firebasestorage.app",
+  messagingSenderId: "31040592917",
+  appId: "1:31040592917:web:f90e2f0441c35ed92b421c",
+  measurementId: "G-1B6HPZNFFJ",
+};
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getDatabase(app);
+
+      // State
+      const state = {
+        currentUser: null,
+        abortController: null,
+        resendCooldown: 0,
+        retryCount: 0,
+        maxRetries: 3,
+      };
+
+      // Constants
+      const CACHE_KEY = "sge_status_cache";
+      const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+      const RESEND_COOLDOWN = 60; // 60 seconds
+      const DB_TIMEOUT = 5000; // 5 seconds
+      const RETRY_DELAY = 2000; // 2 seconds
+
+      /**
+       * Log metrics (localhost only)
+       */
+      function logMetric(name, value) {
+        if (window.location.hostname === "localhost") {
+          console.log(`[SGE Status] ${name}:`, value);
+        }
+      }
+
+      /**
+       * Validate UID format
+       */
+      function isValidUID(uid) {
+        return uid && typeof uid === "string" && uid.length > 0;
+      }
+
+      /**
+       * Get cached status
+       */
+      function getCachedStatus() {
+        try {
+          const cached = sessionStorage.getItem(CACHE_KEY);
+          if (!cached) return null;
+
+          const { data, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp > CACHE_TTL) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+          }
+
+          return data;
+        } catch (error) {
+          console.warn("Cache read error:", error);
+          return null;
+        }
+      }
+
+      /**
+       * Set cached status
+       */
+      function setCachedStatus(status) {
+        try {
+          sessionStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({
+              data: status,
+              timestamp: Date.now(),
+            }),
+          );
+        } catch (error) {
+          console.warn("Cache write error:", error);
+        }
+      }
+
+      /**
+       * Resolve user status from database
+       */
+      async function resolveStatus(uid) {
+        return new Promise((resolve, reject) => {
+          // Create abort controller for timeout
+          state.abortController = new AbortController();
+          const timeoutId = setTimeout(() => {
+            state.abortController.abort();
+            reject(new Error("Database query timeout"));
+          }, DB_TIMEOUT);
+
+          try {
+            const userRef = ref(db, `usuarios/${uid}`);
+
+            get(userRef)
+              .then((snapshot) => {
+                clearTimeout(timeoutId);
+
+                if (!snapshot.exists()) {
+                  reject(new Error("User not found"));
+                  return;
+                }
+
+                const userData = snapshot.val();
+                const status = userData.status || "ativo";
+
+                logMetric("Status resolved", status);
+                resolve(status);
+              })
+              .catch((error) => {
+                clearTimeout(timeoutId);
+                reject(error);
+              });
+          } catch (error) {
+            clearTimeout(timeoutId);
+            reject(error);
+          }
+        });
+      }
+
+      /**
+       * Render UI based on status
+       */
+      function renderUI(status) {
+        const loaderContainer = document.getElementById("loaderContainer");
+        const statusContainer = document.getElementById("statusContainer");
+        const statusCard = document.getElementById("statusCard");
+
+        // Hide loader
+        loaderContainer.classList.add("hidden");
+
+        // Show status container
+        statusContainer.classList.add("visible");
+
+        // Hide all states
+        document.getElementById("pendingState").style.display = "none";
+        document.getElementById("deactivatedState").style.display = "none";
+        document.getElementById("errorState").style.display = "none";
+        document.getElementById("alertBanner").classList.remove("visible");
+
+        // Add status class
+        statusCard.className = `status-card status-${status}`;
+
+        // Show appropriate state
+        if (status === "pendente") {
+          document.getElementById("pendingState").style.display = "block";
+          setupResendCooldown();
+        } else if (status === "desativado") {
+          document.getElementById("deactivatedState").style.display = "block";
+        } else if (status === "ativo") {
+          // Redirect to main app
+          window.location.href = "../index.html";
+        }
+
+        logMetric("UI rendered", status);
+      }
+
+      /**
+       * Render error UI
+       */
+      function renderError(errorMessage) {
+        const loaderContainer = document.getElementById("loaderContainer");
+        const statusContainer = document.getElementById("statusContainer");
+        const statusCard = document.getElementById("statusCard");
+
+        // Hide loader
+        loaderContainer.classList.add("hidden");
+
+        // Show status container
+        statusContainer.classList.add("visible");
+
+        // Hide all states
+        document.getElementById("pendingState").style.display = "none";
+        document.getElementById("deactivatedState").style.display = "none";
+        document.getElementById("errorState").style.display = "block";
+
+        // Set error detail
+        document.getElementById("errorDetail").textContent = errorMessage;
+
+        // Add error class
+        statusCard.className = "status-card status-error";
+
+        logMetric("Error rendered", errorMessage);
+      }
+
+      /**
+       * Show alert banner
+       */
+      function showAlert(title, message) {
+        const alertBanner = document.getElementById("alertBanner");
+        const alertTitle = document.getElementById("alertTitle");
+        const alertText = document.getElementById("alertText");
+
+        alertTitle.textContent = title;
+        alertText.textContent = message;
+        alertBanner.classList.add("visible");
+      }
+
+      /**
+       * Setup resend email cooldown
+       */
+      function setupResendCooldown() {
+        const resendBtn = document.getElementById("resendEmailBtn");
+        const lastResendTime = parseInt(
+          sessionStorage.getItem("sge_last_resend") || "0",
+        );
+        const timeSinceLastResend = Math.floor(
+          (Date.now() - lastResendTime) / 1000,
+        );
+
+        if (timeSinceLastResend < RESEND_COOLDOWN) {
+          state.resendCooldown = RESEND_COOLDOWN - timeSinceLastResend;
+          resendBtn.disabled = true;
+          updateResendCountdown();
+        }
+      }
+
+      /**
+       * Update resend countdown
+       */
+      function updateResendCountdown() {
+        const resendBtn = document.getElementById("resendEmailBtn");
+
+        if (state.resendCooldown > 0) {
+          resendBtn.textContent = `Reenviar em ${state.resendCooldown}s`;
+          state.resendCooldown--;
+          setTimeout(updateResendCountdown, 1000);
+        } else {
+          resendBtn.disabled = false;
+          resendBtn.textContent = "Reenviar Confirmação";
+        }
+      }
+
+      /**
+       * Handle resend email
+       */
+      window.handleResendEmail = async function () {
+        try {
+          if (!state.currentUser) return;
+
+          const resendBtn = document.getElementById("resendEmailBtn");
+          resendBtn.disabled = true;
+          resendBtn.innerHTML = '<span class="btn-loading">Enviando...</span>';
+
+          // Update last resend time in database
+          const userRef = ref(db, `usuarios/${state.currentUser.uid}`);
+          await update(userRef, {
+            ultimoReenvio: serverTimestamp(),
+          });
+
+          // Store in session
+          sessionStorage.setItem("sge_last_resend", Date.now().toString());
+
+          // Show success message
+          showAlert("E-mail Reenviado", "Verifique sua caixa de entrada.");
+
+          // Setup cooldown
+          state.resendCooldown = RESEND_COOLDOWN;
+          updateResendCountdown();
+
+          logMetric("Email resent", state.currentUser.uid);
+        } catch (error) {
+          console.error("Error resending email:", error);
+          showAlert(
+            "Erro",
+            "Não foi possível reenviar o e-mail. Tente novamente.",
+          );
+          document.getElementById("resendEmailBtn").disabled = false;
+          document.getElementById("resendEmailBtn").textContent =
+            "Reenviar Confirmação";
+        }
+      };
+
+      /**
+       * Handle logout
+       */
+      window.handleLogout = async function () {
+        try {
+          await signOut(auth);
+          sessionStorage.clear();
+          window.location.href = "../index.html";
+        } catch (error) {
+          console.error("Error logging out:", error);
+          window.location.href = "../index.html";
+        }
+      };
+
+      /**
+       * Handle retry
+       */
+      window.handleRetry = async function () {
+        state.retryCount++;
+        if (state.retryCount <= state.maxRetries) {
+          await initializeStatusCheck();
+        } else {
+          renderError(
+            "Número máximo de tentativas excedido. Tente novamente mais tarde.",
+          );
+        }
+      };
+
+      /**
+       * Initialize status check
+       */
+      async function initializeStatusCheck() {
+        try {
+          // Check if user is authenticated
+          if (!state.currentUser) {
+            window.location.href = "../index.html";
+            return;
+          }
+
+          // Validate UID
+          if (!isValidUID(state.currentUser.uid)) {
+            await signOut(auth);
+            window.location.href = "../index.html";
+            return;
+          }
+
+          // Check cache first
+          const cachedStatus = getCachedStatus();
+          if (cachedStatus) {
+            logMetric("Cache hit", cachedStatus);
+            renderUI(cachedStatus);
+            return;
+          }
+
+          // Resolve status from database
+          const status = await resolveStatus(state.currentUser.uid);
+          setCachedStatus(status);
+          renderUI(status);
+        } catch (error) {
+          console.error("Status check error:", error);
+
+          // Handle specific Firebase errors
+          if (error.code === "permission-denied") {
+            renderError("Acesso negado. Verifique suas permissões.");
+          } else if (
+            error.code === "network-request-failed" ||
+            error.message.includes("timeout")
+          ) {
+            renderError(
+              "Erro de conexão. Verifique sua internet e tente novamente.",
+            );
+            showAlert(
+              "Sem Conexão",
+              "Verifique sua internet e tente novamente.",
+            );
+          } else if (error.message === "User not found") {
+            renderError("Usuário não encontrado no sistema.");
+          } else {
+            renderError("Erro ao verificar status. Tente novamente.");
+          }
+
+          logMetric("Error", error.message);
+        }
+      }
+
+      /**
+       * Cleanup on page hide
+       */
+      window.addEventListener("pagehide", () => {
+        if (state.abortController) {
+          state.abortController.abort();
+        }
+      });
+
+      /**
+       * Main initialization
+       */
+      document.addEventListener("DOMContentLoaded", () => {
+        const startTime = performance.now();
+
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            state.currentUser = user;
+            await initializeStatusCheck();
+          } else {
+            window.location.href = "../index.html";
+          }
+
+          const loadTime = performance.now() - startTime;
+          logMetric("Page load time", `${loadTime.toFixed(2)}ms`);
+        });
+      });
+    </script>
+  </body>
+</html>
