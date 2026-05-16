@@ -13,12 +13,7 @@ import { getDatabase } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 import { getMessaging } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("SEU_SITE_KEY_RECAPTCHA"),
-  isTokenAutoRefreshEnabled: true,
-});
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app-check.js";
 /**
  * Configuração do Firebase
  * Prioriza window.__firebaseConfig injetado pelo Hosting ou fallback seguro
@@ -51,6 +46,17 @@ try {
     messaging = getMessaging(app);
   } catch (msgError) {
     console.warn("FCM não suportado neste ambiente:", msgError.message);
+  }
+
+  // Inicializar App Check depois de `app` estar disponível
+  try {
+    const recaptchaKey = window.__RECAPTCHA_KEY || "SEU_SITE_KEY_RECAPTCHA";
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(recaptchaKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (acErr) {
+    console.warn("App Check initialization failed:", acErr.message);
   }
 
   // Configurar persistência de sessão local
