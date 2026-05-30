@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGE - Login</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/tabler-icons.min.css"
+    />
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/forms.css" />
+    <style>
+      .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          135deg,
+          var(--bg-primary) 0%,
+          var(--bg-secondary) 100%
+        );
+      }
+      .login-card {
+        width: 100%;
+        max-width: 400px;
+        padding: var(--spacing-xl);
+      }
+      .login-header {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+      }
+      .login-logo {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--color-amber);
+        margin-bottom: var(--spacing-md);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="card login-card">
+        <div class="login-header">
+          <div class="login-logo">SGE</div>
+          <h2>Sistema de Gestão Escolar</h2>
+          <p class="text-muted mt-md">Faça login para continuar</p>
+        </div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="email" class="required">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="required">Senha</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <!-- ✅ ADICIONADO: id="btn-login" -->
+          <button
+            type="submit"
+            id="btn-login"
+            class="btn btn-primary w-full mb-md"
+          >
+            Entrar
+          </button>
+
+          <div class="divider-text">ou</div>
+
+          <a
+            href="../cadastro/escolha-cadastro.html"
+            class="btn btn-secondary w-full"
+            >Criar Conta</a
+          >
+        </form>
+
+        <div class="mt-lg text-center">
+          <a href="../auth/recuperar-senha.html" class="text-sm"
+            >Esqueceu sua senha?</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- ✅ Scripts auxiliares (se existirem) -->
+    <script type="module" src="../assets/js/mock/data.js"></script>
+    <script type="module" src="../assets/js/mock/auth.mock.js"></script>
+    <script type="module" src="../assets/js/core/session.js"></script>
+    <script type="module" src="../assets/js/core/router.js"></script>
+    <script type="module" src="../assets/js/core/notifications.js"></script>
+
+    <!-- ✅ Script principal de login (CORRIGIDO) -->
+    <script type="module">
+      import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+      import { ref, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+      import { auth, db } from "../assets/js/firebase/config.js";
+
+      const REDIRECTS = {
+        diretor: "../diretor/index.html",
+        professor: "../professor/index.html",
+        responsavel: "../responsavel/index.html",
+      };
+
+      async function handleLogin(e) {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const btnEntrar = document.getElementById("btn-login");
+
+        if (!email || !password) {
+          notify("Preencha todos os campos.", "error");
+          return;
+        }
+
+        if (btnEntrar) { btnEntrar.disabled = true; btnEntrar.innerText = "Entrando..."; }
+
+        try {
+          const { user } = await signInWithEmailAndPassword(auth, email, password);
+
+          const snap = await get(ref(db, `usuarios/${user.uid}`));
+          if (!snap.exists()) {
+            await signOut(auth);
+            throw new Error("Perfil não encontrado. Contate a escola.");
+          }
+
+          const data = snap.val();
+
+          if (data.status !== "ativo") {
+            await signOut(auth);
+            notify(
+              data.status === "pendente"
+                ? "Cadastro pendente de aprovação."
+                : "Conta inativa. Contate a escola.",
+              "error",
+            );
+            if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
+            return;
+          }
+
+          const dest = REDIRECTS[data.role];
+          if (!dest) {
+            await signOut(auth);
+            notify("Perfil sem acesso ao sistema.", "error");
+            if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
+            return;
+          }
+
+          notify("Login realizado com sucesso!", "success");
+          setTimeout(() => { window.location.href = dest; }, 800);
+        } catch (error) {
+          console.error("Erro no login:", error);
+          let msg = "Erro ao fazer login.";
+          if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password")
+            msg = "Email ou senha incorretos.";
+          else if (error.code === "auth/user-not-found")
+            msg = "Usuário não encontrado.";
+          else if (error.code === "auth/too-many-requests")
+            msg = "Muitas tentativas. Tente mais tarde.";
+          else if (error.message)
+            msg = error.message;
+
+          notify(msg, "error");
+          if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
+        }
+      }
+
+      function notify(msg, type) {
+        if (window.notifications) window.notifications.show(msg, type);
+        else alert(msg);
+      }
+
+      document.getElementById("loginForm")?.addEventListener("submit", handleLogin);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,891 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>Responsáveis - Diários Escolares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              bg: "#f8fafc",
+              surface: "#ffffff",
+              border: "#e2e8f0",
+              primary: "#3b82f6",
+              primaryHover: "#2563eb",
+              text: "#0f172a",
+              muted: "#64748b",
+            },
+            fontFamily: {
+              sans: ["DM Sans", "sans-serif"],
+              display: ["Syne", "sans-serif"],
+            },
+            boxShadow: {
+              soft: "0 2px 12px 0 rgba(59,130,246,0.08)",
+              card: "0 1px 4px 0 rgba(15,23,42,0.06)",
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      }
+      .modal-backdrop {
+        backdrop-filter: blur(4px);
+      }
+      .toast {
+        animation: toastIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateY(16px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .skeleton {
+        animation: sk 1.4s ease-in-out infinite;
+        background: linear-gradient(
+          90deg,
+          #e2e8f0 25%,
+          #f1f5f9 50%,
+          #e2e8f0 75%
+        );
+        background-size: 200% 100%;
+        border-radius: 8px;
+      }
+      @keyframes sk {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      tr.data-row {
+        transition:
+          box-shadow 0.15s,
+          background 0.15s;
+      }
+      tr.data-row:hover {
+        background: #f8fafc;
+      }
+      .action-btn {
+        transition:
+          background 0.13s,
+          color 0.13s;
+      }
+      .action-btn:hover {
+        background: #eff6ff;
+        color: #2563eb;
+      }
+      .multiselect-item {
+        transition: background 0.12s;
+        cursor: pointer;
+        user-select: none;
+      }
+      .multiselect-item:hover {
+        background: #eff6ff;
+      }
+      .multiselect-item.selected {
+        background: #dbeafe;
+      }
+      input[type="checkbox"].custom-cb {
+        accent-color: #3b82f6;
+        width: 16px;
+        height: 16px;
+      }
+      .field-error {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+      }
+      .inline-error {
+        color: #dc2626;
+        font-size: 0.72rem;
+        margin-top: 4px;
+        display: none;
+      }
+      .inline-error.show {
+        display: block;
+      }
+      @media (max-width: 767px) {
+        .hide-mobile {
+          display: none;
+        }
+        td.actions-cell {
+          position: relative;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-bg text-text font-sans antialiased h-screen flex overflow-hidden"
+  >
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-surface border-r border-border flex-col hidden md:flex shadow-card"
+    >
+      <div class="p-6 border-b border-border">
+        <img src="../../assets/img/logo.png" alt="Diários Escolares" class="h-10 w-auto object-contain" />
+        <p class="text-xs text-muted mt-1">Painel do Diretor</p>
+      </div>
+      <nav class="flex-1 overflow-y-auto py-4">
+        <ul class="space-y-1 px-3">
+          <li>
+            <a
+              href="../../index.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="../../apenas-html/aprovar-cadastros.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Aprovar Cadastros</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Usuários
+          </li>
+          <li>
+            <a
+              href="professores.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Professores</a
+            >
+          </li>
+          <li>
+            <a
+              href="pais.html"
+              class="block px-4 py-2.5 rounded-xl bg-blue-50 text-primary font-semibold text-sm"
+              >Responsáveis</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Acadêmico
+          </li>
+          <li>
+            <a
+              href="../turmas.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Turmas</a
+            >
+          </li>
+          <li>
+            <a
+              href="../../apenas-html/horarios.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Horários</a
+            >
+          </li>
+          <li>
+            <a
+              href="../academico-alunos.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Alunos</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Comunicação
+          </li>
+          <li>
+            <a
+              href="../comunicados.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Comunicados</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Relatórios
+          </li>
+          <li>
+            <a
+              href="../relatorios/frequencia.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Frequência</a
+            >
+          </li>
+          <li>
+            <a
+              href="../relatorios/notas.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Notas</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Sistema
+          </li>
+          <li>
+            <a
+              href="../configuracoes.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Configurações</a
+            >
+          </li>
+          <li>
+            <a
+              href="../perfil.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Meu Perfil</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <div class="p-4 border-t border-border">
+        <a
+          href="../../apenas-html/login.html"
+          class="flex items-center gap-2 text-sm text-red-400 hover:text-red-500 transition-colors font-medium"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <!-- Topbar -->
+      <header
+        class="h-16 bg-surface border-b border-border flex items-center justify-between px-4 md:px-6 shadow-card shrink-0"
+      >
+        <div class="flex items-center gap-3">
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors"
+            aria-label="Menu"
+          >
+            <svg
+              class="w-5 h-5 text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <h2 class="font-display text-lg font-semibold text-text">
+            Responsáveis
+          </h2>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-muted hidden sm:block" id="topbar-greeting"
+            >Olá, Diretor</span
+          >
+          <div
+            id="topbar-avatar"
+            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-white text-sm"
+          >
+            D
+          </div>
+        </div>
+      </header>
+
+      <!-- Filters Bar -->
+      <div
+        class="bg-surface border-b border-border px-4 md:px-6 py-3 flex flex-wrap items-center gap-3 shrink-0"
+      >
+        <div class="relative flex-1 min-w-[180px] max-w-xs">
+          <svg
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Buscar por nome ou CPF…"
+            class="w-full pl-9 pr-4 py-2 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+            aria-label="Buscar responsável"
+          />
+        </div>
+
+        <select
+          id="filter-vinculo"
+          class="px-3 py-2 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+          aria-label="Filtrar por vínculo"
+        >
+          <option value="">Todos os vínculos</option>
+          <option value="pai">Pai</option>
+          <option value="mãe">Mãe</option>
+          <option value="tutor">Tutor</option>
+          <option value="avô">Avô</option>
+          <option value="avó">Avó</option>
+          <option value="outro">Outro</option>
+        </select>
+
+        <select
+          id="filter-status"
+          class="px-3 py-2 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+          aria-label="Filtrar por status"
+        >
+          <option value="">Todos os status</option>
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+        </select>
+
+        <span
+          id="count-label"
+          class="text-xs text-muted ml-1 hidden sm:block"
+        ></span>
+
+        <button
+          id="btn-novo"
+          class="btn-primary text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-soft transition flex items-center gap-1.5 ml-auto"
+          aria-label="Cadastrar responsável"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Novo Responsável
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-auto p-4 md:p-6 bg-bg">
+        <!-- Skeleton -->
+        <div
+          id="skeleton"
+          class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden"
+        >
+          <div class="p-4 space-y-3">
+            <div class="skeleton h-10 w-full"></div>
+            <div class="skeleton h-14 w-full"></div>
+            <div class="skeleton h-14 w-full"></div>
+            <div class="skeleton h-14 w-full"></div>
+            <div class="skeleton h-14 w-full"></div>
+            <div class="skeleton h-14 w-full"></div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div
+          id="empty-state"
+          class="hidden flex-col items-center justify-center py-24 text-center"
+        >
+          <div
+            class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-10 h-10 text-blue-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </div>
+          <h3
+            class="font-display text-lg font-semibold text-text mb-1"
+            id="empty-title"
+          >
+            Nenhum responsável encontrado
+          </h3>
+          <p class="text-sm text-muted max-w-xs mb-5" id="empty-desc">
+            Cadastre o primeiro responsável clicando no botão abaixo.
+          </p>
+          <button
+            id="btn-novo-empty"
+            class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-soft transition flex items-center gap-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Cadastrar Responsável
+          </button>
+        </div>
+
+        <!-- No-results state (filter) -->
+        <div
+          id="no-results"
+          class="hidden flex-col items-center justify-center py-20 text-center"
+        >
+          <div
+            class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-8 h-8 text-slate-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <h3 class="font-display text-base font-semibold text-text mb-1">
+            Nenhum resultado
+          </h3>
+          <p class="text-sm text-muted">Tente ajustar os filtros de busca.</p>
+        </div>
+
+        <!-- Table -->
+        <div
+          id="table-container"
+          class="hidden bg-surface rounded-2xl border border-border shadow-card overflow-hidden"
+        >
+          <div class="overflow-x-auto">
+            <table
+              class="w-full min-w-[700px]"
+              role="table"
+              aria-label="Lista de responsáveis"
+            >
+              <thead>
+                <tr class="border-b border-border bg-slate-50">
+                  <th
+                    class="text-left px-4 py-3 text-xs font-bold text-muted uppercase tracking-wider"
+                  >
+                    Nome
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-xs font-bold text-muted uppercase tracking-wider hide-mobile"
+                  >
+                    CPF
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-xs font-bold text-muted uppercase tracking-wider hide-mobile"
+                  >
+                    Contato
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-xs font-bold text-muted uppercase tracking-wider"
+                  >
+                    Vínculo
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-xs font-bold text-muted uppercase tracking-wider hide-mobile"
+                  >
+                    Aluno(s)
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-xs font-bold text-muted uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="text-right px-4 py-3 text-xs font-bold text-muted uppercase tracking-wider"
+                  >
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL CRIAR/EDITAR -->
+    <div
+      id="modal-resp"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-resp-title"
+    >
+      <div
+        class="bg-surface rounded-3xl border border-border shadow-xl w-full max-w-2xl flex flex-col max-h-[92vh]"
+      >
+        <div
+          class="flex items-center justify-between p-6 border-b border-border shrink-0"
+        >
+          <h3
+            id="modal-resp-title"
+            class="font-display text-base font-semibold text-text"
+          >
+            Novo Responsável
+          </h3>
+          <button
+            id="modal-close"
+            class="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
+            aria-label="Fechar"
+          >
+            <svg
+              class="w-4 h-4 text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="overflow-y-auto p-6 space-y-5 flex-1">
+          <!-- CPF duplicate warning -->
+          <div
+            id="cpf-warning"
+            class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3"
+            role="alert"
+          >
+            <svg
+              class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              />
+            </svg>
+            <p class="text-sm text-blue-700 font-medium">
+              CPF já cadastrado para outro responsável. Corrija antes de salvar.
+            </p>
+          </div>
+
+          <input type="hidden" id="edit-id" />
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label
+                for="f-nome"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Nome completo <span class="text-red-400">*</span></label
+              >
+              <input
+                id="f-nome"
+                type="text"
+                autocomplete="name"
+                placeholder="Nome do responsável"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+              />
+              <p class="inline-error" id="err-nome">Campo obrigatório.</p>
+            </div>
+
+            <div>
+              <label
+                for="f-cpf"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >CPF <span class="text-red-400">*</span></label
+              >
+              <input
+                id="f-cpf"
+                type="text"
+                inputmode="numeric"
+                maxlength="14"
+                placeholder="000.000.000-00"
+                autocomplete="off"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+              />
+              <p class="inline-error" id="err-cpf">CPF inválido.</p>
+            </div>
+
+            <div>
+              <label
+                for="f-telefone"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Telefone <span class="text-red-400">*</span></label
+              >
+              <input
+                id="f-telefone"
+                type="tel"
+                inputmode="numeric"
+                maxlength="15"
+                placeholder="(11) 99999-9999"
+                autocomplete="tel"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+              />
+              <p class="inline-error" id="err-telefone">Telefone inválido.</p>
+            </div>
+
+            <div>
+              <label
+                for="f-email"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >E-mail <span class="text-red-400">*</span></label
+              >
+              <input
+                id="f-email"
+                type="email"
+                autocomplete="email"
+                placeholder="email@exemplo.com"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+              />
+              <p class="inline-error" id="err-email">E-mail inválido.</p>
+            </div>
+
+            <div>
+              <label
+                for="f-parentesco"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Vínculo <span class="text-red-400">*</span></label
+              >
+              <select
+                id="f-parentesco"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+              >
+                <option value="">Selecionar vínculo</option>
+                <option value="pai">Pai</option>
+                <option value="mãe">Mãe</option>
+                <option value="tutor">Tutor</option>
+                <option value="avô">Avô</option>
+                <option value="avó">Avó</option>
+                <option value="outro">Outro</option>
+              </select>
+              <p class="inline-error" id="err-parentesco">
+                Selecione um vínculo.
+              </p>
+            </div>
+
+            <div>
+              <label
+                for="f-status"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Status</label
+              >
+              <select
+                id="f-status"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+              >
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Aluno(s) vinculado(s)</label
+              >
+              <div id="aluno-search-wrap" class="relative mb-2">
+                <svg
+                  class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  id="aluno-search"
+                  type="search"
+                  placeholder="Buscar aluno…"
+                  class="w-full pl-9 pr-4 py-2 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+                />
+              </div>
+              <div
+                id="aluno-list"
+                class="border border-border rounded-xl overflow-y-auto max-h-44 divide-y divide-border bg-bg"
+              ></div>
+              <p class="text-xs text-muted mt-1">
+                Selecione um ou mais alunos.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="p-6 border-t border-border flex items-center justify-between gap-3 shrink-0"
+        >
+          <button
+            id="modal-delete"
+            class="hidden px-4 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-500 hover:bg-red-50 transition flex items-center gap-1.5"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Excluir
+          </button>
+          <div class="flex gap-3 ml-auto">
+            <button
+              id="modal-cancelar"
+              class="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted hover:bg-slate-50 transition"
+            >
+              Cancelar
+            </button>
+            <button
+              id="modal-salvar"
+              class="btn-primary text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-soft transition flex items-center gap-2"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Salvar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR EXCLUSÃO -->
+    <div
+      id="modal-del-confirm"
+      class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="bg-surface rounded-3xl border border-border shadow-xl w-full max-w-sm p-6"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0"
+          >
+            <svg
+              class="w-5 h-5 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-display text-base font-semibold text-text">
+              Excluir responsável?
+            </h4>
+            <p class="text-xs text-muted mt-0.5">
+              Esta ação não pode ser desfeita.
+            </p>
+          </div>
+        </div>
+        <p class="text-sm text-muted mb-5">
+          O responsável será permanentemente removido do sistema.
+        </p>
+        <div class="flex gap-3 justify-end">
+          <button
+            id="del-cancelar"
+            class="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted hover:bg-slate-50 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            id="del-confirmar"
+            class="px-5 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div
+      id="toast-container"
+      class="fixed bottom-6 right-6 z-[100] flex flex-col gap-2 pointer-events-none"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <script type="module" src="../js/usuarios-pais.js"></script>
+  </body>
+</html>

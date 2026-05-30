@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f1115" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Gestão de Pais | SGE Diretor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../public/assets/css/global.css" />
+    <link rel="stylesheet" href="../public/assets/css/components.css" />
+    <link rel="stylesheet" href="../public/assets/css/sidebar.css" />
+    <style>
+      .main-content {
+        margin-left: 260px;
+        padding: 1.5rem;
+      }
+      .filters-container {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        overflow: hidden;
+      }
+      .history-table th {
+        background: var(--surface-light);
+        padding: 1rem;
+        text-align: left;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+      }
+      .history-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+      }
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 700;
+      }
+      .status-ativo {
+        background: rgba(81, 207, 102, 0.1);
+        color: var(--success);
+      }
+      .status-inativo {
+        background: rgba(255, 107, 107, 0.1);
+        color: var(--error);
+      }
+      .mono {
+        font-family: "DM Mono", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <aside class="sidebar">
+        <div class="sidebar-logo">SGE v2.0</div>
+        <nav class="nav-list">
+          <div class="nav-item">
+            <a href="../dashboard.html" class="nav-link">Dashboard</a>
+          </div>
+          <div class="nav-item">
+            <a href="pais.html" class="nav-link active">Pais/Responsáveis</a>
+          </div>
+          <div class="nav-item">
+            <a href="coordenadores.html" class="nav-link">Coordenadores</a>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="content-header">
+          <h1 class="content-title">Gestão de Pais</h1>
+          <button class="btn" id="btn-invite">Convidar por E-mail</button>
+        </header>
+
+        <section class="filters-container">
+          <div class="filters-grid">
+            <div class="input-group">
+              <label>Nome ou CPF</label>
+              <input
+                type="text"
+                id="filter-search"
+                class="input-field"
+                placeholder="Buscar..."
+              />
+            </div>
+            <div class="input-group">
+              <label>Status</label>
+              <select id="filter-status" class="input-field">
+                <option value="all">Todos</option>
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Inativos</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <div style="overflow-x: auto">
+          <table class="history-table" role="table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Filhos</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+        <div id="sentinel" style="height: 20px"></div>
+      </main>
+    </div>
+    <script type="module" src="../diretor/js/usuarios-pais.js"></script>
+  </body>
+</html>

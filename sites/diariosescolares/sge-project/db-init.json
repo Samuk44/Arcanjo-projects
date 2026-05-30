@@ -1,0 +1,110 @@
+{
+  "escola": {
+    "info": {
+      "nome": "",
+      "cnpj": "",
+      "endereco": "",
+      "telefone": "",
+      "logoURL": "",
+      "anoLetivo": 2024,
+      "turnosPadrao": ["manha", "tarde", "noite"],
+      "planoEscola": "simples",
+      "limiteFaltasAlerta": 25,
+      "formulaMedia": "(N1*2 + N2*3 + N3*5) / 10",
+      "timeoutSessao": 30,
+      "horarioSilencioGlobal": "22:00-07:00",
+      "ultimaAtualizacao": ""
+    }
+  },
+  "usuarios": {},
+  "professores": {},
+  "pais": {},
+  "alunos": {
+    "aluno_exemplo": {
+      "nome": "João Silva",
+      "responsavelIds": ["uid_pai_1", "uid_mae_2"],
+      "turmaId": "turma_9A",
+      "status": "ativo"
+    }
+  },
+  "turmas": {
+    "turma_9A": {
+      "nome": "9º Ano A",
+      "turno": "manha",
+      "professorId": "uid_prof_x",
+      "alunosIds": ["aluno_exemplo"]
+    }
+  },
+  "disciplinas": {
+    "mat": { "nome": "Matemática", "codigo": "MAT", "ativa": true },
+    "por": { "nome": "Português", "codigo": "POR", "ativa": true },
+    "his": { "nome": "História", "codigo": "HIS", "ativa": true },
+    "geo": { "nome": "Geografia", "codigo": "GEO", "ativa": true },
+    "cie": { "nome": "Ciências", "codigo": "CIE", "ativa": true },
+    "fis": { "nome": "Física", "codigo": "FIS", "ativa": true },
+    "qui": { "nome": "Química", "codigo": "QUI", "ativa": true },
+    "bio": { "nome": "Biologia", "codigo": "BIO", "ativa": true },
+    "ing": { "nome": "Inglês", "codigo": "ING", "ativa": true },
+    "art": { "nome": "Artes", "codigo": "ART", "ativa": true },
+    "edf": { "nome": "Ed. Física", "codigo": "EDF", "ativa": true },
+    "fil": { "nome": "Filosofia", "codigo": "FIL", "ativa": true },
+    "soc": { "nome": "Sociologia", "codigo": "SOC", "ativa": true },
+    "red": { "nome": "Redação", "codigo": "RED", "ativa": true }
+  },
+  "horarios": {},
+  "chamadas": {},
+  "frequencia": {},
+  "notas": {},
+  "medias": {},
+  "bilhetes": {},
+  "avisos": {},
+  "entregas": {},
+  "cadastrosPendentes": {},
+  "convites": {},
+  "logs": {},
+  "agregados": {
+    "totalUsuarios": 0,
+    "totalProfessores": 0,
+    "totalPais": 0,
+    "totalAlunos": 0,
+    "totalTurmas": 0,
+    "cadastrosPendentes": 0,
+    "freqMediaEscola": 0,
+    "notaMediaEscola": 0,
+    "bilhetesNaoLidos": 0,
+    "avisosNaoLidos": 0,
+    "matriculasPorMes": {},
+    "ultimaAtualizacao": ""
+  },
+  "metrics": {
+    "acessosPorDia": {},
+    "notasLancadas": 0,
+    "chamadasRealizadas": 0,
+    "comunicadosEnviados": 0,
+    "ultimaAtualizacao": ""
+  },
+  "auditoria": { "alteracoesImportantes": {} },
+  "configuracoes": {
+    "gerais": {
+      "anoLetivoAtual": 2024,
+      "bimestreAtual": 1,
+      "dataInicioAnoLetivo": "",
+      "dataFimAnoLetivo": "",
+      "diasUteisSemana": 5,
+      "horarioInicioAulas": "07:00",
+      "horarioFimAulas": "18:00"
+    },
+    "avaliacoes": {
+      "totalBimestres": 4,
+      "notaMinimaAprovacao": 6.0,
+      "notaMinimaRecuperacao": 4.0,
+      "formulaMedia": ""
+    },
+    "frequencia": {
+      "percentualMinimo": 75,
+      "alertaPercentual": 25,
+      "diasConsecutivosFalta": 3
+    }
+  },
+  "backup": { "ultimoBackup": "", "versao": "2.0", "status": "" }
+}

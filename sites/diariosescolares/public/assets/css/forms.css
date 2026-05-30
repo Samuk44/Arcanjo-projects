@@ -1,0 +1,1049 @@
+/* ==========================================================================
+   SGE v2.0 - FORMS.CSS (Refined Edition - LIGHT/WHITE THEME)
+   Formulários, Inputs, Validações, Labels, Placeholders
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. FORM CONTAINERS
+   -------------------------------------------------------------------------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+.form-row.full {
+  grid-template-columns: 1fr;
+}
+
+.form-row.triple {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* --------------------------------------------------------------------------
+   2. FORM GROUPS & LABELS
+   -------------------------------------------------------------------------- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: "DM Sans", sans-serif;
+}
+
+.form-label.required::after {
+  content: " *";
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.form-help-text {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  margin-top: -var(--spacing-xs);
+}
+
+/* --------------------------------------------------------------------------
+   3. INPUTS
+   -------------------------------------------------------------------------- */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-family: "DM Sans", sans-serif;
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* HOVER STATE */
+input:not(:disabled):hover,
+textarea:not(:disabled):hover,
+select:not(:disabled):hover {
+  border-color: var(--input-border-hover);
+}
+
+/* FOCUS STATE */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background-color: var(--input-bg);
+}
+
+/* DISABLED STATE */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: var(--input-bg-disabled);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* PLACEHOLDER */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+/* AUTOFILL - Remove default styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  border-color: var(--input-border) !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. TEXTAREA
+   -------------------------------------------------------------------------- */
+textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: "DM Mono", monospace;
+  line-height: 1.6;
+}
+
+textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   5. SELECT & DROPDOWN INPUTS
+   -------------------------------------------------------------------------- */
+select {
+  cursor: pointer;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23475569'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.25rem;
+  padding-right: 3rem;
+}
+
+select option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   6. CHECKBOX & RADIO
+   -------------------------------------------------------------------------- */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.checkbox,
+.radio {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.checkbox label,
+.radio label {
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   7. INPUT STATES (Validation)
+   -------------------------------------------------------------------------- */
+/* SUCCESS STATE */
+input.success,
+textarea.success,
+select.success {
+  border-color: var(--input-success-border);
+  background-color: var(--input-success-bg);
+}
+
+input.success:focus,
+textarea.success:focus,
+select.success:focus {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+/* ERROR STATE */
+input.error,
+textarea.error,
+select.error {
+  border-color: var(--input-error-border);
+  background-color: var(--input-error-bg);
+}
+
+input.error:focus,
+textarea.error:focus,
+select.error:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+/* WARNING STATE */
+input.warning,
+textarea.warning,
+select.warning {
+  border-color: var(--color-warning);
+  background-color: var(--color-warning-bg);
+}
+
+input.warning:focus,
+textarea.warning:focus,
+select.warning:focus {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   8. FORM FEEDBACK MESSAGES
+   -------------------------------------------------------------------------- */
+.form-feedback {
+  font-size: 0.85rem;
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.form-feedback.success {
+  color: var(--color-success);
+}
+
+.form-feedback.error {
+  color: var(--color-error);
+}
+
+.form-feedback.warning {
+  color: var(--color-warning);
+}
+
+.form-feedback.info {
+  color: var(--color-blue);
+}
+
+/* --------------------------------------------------------------------------
+   9. INPUT GROUPS
+   -------------------------------------------------------------------------- */
+.input-group {
+  display: flex;
+  align-items: center;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.input-group:focus-within {
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+
+.input-group input {
+  border: none;
+  flex: 1;
+  background: transparent;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+}
+
+.input-group input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input-group input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.input-group-addon {
+  padding: 0 1rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-tertiary);
+  border-left: 1px solid var(--border-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.input-group-addon:first-child {
+  border-left: none;
+  border-right: 1px solid var(--border-color);
+}
+
+/* --------------------------------------------------------------------------
+   10. FILE INPUT
+   -------------------------------------------------------------------------- */
+input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+input[type="file"]::file-selector-button {
+  padding: 0.75rem 1.5rem;
+  margin-right: 1rem;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color var(--transition);
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: var(--bg-secondary);
+}
+
+input[type="file"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+
+/* --------------------------------------------------------------------------
+   11. RANGE INPUT
+   -------------------------------------------------------------------------- */
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--border-color);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  cursor: pointer;
+  transition: background-color var(--transition);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--color-primary-hover);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  cursor: pointer;
+  border: none;
+  transition: background-color var(--transition);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background: var(--color-primary-hover);
+}
+
+input[type="range"]::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* --------------------------------------------------------------------------
+   12. FORM BUTTONS & ACTIONS
+   -------------------------------------------------------------------------- */
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+}
+
+.form-actions.center {
+  justify-content: center;
+}
+
+.form-actions.between {
+  justify-content: space-between;
+}
+
+/* --------------------------------------------------------------------------
+   13. FORM VALIDATION STATES (Form Level)
+   -------------------------------------------------------------------------- */
+.form-invalid input,
+.form-invalid textarea,
+.form-invalid select {
+  border-color: var(--input-error-border);
+}
+
+.form-valid input,
+.form-valid textarea,
+.form-valid select {
+  border-color: var(--input-success-border);
+}
+
+/* --------------------------------------------------------------------------
+   14. RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row.triple {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions.between {
+    justify-content: flex-end;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   15. PLACEHOLDER ANIMATIONS
+   -------------------------------------------------------------------------- */
+@keyframes floatingLabel {
+  from {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(-1.5rem);
+    opacity: 1;
+  }
+}
+
+/* Floating label (quando implementar) */
+.form-floating input:not(:placeholder-shown) ~ label,
+.form-floating input:focus ~ label {
+  animation: floatingLabel var(--transition-fast) ease-out forwards;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. BUTTONS (Acessibilidade + Feedback Visual)
+   -------------------------------------------------------------------------- */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: "DM Sans", sans-serif;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Foco Acessível */
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  filter: brightness(0.9);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+/* Variantes de Botão */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+}
+
+.btn-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--bg-secondary);
+}
+
+.btn-success {
+  background-color: var(--color-green);
+  color: var(--text-inverse);
+}
+
+.btn-danger {
+  background-color: var(--color-red);
+  color: var(--text-inverse);
+}
+
+.btn-warning {
+  background-color: var(--color-yellow);
+  color: var(--text-primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Tamanhos */
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.05rem;
+}
+
+.btn-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border-radius: var(--radius-md);
+}
+
+/* --------------------------------------------------------------------------
+   3. CARDS (Estrutura Modular)
+   -------------------------------------------------------------------------- */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: border-color var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  box-shadow: var(--card-shadow);
+}
+
+.card:hover {
+  border-color: var(--color-primary-border);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: "Syne", sans-serif;
+  color: var(--text-primary);
+}
+
+.card-body {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+}
+
+/* --------------------------------------------------------------------------
+   4. MODALS (Backdrop + Animação)
+   -------------------------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15,23,42,0.5);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.modal-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.modal {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  max-width: 550px;
+  width: 95%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(20px);
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-overlay.active .modal {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: "Syne", sans-serif;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 1.75rem;
+  line-height: 1;
+  transition: color var(--transition);
+}
+
+.modal-close:hover {
+  color: var(--color-red);
+}
+
+.modal-body {
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.modal-footer {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+  background-color: var(--bg-tertiary);
+}
+
+/* --------------------------------------------------------------------------
+   5. TOASTS (Feedback de Sistema)
+   -------------------------------------------------------------------------- */
+.toast-container {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  pointer-events: none;
+}
+
+.toast {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-width: 320px;
+  max-width: 450px;
+  pointer-events: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast.success {
+  border-left-color: var(--success);
+}
+.toast.danger {
+  border-left-color: var(--danger);
+}
+.toast.warning {
+  border-left-color: var(--warning);
+}
+.toast.info {
+  border-left-color: var(--info);
+}
+
+.toast-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.toast-message {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* --------------------------------------------------------------------------
+   6. BADGES & ALERTS
+   -------------------------------------------------------------------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-primary {
+  background: var(--badge-primary-bg);
+  color: var(--badge-primary-text);
+}
+.badge-success {
+  background: var(--badge-success-bg);
+  color: var(--badge-success-text);
+}
+.badge-danger {
+  background: var(--badge-error-bg);
+  color: var(--badge-error-text);
+}
+.badge-warning {
+  background: var(--badge-warning-bg);
+  color: var(--badge-warning-text);
+}
+
+.alert {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-left-width: 4px;
+  display: flex;
+  gap: var(--spacing-md);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.alert-success {
+  border-left-color: var(--color-green);
+  color: var(--color-green);
+}
+.alert-danger {
+  border-left-color: var(--color-red);
+  color: var(--color-red);
+}
+.alert-info {
+  border-left-color: var(--color-blue);
+  color: var(--color-blue);
+}
+
+/* --------------------------------------------------------------------------
+   7. TABLES (Data Grid)
+   -------------------------------------------------------------------------- */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card-bg);
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.table tbody tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   8. PAGINATION & LOADERS
+   -------------------------------------------------------------------------- */
+.pagination {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--spacing-xl);
+}
+
+.pagination-item {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.pagination-item:hover:not(.active):not(.disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pagination-item.active {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  border-color: var(--color-primary);
+}
+
+.pagination-item.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   9. PROGRESS & DIVIDERS
+   -------------------------------------------------------------------------- */
+.progress-container {
+  width: 100%;
+  height: 6px;
+  background-color: var(--surface-light);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--primary);
+  transition: width var(--transition-slow);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border);
+  margin: var(--spacing-lg) 0;
+  position: relative;
+}
+
+.divider-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--bg);
+  padding: 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   10. RESPONSIVE OVERRIDES
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .toast-container {
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    bottom: var(--spacing-md);
+  }
+
+  .toast {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .modal {
+    width: 98%;
+    border-radius: var(--radius-md);
+  }
+
+  .btn {
+    width: 100%;
+  } /* Botões full-width em mobile facilitam o toque */
+  .btn-icon {
+    width: 3rem;
+  }
+
+  .table th:nth-child(n + 4),
+  .table td:nth-child(n + 4) {
+    display: none;
+  } /* Esconde colunas menos importantes */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

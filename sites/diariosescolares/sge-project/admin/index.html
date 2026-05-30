@@ -1,0 +1,602 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#0f1115" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>SGE v2.0 - Admin Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0c0f;
+        --surface: #0f1115;
+        --surface-alt: #181b21;
+        --primary: #f0a500;
+        --primary-hover: #e09500;
+        --text: #e6e9ed;
+        --text-secondary: #a8adb5;
+        --text-tertiary: #7a8089;
+        --border: #1f2329;
+        --success: #22c55e;
+        --danger: #f43f5e;
+        --warning: #facc15;
+        --info: #3b82f6;
+        --radius: 0.5rem;
+        --transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "DM Mono", monospace;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .app-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .header-status {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        font-size: 0.85rem;
+      }
+
+      .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--success);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .main-content {
+        padding: 2rem;
+        overflow-y: auto;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .metric-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        backdrop-filter: blur(8px);
+      }
+
+      .metric-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+      }
+
+      .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        font-family: "DM Mono", monospace;
+        margin-bottom: 0.5rem;
+      }
+
+      .metric-subtext {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+
+      .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .module-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all var(--transition);
+        backdrop-filter: blur(8px);
+      }
+
+      .module-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      .module-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .module-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .module-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      .section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(8px);
+      }
+
+      .section-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .tree-view {
+        font-size: 0.85rem;
+        line-height: 1.8;
+      }
+
+      .tree-item {
+        padding: 0.5rem 0;
+        cursor: pointer;
+        transition: all var(--transition);
+        user-select: none;
+      }
+
+      .tree-item:hover {
+        color: var(--primary);
+      }
+
+      .tree-toggle {
+        display: inline-block;
+        width: 16px;
+        text-align: center;
+        color: var(--text-secondary);
+      }
+
+      .tree-item.collapsed .tree-children {
+        display: none;
+      }
+
+      .tree-children {
+        margin-left: 1.5rem;
+        border-left: 1px solid var(--border);
+        padding-left: 1rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+
+      th {
+        background: var(--surface-alt);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        border-bottom: 1px solid var(--border);
+      }
+
+      td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      tr:hover {
+        background: rgba(240, 165, 0, 0.05);
+      }
+
+      tr.critical {
+        background: rgba(244, 63, 94, 0.05);
+      }
+
+      .log-level {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .log-level.error {
+        background: rgba(244, 63, 94, 0.2);
+        color: var(--danger);
+      }
+      .log-level.warn {
+        background: rgba(250, 204, 21, 0.2);
+        color: var(--warning);
+      }
+      .log-level.info {
+        background: rgba(59, 130, 246, 0.2);
+        color: var(--info);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.25rem;
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+        border: 1px solid var(--border);
+        background: var(--surface-alt);
+        color: var(--text);
+        font-family: inherit;
+      }
+
+      .btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--bg);
+        border-color: var(--primary);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-hover);
+      }
+
+      .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      input[type="text"],
+      select {
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.6rem 1rem;
+        border-radius: var(--radius);
+        font-family: inherit;
+        font-size: 0.85rem;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(240, 165, 0, 0.1);
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .pagination button {
+        padding: 0.5rem 0.75rem;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        color: var(--text);
+        cursor: pointer;
+        border-radius: 3px;
+      }
+
+      .pagination button.active {
+        background: var(--primary);
+        color: var(--bg);
+        border-color: var(--primary);
+      }
+
+      .json-preview {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem;
+        overflow-x: auto;
+        font-size: 0.8rem;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .json-key {
+        color: var(--primary);
+      }
+      .json-string {
+        color: var(--success);
+      }
+      .json-number {
+        color: var(--info);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .metrics-grid,
+        .modules-grid {
+          grid-template-columns: 1fr;
+        }
+        .header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="header">
+        <div class="header-left">
+          <div class="header-title">SGE Admin</div>
+          <div class="header-status">
+            <div class="status-indicator"></div>
+            <span id="status-text">Sistema Online</span>
+          </div>
+        </div>
+        <div style="text-align: right; font-size: 0.85rem">
+          <div id="admin-nome">Admin</div>
+          <div style="color: var(--text-tertiary)">v2.0.0</div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Total de Usuários</div>
+            <div class="metric-value" id="metric-usuarios">0</div>
+            <div class="metric-subtext">Ativos no sistema</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Requisições DB/hora</div>
+            <div class="metric-value" id="metric-requests">0</div>
+            <div class="metric-subtext">Última hora</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">FCM Pendentes</div>
+            <div class="metric-value" id="metric-fcm">0</div>
+            <div class="metric-subtext">Na fila</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Erros Críticos</div>
+            <div class="metric-value" id="metric-errors">0</div>
+            <div class="metric-subtext">Últimas 24h</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Uptime</div>
+            <div class="metric-value" id="metric-uptime">99.9%</div>
+            <div class="metric-subtext">Serviço principal</div>
+          </div>
+        </div>
+
+        <div class="modules-grid">
+          <div class="module-card" onclick="navigateTo('database')">
+            <div class="module-icon">🗄️</div>
+            <div class="module-title">Banco de Dados</div>
+            <div class="module-desc">
+              Visualizar e editar estrutura do Realtime DB
+            </div>
+          </div>
+          <div class="module-card" onclick="navigateTo('logs')">
+            <div class="module-icon">📋</div>
+            <div class="module-title">Logs Auditoria</div>
+            <div class="module-desc">Rastrear ações e eventos do sistema</div>
+          </div>
+          <div class="module-card" onclick="navigateTo('usuarios')">
+            <div class="module-icon">👥</div>
+            <div class="module-title">Usuários Sistema</div>
+            <div class="module-desc">Gerenciar contas e permissões</div>
+          </div>
+          <div class="module-card" onclick="navigateTo('config')">
+            <div class="module-icon">⚙️</div>
+            <div class="module-title">Configurações</div>
+            <div class="module-desc">Parâmetros globais e integrações</div>
+          </div>
+          <div class="module-card" onclick="navigateTo('debug')">
+            <div class="module-icon">🐛</div>
+            <div class="module-title">Depuração</div>
+            <div class="module-desc">Ferramentas de diagnóstico e testes</div>
+          </div>
+        </div>
+
+        <section class="section" id="section-database" style="display: none">
+          <div class="section-title">🗄️ Visualizador de Banco de Dados</div>
+          <div class="tree-view" id="db-tree"></div>
+          <div style="margin-top: 1.5rem">
+            <button class="btn btn-primary" onclick="toggleEditMode()">
+              Modo Edição
+            </button>
+            <button class="btn" onclick="refreshDatabase()">Atualizar</button>
+          </div>
+          <div
+            id="json-preview"
+            class="json-preview"
+            style="margin-top: 1rem; display: none"
+          ></div>
+        </section>
+
+        <section class="section" id="section-logs" style="display: none">
+          <div class="section-title">📋 Logs de Auditoria</div>
+          <div class="filters">
+            <input
+              type="text"
+              id="filter-usuario"
+              placeholder="Filtrar por usuário..."
+            />
+            <select id="filter-acao">
+              <option value="">Todas as ações</option>
+              <option value="CREATE">CREATE</option>
+              <option value="UPDATE">UPDATE</option>
+              <option value="DELETE">DELETE</option>
+              <option value="LOGIN">LOGIN</option>
+            </select>
+            <input type="text" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off" id="filter-data" />
+            <button class="btn" onclick="exportLogsCSV()">
+              📥 Exportar CSV
+            </button>
+          </div>
+          <table role="table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Usuário</th>
+                <th>Ação</th>
+                <th>Recurso</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="logs-table">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem">
+                  Carregando logs...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination" id="logs-pagination"></div>
+        </section>
+
+        <section class="section" id="section-usuarios" style="display: none">
+          <div class="section-title">👥 Usuários do Sistema</div>
+          <table role="table">
+            <thead>
+              <tr>
+                <th>UID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Criado em</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-table">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem">
+                  Carregando usuários...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section" id="section-debug" style="display: none">
+          <div class="section-title">🐛 Ferramentas de Depuração</div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 1rem;
+            "
+          >
+            <button class="btn btn-primary" onclick="runHealthCheck()">
+              Health Check
+            </button>
+            <button class="btn btn-primary" onclick="clearCache()">
+              Limpar Cache
+            </button>
+            <button class="btn btn-primary" onclick="simulateError()">
+              Simular Erro
+            </button>
+            <button class="btn btn-primary" onclick="testFCM()">
+              Testar FCM
+            </button>
+          </div>
+          <div
+            id="debug-output"
+            style="
+              margin-top: 1.5rem;
+              background: var(--bg);
+              padding: 1rem;
+              border-radius: var(--radius);
+              border: 1px solid var(--border);
+              font-size: 0.8rem;
+              max-height: 400px;
+              overflow-y: auto;
+              display: none;
+            "
+          ></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./js/dashboard.js"></script>
+  </body>
+</html>

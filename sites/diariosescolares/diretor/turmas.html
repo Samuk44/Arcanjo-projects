@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Turmas - SGE v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              bg: "#ffffff",
+              surface: "#f8fafc",
+              border: "#e2e8f0",
+              primary: "#3b82f6",
+              primaryHover: "#2563eb",
+              accentFrom: "#60a5fa",
+              accentTo: "#3b82f6",
+              text: "#0f172a",
+              muted: "#64748b",
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              display: ["Syne", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
+    <style>
+      body { font-family: Inter, sans-serif; background: #f8fafc; }
+      .shadow-soft { box-shadow: 0 24px 60px rgba(59,130,246,0.08); }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-900">
+    <div class="min-h-screen flex bg-[#f8fafc]">
+      <aside id="sidebar" class="hidden md:flex w-72 flex-col bg-white border-r border-[#e2e8f0]">
+        <div class="p-6 border-b border-[#e2e8f0]">
+          <h1 class="font-display text-2xl text-[#2563eb] font-bold tracking-tight">SGE v2.0</h1>
+          <p class="text-xs text-slate-500 mt-1">Painel do Diretor</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+          <ul class="space-y-1 px-4">
+            <li><a href="index.html" class="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50">Dashboard</a></li>
+            <li><a href="../cadastro/professor.html" class="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50">Cadastrar Professor</a></li>
+            <li><a href="../cadastro/pai.html" class="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50">Cadastrar Pai</a></li>
+            <li class="pt-6 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Acadêmico</li>
+            <li><a href="turmas.html" class="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 bg-blue-50">Turmas</a></li>
+            <li><a href="../apenas-html/alunos.html" class="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50">Alunos</a></li>
+            <li class="pt-6 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Comunicação</li>
+            <li><a href="comunicados.html" class="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50">Comunicados</a></li>
+            <li class="pt-6 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Sistema</li>
+            <li><a href="configuracoes.html" class="block rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50">Configurações</a></li>
+          </ul>
+        </nav>
+        <div class="p-6 border-t border-[#e2e8f0]"><button id="sidebarLogout" class="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">Sair</button></div>
+      </aside>
+
+      <div class="flex-1 flex flex-col">
+        <header class="sticky top-0 z-20 bg-white border-b border-[#e2e8f0] px-5 py-4">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm text-slate-500">Olá, <span id="userGreeting">Diretor</span></p>
+              <h1 class="text-2xl font-display font-semibold text-slate-900">Turmas</h1>
+            </div>
+            <div class="flex items-center gap-3">
+              <button id="openNewBtn" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-400 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-soft">+ Nova Turma</button>
+              <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-lg font-semibold" id="userAvatar">D</div>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-5 md:p-8">
+          <div id="statusMessage" class="mb-4 rounded-3xl bg-blue-50 border border-blue-100 px-5 py-4 text-sm font-medium text-blue-700">Carregando turmas...</div>
+
+          <section class="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div class="flex gap-2 items-center">
+              <select id="filterSerie" class="rounded-2xl border border-[#e2e8f0] px-4 py-2 text-sm">
+                <option value="">Todas as Séries</option>
+              </select>
+              <select id="filterTurno" class="rounded-2xl border border-[#e2e8f0] px-4 py-2 text-sm">
+                <option value="">Todos os Turnos</option>
+                <option value="Matutino">Matutino</option>
+                <option value="Vespertino">Vespertino</option>
+                <option value="Integral">Integral</option>
+              </select>
+              <select id="filterStatus" class="rounded-2xl border border-[#e2e8f0] px-4 py-2 text-sm">
+                <option value="">Todos Status</option>
+                <option value="true">Ativa</option>
+                <option value="false">Inativa</option>
+              </select>
+            </div>
+
+            <div class="flex gap-2 items-center">
+              <input id="searchInput" type="search" placeholder="Buscar por turma ou professor" class="rounded-2xl border border-[#e2e8f0] px-4 py-2 text-sm w-64" />
+              <button id="clearFilters" class="rounded-2xl border border-[#e2e8f0] px-4 py-2 text-sm">Limpar</button>
+            </div>
+          </section>
+
+          <section id="gridTurmas" class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></section>
+
+          <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+            <div class="absolute inset-0 backdrop-blur-sm bg-black/30"></div>
+            <div class="relative z-10 w-full max-w-lg rounded-2xl bg-white p-6 shadow-soft">
+              <h3 id="modalTitle" class="text-lg font-semibold mb-4">Nova Turma</h3>
+              <form id="turmaForm" class="space-y-3">
+                <div class="grid grid-cols-1 gap-2">
+                  <input id="nome" placeholder="Nome da turma" required class="rounded-2xl border border-[#e2e8f0] px-4 py-2 w-full" />
+                  <select id="serie" required class="rounded-2xl border border-[#e2e8f0] px-4 py-2">
+                    <option value="">Selecione a série</option>
+                    <option>1º Ano</option>
+                    <option>2º Ano</option>
+                    <option>3º Ano</option>
+                    <option>9º Ano</option>
+                  </select>
+                  <select id="turno" required class="rounded-2xl border border-[#e2e8f0] px-4 py-2">
+                    <option value="">Selecione o turno</option>
+                    <option>Matutino</option>
+                    <option>Vespertino</option>
+                    <option>Integral</option>
+                  </select>
+                  <select id="professor" required class="rounded-2xl border border-[#e2e8f0] px-4 py-2"></select>
+                  <input id="ano" type="number" min="2000" max="2100" value="2026" class="rounded-2xl border border-[#e2e8f0] px-4 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Alunos (selecione)</label>
+                  <div id="alunosList" class="max-h-40 overflow-auto mt-2 space-y-1 border border-[#f1f5f9] p-2 rounded-md"></div>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-3">
+                  <button type="button" id="closeModal" class="rounded-2xl border border-[#e2e8f0] px-4 py-2">Cancelar</button>
+                  <button type="submit" class="rounded-2xl bg-gradient-to-r from-blue-400 to-blue-600 px-4 py-2 text-white">Salvar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="./js/turmas.js"></script>
+  </body>
+</html>

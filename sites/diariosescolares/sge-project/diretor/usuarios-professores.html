@@ -1,0 +1,192 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Professores - Diários Escolares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "media",
+        theme: {
+          extend: {
+            colors: {
+              bg: "#f8fafc",
+              surface: "#ffffff",
+              border: "#e2e8f0",
+              primary: "#3b82f6",
+              primaryHover: "#2563eb",
+              text: "#0f172a",
+              muted: "#64748b",
+            },
+            fontFamily: {
+              sans: ["DM Sans", "sans-serif"],
+              display: ["Syne", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-bg text-text font-sans antialiased h-screen flex overflow-hidden"
+  >
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-surface border-r border-border flex flex-col hidden md:flex"
+    >
+      <div class="p-6 border-b border-border">
+        <img src="../assets/img/logo.png" alt="Diários Escolares" class="h-10 w-auto object-contain" />
+        <p class="text-xs text-muted mt-1">Painel do Diretor</p>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4">
+        <ul class="space-y-1 px-3">
+          <li>
+            <a
+              href="index.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="aprovar-cadastros.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Aprovar Cadastros</a
+            >
+          </li>
+
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Usuários
+          </li>
+          <li>
+            <a
+              href="usuarios-professores.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Professores</a
+            >
+          </li>
+          <li>
+            <a
+              href="usuarios-pais.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Responsáveis</a
+            >
+          </li>
+
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Acadêmico
+          </li>
+          <li>
+            <a
+              href="turmas.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Turmas</a
+            >
+          </li>
+          <li>
+            <a
+              href="../apenas-html/alunos.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Alunos</a
+            >
+          </li>
+
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Comunicação
+          </li>
+          <li>
+            <a
+              href="comunicados.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Comunicados</a
+            >
+          </li>
+
+
+
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Sistema
+          </li>
+          <li>
+            <a
+              href="configuracoes.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Configurações</a
+            >
+          </li>
+          <li>
+            <a
+              href="perfil.html"
+              class="nav-link block px-4 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm font-medium"
+              >Meu Perfil</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <div class="p-4 border-t border-border">
+        <a
+          href="../auth/login.html"
+          class="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            ></path>
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+      <!-- Topbar -->
+      <header
+        class="h-16 bg-surface border-b border-border flex items-center justify-between px-6"
+      >
+        <h2 class="font-display text-lg font-semibold text-text">
+          Professores
+        </h2>
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-muted">Olá, Diretor</span>
+          <div
+            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-bg"
+          >
+            D
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-y-auto p-6 md:p-8">
+        <div id="usuarios-professores-container" class="w-full"></div>
+      </div>
+    </main>
+
+    <script type="module" src="./js/usuarios-professores.js"></script>
+  </body>
+</html>

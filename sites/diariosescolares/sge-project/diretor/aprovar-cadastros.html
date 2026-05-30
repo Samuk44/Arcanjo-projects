@@ -1,0 +1,514 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Diários Escolares - Aprovação de Cadastros</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-alt: #f1f5f9;
+        --primary: #3b82f6;
+        --primary-hover: #e09500;
+        --text: #0f172a;
+        --text-secondary: #64748b;
+        --text-tertiary: #7a8089;
+        --border: #e2e8f0;
+        --success: #22c55e;
+        --danger: #f43f5e;
+        --warning: #facc15;
+        --info: #3b82f6;
+        --radius: 0.5rem;
+        --transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "DM Sans",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .app-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 1.25rem;
+      }
+      .sidebar-logo {
+        width: 32px;
+        height: 32px;
+        background: var(--primary);
+        border-radius: var(--radius);
+        display: grid;
+        place-items: center;
+        color: var(--bg);
+        font-weight: 900;
+      }
+      .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .sidebar-nav a {
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        text-decoration: none;
+        color: var(--text-secondary);
+        transition: all var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+      }
+      .sidebar-nav a:hover,
+      .sidebar-nav a.active {
+        background: var(--surface-alt);
+        color: var(--primary);
+      }
+
+      /* Main Content */
+      .main-content {
+        padding: 2rem;
+        overflow-y: auto;
+      }
+      .top-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 2.5rem;
+      }
+      .top-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+      .top-header p {
+        color: var(--text-secondary);
+      }
+
+      /* Table Design */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+      }
+      .table-responsive {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        background: var(--surface-alt);
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-tertiary);
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--text);
+      }
+
+      .badge {
+        display: inline-flex;
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .badge-pending {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.25rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+        border: 1px solid transparent;
+        font-family: inherit;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: var(--bg);
+      }
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+      .btn-secondary {
+        background: var(--surface-alt);
+        color: var(--text);
+        border-color: var(--border);
+      }
+      .btn-secondary:hover {
+        background: #2d3139;
+      }
+      .btn-danger {
+        background: rgba(244, 63, 94, 0.1);
+        color: var(--danger);
+        border-color: rgba(244, 63, 94, 0.2);
+      }
+      .btn-danger:hover {
+        background: var(--danger);
+        color: white;
+      }
+
+      /* Modals */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(12px);
+        display: none;
+        place-items: center;
+        z-index: 1000;
+        padding: 1.5rem;
+      }
+      .modal-overlay.active {
+        display: grid;
+      }
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        width: 100%;
+        max-width: 600px;
+        animation: modalIn var(--transition);
+      }
+      @keyframes modalIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .modal-body {
+        padding: 2rem;
+      }
+      .modal-footer {
+        padding: 1.5rem;
+        background: var(--surface-alt);
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        border-bottom-left-radius: 1rem;
+        border-bottom-right-radius: 1rem;
+      }
+
+      .detail-item {
+        margin-bottom: 1.5rem;
+      }
+      .detail-label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+      .detail-value {
+        font-size: 1rem;
+        color: var(--text);
+      }
+
+      textarea {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        padding: 1rem;
+        font-family: inherit;
+        resize: none;
+        min-height: 120px;
+      }
+      textarea:focus {
+        outline: 1px solid var(--primary);
+        border-color: var(--primary);
+      }
+
+      /* Toast */
+      #toast-container {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .toast {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius);
+        color: var(--text);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        min-width: 320px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: toastIn 0.4s var(--transition);
+      }
+      @keyframes toastIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          var(--surface) 25%,
+          var(--surface-alt) 50%,
+          var(--surface) 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton 1.5s infinite linear;
+      }
+      @keyframes skeleton {
+        from {
+          background-position: 200% 0;
+        }
+        to {
+          background-position: -200% 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="../assets/img/logo.png" alt="Diários Escolares" class="h-10 w-auto object-contain" />
+        </div>
+        <nav class="sidebar-nav">
+          <a href="index.html"><span>📊</span> Dashboard</a>
+          <a href="#" class="active"><span>👤</span> Aprovar Cadastros</a>
+          <a href="../apenas-html/usuário-professores.html"><span>👨‍🏫</span> Professores</a>
+          <a href="configuracoes.html"><span>⚙️</span> Configurações</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="top-header">
+          <div>
+            <h1>Solicitações</h1>
+            <p>Aprovação de novos cadastros de professores</p>
+          </div>
+          <div style="text-align: right">
+            <div
+              style="font-weight: 600; color: var(--primary)"
+              id="diretor-nome"
+            >
+              Diretor Admin
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-tertiary)">
+              Sessão Ativa
+            </div>
+          </div>
+        </header>
+
+        <section class="card">
+          <div class="table-responsive">
+            <table id="tabela-pendentes" aria-live="polite">
+              <thead>
+                <tr>
+                  <th>Professor</th>
+                  <th>Disciplinas</th>
+                  <th>Turmas</th>
+                  <th>Data</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="lista-pendentes">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 4rem">
+                    <div
+                      class="skeleton"
+                      style="
+                        height: 1.5rem;
+                        width: 100%;
+                        margin-bottom: 1rem;
+                        border-radius: 4px;
+                      "
+                    ></div>
+                    <div
+                      class="skeleton"
+                      style="
+                        height: 1.5rem;
+                        width: 100%;
+                        margin-bottom: 1rem;
+                        border-radius: 4px;
+                      "
+                    ></div>
+                    <div
+                      class="skeleton"
+                      style="height: 1.5rem; width: 100%; border-radius: 4px"
+                    ></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="sentinel" style="height: 1px"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Modais e Toasts (Mesma estrutura funcional, novo CSS aplicado) -->
+    <div id="modal-detalhes" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 style="font-size: 1.25rem; font-weight: 700">
+            Detalhes do Candidato
+          </h2>
+          <button
+            class="btn btn-secondary"
+            style="padding: 0.4rem 0.8rem"
+            onclick="closeModal('modal-detalhes')"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="modal-body" id="detalhes-professor"></div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            onclick="closeModal('modal-detalhes')"
+          >
+            Voltar
+          </button>
+          <button id="btn-rejeitar-modal" class="btn btn-danger">
+            Rejeitar
+          </button>
+          <button id="btn-aprovar-modal" class="btn btn-primary">
+            Aprovar Agora
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-rejeicao" class="modal-overlay">
+      <div class="modal" style="max-width: 450px">
+        <div class="modal-header">
+          <h2
+            style="font-size: 1.25rem; font-weight: 700; color: var(--danger)"
+          >
+            Motivo da Rejeição
+          </h2>
+        </div>
+        <div class="modal-body">
+          <p
+            style="
+              color: var(--text-secondary);
+              margin-bottom: 1rem;
+              font-size: 0.9rem;
+            "
+          >
+            Informe ao professor o motivo pelo qual o cadastro não foi aceito.
+          </p>
+          <textarea
+            id="motivo-rejeicao"
+            placeholder="Ex: Documentação pendente ou disciplinas não compatíveis..."
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            onclick="closeModal('modal-rejeicao')"
+          >
+            Cancelar
+          </button>
+          <button
+            id="confirmar-rejeicao"
+            class="btn btn-danger"
+            style="background: var(--danger); color: white"
+          >
+            Confirmar Rejeição
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script type="module" src="./js/aprovar-cadastros.js"></script>
+  </body>
+</html>

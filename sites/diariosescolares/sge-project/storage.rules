@@ -1,0 +1,43 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Perfil do usuário
+    match /profile_photos/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // Logo da escola (público leitura)
+    match /escola/logo/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && (request.auth.token.role == 'diretor' || request.auth.token.role == 'admin')
+                   && request.resource.size < 2 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // Anexos de comunicados (somente usuários autenticados)
+    match /comunicados/{fileId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Uploads do usuário (somente o dono ou diretor pode ler)
+    match /uploads/{userId}/{allPaths=**} {
+      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.role == 'diretor' || request.auth.token.role == 'admin');
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/(jpeg|png|jpg)');
+    }
+
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,888 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#0f1115" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="SGE v2.0 - Cadastro de Professor" />
+    <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml" />
+    <title>SGE v2.0 - Cadastro de Professor</title>
+
+    <style>
+      :root {
+        --bg: #0f1115;
+        --surface: #181b21;
+        --surface-alt: #1f2329;
+        --primary: #f0a500;
+        --primary-hover: #e09500;
+        --text: #e6e9ed;
+        --text-secondary: #a8adb5;
+        --text-tertiary: #7a8089;
+        --border: #2d3139;
+        --success: #22c55e;
+        --error: #f43f5e;
+        --warning: #facc15;
+        --info: #3b82f6;
+        --radius: 0.5rem;
+        --transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family:
+          "DM Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      .wizard-container {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+      .wizard-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2rem;
+        max-width: 600px;
+        width: 100%;
+      }
+
+      .wizard-header {
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+      .wizard-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      .wizard-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+
+      .progress-container {
+        margin-bottom: 2rem;
+      }
+      .progress-bar {
+        width: 100%;
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+      .progress-fill {
+        height: 100%;
+        background: var(--primary);
+        transition: width var(--transition);
+      }
+
+      .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+      .progress-step {
+        flex: 1;
+        height: 8px;
+        background: var(--border);
+        border-radius: 4px;
+        transition: all var(--transition);
+      }
+      .progress-step.active {
+        background: var(--primary);
+      }
+      .progress-step.completed {
+        background: var(--success);
+      }
+
+      .step-content {
+        min-height: 400px;
+        animation: fadeIn var(--transition);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      fieldset {
+        border: none;
+        padding: 0;
+      }
+      legend {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+      .form-input,
+      .form-select,
+      .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: border-color var(--transition);
+      }
+      .form-input:focus,
+      .form-select:focus,
+      .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+      .form-input.error,
+      .form-select.error {
+        border-color: var(--error);
+      }
+      .form-input.success,
+      .form-select.success {
+        border-color: var(--success);
+      }
+
+      .form-error {
+        color: var(--error);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+      }
+      .form-hint {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+      }
+
+      .photo-upload {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+      .photo-preview {
+        width: 120px;
+        height: 120px;
+        background: var(--surface-alt);
+        border: 2px dashed var(--border);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+      .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .password-strength {
+        margin-top: 0.5rem;
+      }
+      .strength-bar {
+        width: 100%;
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .strength-fill {
+        height: 100%;
+        width: 0%;
+        transition: all var(--transition);
+      }
+      .strength-text {
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+      }
+
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .checkbox-item input[type="checkbox"] {
+        cursor: pointer;
+      }
+      .checkbox-item label {
+        cursor: pointer;
+      }
+
+      .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all var(--transition);
+      }
+      .tag:hover {
+        border-color: var(--primary);
+      }
+      .tag.selected {
+        background: var(--primary);
+        color: var(--bg);
+        border-color: var(--primary);
+      }
+      .tag-remove {
+        cursor: pointer;
+      }
+
+      .turmas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+      .turma-btn {
+        padding: 1rem;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all var(--transition);
+        text-align: center;
+        font-size: 0.9rem;
+      }
+      .turma-btn:hover {
+        border-color: var(--primary);
+      }
+      .turma-btn.selected {
+        background: var(--primary);
+        color: var(--bg);
+        border-color: var(--primary);
+      }
+      .turma-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .review-section {
+        background: var(--surface-alt);
+        padding: 1rem;
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+      }
+      .review-section h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--primary);
+      }
+      .review-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+      }
+      .review-item:last-child {
+        border-bottom: none;
+      }
+      .review-label {
+        color: var(--text-secondary);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius);
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+        font-family: inherit;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: var(--bg);
+      }
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-secondary {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      .btn-secondary:hover {
+        background: var(--surface-alt);
+      }
+
+      .wizard-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      .wizard-footer .btn {
+        flex: 1;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius);
+        animation: slideInRight var(--transition);
+        z-index: 2000;
+        max-width: 400px;
+      }
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .toast.error {
+        border-left-color: var(--error);
+      }
+      .toast.success {
+        border-left-color: var(--success);
+      }
+      .toast.warning {
+        border-left-color: var(--warning);
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        place-items: center;
+        z-index: 1000;
+      }
+      .modal-overlay.active {
+        display: grid;
+      }
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        animation: slideIn var(--transition);
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-header {
+        margin-bottom: 1.5rem;
+      }
+      .modal-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+      .modal-footer {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .modal-footer .btn {
+        flex: 1;
+      }
+
+      .success-screen {
+        text-align: center;
+      }
+      .success-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+      .success-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--success);
+      }
+      .success-text {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(240, 165, 0, 0.2);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .wizard-card {
+          padding: 1.5rem;
+        }
+        .turmas-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wizard-container">
+      <div class="wizard-card" id="wizardCard">
+        <div class="wizard-header">
+          <h1 class="wizard-title">Cadastro de Professor</h1>
+          <p class="wizard-subtitle" id="stepSubtitle">
+            Etapa 1 de 5: Identificação Pessoal
+          </p>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 20%"
+            ></div>
+          </div>
+          <div class="progress-steps">
+            <div class="progress-step active" id="step0"></div>
+            <div class="progress-step" id="step1"></div>
+            <div class="progress-step" id="step2"></div>
+            <div class="progress-step" id="step3"></div>
+            <div class="progress-step" id="step4"></div>
+          </div>
+        </div>
+
+        <!-- Step 1: Identificação -->
+        <div class="step-content" id="step-0">
+          <fieldset>
+            <legend>Identificação Pessoal</legend>
+
+            <div class="form-group">
+              <label class="form-label">Nome Completo *</label>
+              <input
+                type="text"
+                class="form-input"
+                id="nome"
+                placeholder="Ex: Carlos Menezes"
+                maxlength="100"
+              />
+              <div class="form-error" id="nomeError"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">CPF *</label>
+              <input
+                type="text"
+                class="form-input"
+                id="cpf"
+                placeholder="000.000.000-00"
+                maxlength="14"
+              />
+              <div class="form-error" id="cpfError"></div>
+              <div class="form-hint">Será validado automaticamente</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Data de Nascimento *</label>
+              <input type="text" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off" class="form-input" id="dataNascimento" />
+              <div class="form-error" id="dataNascimentoError"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Telefone *</label>
+              <input
+                type="tel"
+                class="form-input"
+                id="telefone"
+                placeholder="(00) 00000-0000"
+                maxlength="15"
+              />
+              <div class="form-error" id="telefoneError"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Foto de Perfil</label>
+              <div class="photo-upload">
+                <div class="photo-preview" id="photoPreview">📷</div>
+                <input
+                  type="file"
+                  id="photoInput"
+                  accept="image/jpeg,image/png"
+                  style="display: none"
+                />
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="document.getElementById('photoInput').click()"
+                >
+                  Selecionar Foto
+                </button>
+                <div class="form-hint">JPG ou PNG, máx. 5MB</div>
+              </div>
+              <div class="form-error" id="photoError"></div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Step 2: Acesso -->
+        <div class="step-content" id="step-1" style="display: none">
+          <fieldset>
+            <legend>Dados de Acesso</legend>
+
+            <div class="form-group">
+              <label class="form-label">E-mail Institucional *</label>
+              <input
+                type="email"
+                class="form-input"
+                id="email"
+                placeholder="nome@escola.edu.br"
+              />
+              <div class="form-error" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Senha *</label>
+              <input
+                type="password"
+                class="form-input"
+                id="senha"
+                placeholder="Mínimo 8 caracteres"
+              />
+              <div class="password-strength">
+                <div class="strength-bar">
+                  <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <div class="strength-text" id="strengthText">Força: Fraca</div>
+              </div>
+              <div class="form-error" id="senhaError"></div>
+              <div class="form-hint">
+                Mínimo 8 caracteres, 1 maiúscula, 1 número, 1 caractere especial
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Confirmar Senha *</label>
+              <input
+                type="password"
+                class="form-input"
+                id="confirmarSenha"
+                placeholder="Confirme sua senha"
+              />
+              <div class="form-error" id="confirmarSenhaError"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Matrícula Funcional *</label>
+              <input
+                type="text"
+                class="form-input"
+                id="matricula"
+                placeholder="Ex: 2024001"
+                maxlength="20"
+              />
+              <div class="form-error" id="matriculaError"></div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Step 3: Profissional -->
+        <div class="step-content" id="step-2" style="display: none">
+          <fieldset>
+            <legend>Dados Profissionais</legend>
+
+            <div class="form-group">
+              <label class="form-label">Cargo *</label>
+              <select class="form-select" id="cargo">
+                <option value="">-- Selecione --</option>
+                <option value="professor">Professor</option>
+                <option value="substituto">Professor Substituto</option>
+                <option value="coordenador">Coordenador</option>
+              </select>
+              <div class="form-error" id="cargoError"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Turnos *</label>
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="turnoManha" value="manhã" />
+                  <label for="turnoManha">Manhã (07:30 - 12:00)</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="turnoTarde" value="tarde" />
+                  <label for="turnoTarde">Tarde (13:00 - 17:30)</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="turnoNoite" value="noite" />
+                  <label for="turnoNoite">Noite (19:00 - 22:30)</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="turnoIntegral" value="integral" />
+                  <label for="turnoIntegral">Integral (07:30 - 17:30)</label>
+                </div>
+              </div>
+              <div class="form-error" id="turnosError"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Disciplinas *</label>
+              <div class="tags-container" id="disciplinasContainer">
+                <div class="tag" data-value="matematica">Matemática</div>
+                <div class="tag" data-value="portugues">Português</div>
+                <div class="tag" data-value="historia">História</div>
+                <div class="tag" data-value="geografia">Geografia</div>
+                <div class="tag" data-value="ciencias">Ciências</div>
+                <div class="tag" data-value="educacaofisica">
+                  Educação Física
+                </div>
+                <div class="tag" data-value="artes">Artes</div>
+                <div class="tag" data-value="ingles">Inglês</div>
+              </div>
+              <div class="form-error" id="disciplinasError"></div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Step 4: Turmas -->
+        <div class="step-content" id="step-3" style="display: none">
+          <fieldset>
+            <legend>Vínculo com Turmas</legend>
+            <div class="form-hint">
+              Clique nas turmas para selecioná-las. Você poderá escolher a
+              disciplina para cada turma.
+            </div>
+
+            <div class="turmas-grid" id="turmasGrid">
+              <!-- Populated by JS -->
+            </div>
+
+            <div class="form-error" id="turmasError"></div>
+
+            <div
+              style="
+                margin-top: 1rem;
+                padding: 1rem;
+                background: var(--surface-alt);
+                border-radius: var(--radius);
+              "
+            >
+              <strong>Turmas Selecionadas:</strong>
+              <div
+                id="turmasSelecionadas"
+                style="
+                  margin-top: 0.5rem;
+                  color: var(--text-secondary);
+                  font-size: 0.9rem;
+                "
+              >
+                Nenhuma turma selecionada
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Step 5: Revisão -->
+        <div class="step-content" id="step-4" style="display: none">
+          <fieldset>
+            <legend>Revisão e Confirmação</legend>
+
+            <div class="review-section">
+              <h3>Identificação Pessoal</h3>
+              <div class="review-item">
+                <span class="review-label">Nome:</span>
+                <span id="reviewNome">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">CPF:</span>
+                <span id="reviewCpf">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Data de Nascimento:</span>
+                <span id="reviewDataNascimento">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Telefone:</span>
+                <span id="reviewTelefone">-</span>
+              </div>
+            </div>
+
+            <div class="review-section">
+              <h3>Dados de Acesso</h3>
+              <div class="review-item">
+                <span class="review-label">E-mail:</span>
+                <span id="reviewEmail">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Matrícula:</span>
+                <span id="reviewMatricula">-</span>
+              </div>
+            </div>
+
+            <div class="review-section">
+              <h3>Dados Profissionais</h3>
+              <div class="review-item">
+                <span class="review-label">Cargo:</span>
+                <span id="reviewCargo">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Turnos:</span>
+                <span id="reviewTurnos">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Disciplinas:</span>
+                <span id="reviewDisciplinas">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Turmas:</span>
+                <span id="reviewTurmas">-</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem">
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 0.75rem;
+                  cursor: pointer;
+                "
+              >
+                <input type="checkbox" id="aceitoTermos" />
+                <span>Aceito os termos de uso e a política de privacidade</span>
+              </label>
+              <div class="form-error" id="aceitoTermosError"></div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Footer -->
+        <div class="wizard-footer">
+          <button
+            class="btn btn-secondary"
+            id="btnAnterior"
+            style="display: none"
+          >
+            ← Anterior
+          </button>
+          <button class="btn btn-primary" id="btnProximo">Próximo →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Selecionar Disciplina -->
+    <div class="modal-overlay" id="disciplinaModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title" id="modalTurmaTitle">
+            Selecione a Disciplina
+          </h2>
+        </div>
+        <div id="modalDisciplinasContent">
+          <!-- Populated by JS -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeDisciplinaModal()">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <script type="module" src="../../../cadastro/js/professor.js"></script>
+  </body>
+</html>
+<!-- SGE v2.0 • Professor Registration Wizard • 2026-05-14 -->

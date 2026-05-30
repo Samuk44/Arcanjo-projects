@@ -1,0 +1,396 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Diretor - Diários Escolares</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .container {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
+        width: 100%;
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+      .header h1 {
+        font-size: 1.875rem;
+        margin-bottom: 0.5rem;
+      }
+      .header p {
+        opacity: 0.9;
+        font-size: 0.95rem;
+      }
+      .content {
+        padding: 2rem;
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+      }
+      .form-group label .required {
+        color: #ef4444;
+        margin-left: 0.25rem;
+      }
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: all 0.2s;
+      }
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+      .form-hint {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+      }
+      .password-strength {
+        display: grid;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+      .password-strength-track {
+        width: 100%;
+        height: 0.5rem;
+        background: #e5e7eb;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      #passwordStrengthBar {
+        width: 0%;
+        height: 100%;
+        background: transparent;
+        transition: width 0.2s ease, background 0.2s ease;
+      }
+      .password-strength-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
+      .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e5e7eb;
+      }
+      .btn {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
+      .btn-secondary:hover {
+        background: #e5e7eb;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
+      .footer {
+        text-align: center;
+        padding: 1.5rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+      }
+      .footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .footer a:hover {
+        text-decoration: underline;
+      }
+      #toastContainer {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 9999;
+      }
+      .toast {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin-bottom: 0.5rem;
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 300px;
+      }
+      .toast-error {
+        border-left: 4px solid #ef4444;
+      }
+      .toast-success {
+        border-left: 4px solid #10b981;
+      }
+      .toast-close {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        color: #6b7280;
+      }
+      #loadingOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      #loadingOverlay.active {
+        display: flex;
+      }
+      .spinner {
+        width: 3rem;
+        height: 3rem;
+        border: 4px solid #e5e7eb;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .error-message {
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        display: none;
+      }
+      .error-message.visible {
+        display: block;
+      }
+      @media (max-width: 640px) {
+        .plan-grid {
+          grid-template-columns: 1fr;
+        }
+        .button-group {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="toastContainer"></div>
+    <div id="loadingOverlay">
+      <div class="spinner"></div>
+      <div id="loadingMessage" style="color: #374151; font-weight: 500">
+        Processando...
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <h1>Cadastro de Diretor</h1>
+        <p>Configure sua escola e crie sua conta administrativa</p>
+      </div>
+
+      <div class="content">
+        <form id="wizardForm">
+          <div class="form-group">
+            <label for="nomeEscola">
+              Nome da Escola <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="nomeEscola"
+              name="nomeEscola"
+              placeholder="Ex: Escola Farol Educacional"
+              required
+            />
+            <span class="error-message" data-error="nomeEscola"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="cnpj">
+              CNPJ da Escola <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="cnpj"
+              name="cnpj"
+              placeholder="00.000.000/0000-00"
+              required
+            />
+            <span class="error-message" data-error="cnpj"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="cpf">
+              CPF do Diretor <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="cpf"
+              name="cpf"
+              placeholder="000.000.000-00"
+              required
+            />
+            <span class="error-message" data-error="cpf"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="telefone">
+              Telefone <span class="required">*</span>
+            </label>
+            <input
+              type="tel"
+              id="telefone"
+              name="telefone"
+              placeholder="(00) 00000-0000"
+              required
+            />
+            <span class="error-message" data-error="telefone"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">
+              E-mail <span class="required">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="seu.email@provedor.com"
+              required
+            />
+            <p class="form-hint">
+              Este e-mail será usado para login e recuperação de senha.
+            </p>
+            <span class="error-message" data-error="email"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="senha">
+              Senha <span class="required">*</span>
+            </label>
+            <input
+              type="password"
+              id="senha"
+              name="senha"
+              placeholder="••••••••••••"
+              required
+            />
+            <p class="form-hint">
+              Mínimo 12 caracteres, 1 maiúscula, 1 número, 1 símbolo.
+            </p>
+            <div class="password-strength">
+              <div class="password-strength-track">
+                <div id="passwordStrengthBar"></div>
+              </div>
+              <div id="passwordStrengthLabel" class="password-strength-label"></div>
+            </div>
+            <span class="error-message" data-error="senha"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmarSenha">
+              Confirmar Senha <span class="required">*</span>
+            </label>
+            <input
+              type="password"
+              id="confirmarSenha"
+              name="confirmarSenha"
+              placeholder="••••••••••••"
+              required
+            />
+            <span class="error-message" data-error="confirmarSenha"></span>
+          </div>
+
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="window.location.href = '../auth/login.html'"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Criar Conta
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="footer">
+        Já tem uma conta? <a href="../auth/login.html">Faça login</a>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initWizard } from "../diretor/js/wizard.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initWizard("wizardForm");
+      });
+    </script>
+  </body>
+</html>

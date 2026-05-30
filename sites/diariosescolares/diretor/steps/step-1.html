@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Diretor - Etapa 1 - SGE v2.0</title>
+    <meta
+      name="description"
+      content="Dados da Escola - Sistema de Gestão Escolar"
+    />
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        background-color: #f8fafc;
+        background-image:
+          radial-gradient(at 0% 0%, hsla(217, 91%, 93%, 1) 0, transparent 50%),
+          radial-gradient(at 50% 0%, hsla(220, 100%, 96%, 1) 0, transparent 50%);
+        min-height: 100vh;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        color: #0f172a;
+        transition: all 0.2s;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+
+      .input-field:hover {
+        border-color: #cbd5e1;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background: linear-gradient(to right, #2563eb, #1d4ed8);
+        color: white;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        transition: all 0.2s;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 20px -3px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn-secondary {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-weight: 500;
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background-color: #f8fafc;
+        border-color: #cbd5e1;
+      }
+
+      .wizard-card {
+        background-color: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .wizard-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(to right, #60a5fa, #2563eb, #60a5fa);
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 6px;
+        background-color: #e2e8f0;
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: #2563eb;
+        border-radius: 9999px;
+        transition: width 0.5s ease-out;
+        box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+      }
+
+      #toastContainer {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .toast {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        font-size: 0.875rem;
+        font-weight: 500;
+        animation: slideIn 0.3s ease-out;
+        min-width: 300px;
+      }
+
+      .toast-success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      }
+      .toast-error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+      }
+      .toast-warning {
+        background-color: #fffbeb;
+        color: #92400e;
+        border: 1px solid #fde68a;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="antialiased text-slate-900 flex items-center justify-center p-4 sm:p-8"
+  >
+    <div id="toastContainer"></div>
+
+    <main class="w-full max-w-2xl">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div
+          class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-600 text-white mb-4 shadow-lg shadow-primary-600/30"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            />
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">
+          Cadastro de Diretor
+        </h1>
+        <p class="text-slate-500 mt-2">
+          Configure sua escola e crie sua conta administrativa
+        </p>
+      </div>
+
+      <!-- Wizard Card -->
+      <div class="wizard-card p-6 sm:p-8">
+        <!-- Progress -->
+        <div class="flex items-center justify-between mb-2">
+          <span
+            class="text-xs font-semibold text-primary-600 uppercase tracking-wider"
+            >Etapa 1 de 4</span
+          >
+          <span class="text-xs text-slate-400">Dados da Escola</span>
+        </div>
+        <div class="progress-track mb-8">
+          <div class="progress-fill" style="width: 25%"></div>
+        </div>
+
+        <!-- Form -->
+        <form id="wizardForm" class="space-y-6" novalidate>
+          <section data-step="1" class="block">
+            <h2
+              class="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2"
+            >
+              <span
+                class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-600 text-sm font-bold"
+                >1</span
+              >
+              Informações da Instituição
+            </h2>
+
+            <div class="space-y-4">
+              <div>
+                <label
+                  for="nomeEscola"
+                  class="block text-sm font-medium text-slate-700 mb-1.5"
+                  >Nome da Escola <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="text"
+                  id="nomeEscola"
+                  name="nomeEscola"
+                  placeholder="Ex: Escola Farol Educacional"
+                  class="input-field"
+                  required
+                  autofocus
+                />
+                <span
+                  data-error="nomeEscola"
+                  class="text-red-500 text-xs mt-1 hidden block"
+                ></span>
+              </div>
+
+              <div>
+                <label
+                  for="cnpj"
+                  class="block text-sm font-medium text-slate-700 mb-1.5"
+                  >CNPJ da Escola <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="text"
+                  id="cnpj"
+                  name="cnpj"
+                  placeholder="00.000.000/0000-00"
+                  class="input-field"
+                  maxlength="18"
+                  required
+                />
+                <span
+                  data-error="cnpj"
+                  class="text-red-500 text-xs mt-1 hidden block"
+                ></span>
+              </div>
+
+              <div>
+                <label
+                  for="emailEscola"
+                  class="block text-sm font-medium text-slate-700 mb-1.5"
+                  >E-mail Institucional
+                  <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="email"
+                  id="emailEscola"
+                  name="emailEscola"
+                  placeholder="contato@escola.edu.br"
+                  class="input-field"
+                  required
+                />
+                <p class="text-xs text-slate-400 mt-1">
+                  Não aceitamos e-mails pessoais (gmail, hotmail...).
+                </p>
+                <span
+                  data-error="emailEscola"
+                  class="text-red-500 text-xs mt-1 hidden block"
+                ></span>
+              </div>
+
+              <div>
+                <label
+                  for="telefoneEscola"
+                  class="block text-sm font-medium text-slate-700 mb-1.5"
+                  >Telefone da Escola</label
+                >
+                <input
+                  type="tel"
+                  id="telefoneEscola"
+                  name="telefoneEscola"
+                  placeholder="(11) 3456-7890"
+                  class="input-field"
+                />
+              </div>
+            </div>
+          </section>
+
+          <!-- Botões -->
+          <div class="flex gap-3 pt-4 border-t border-slate-100 mt-8">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="window.location.href = '../auth/login.html'"
+            >
+              Cancelar
+            </button>
+            <button type="button" id="btnProximo" class="btn-primary">
+              Salvar e Continuar →
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="text-center mt-6">
+        <a
+          href="../../apenas-html/login.html"
+          class="text-sm text-slate-500 hover:text-primary-600 transition-colors"
+        >
+          Já tem uma conta?
+          <span class="font-medium underline">Faça login</span>
+        </a>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module">
+      // Mocks para evitar 404
+      window.AnalyticsMock = {
+        initAnalytics: () => {},
+        trackEvent: () => {},
+        isAnalyticsEnabled: () => true,
+      };
+      window.I18nMock = { t: (k) => k };
+      window.HelpersMock = {
+        sanitizeInput: (v) => (v ? String(v).trim() : ""),
+      };
+
+      try {
+        const { initWizard } = await import("./diretor/js/wizard.js");
+        document.addEventListener("DOMContentLoaded", () => {
+          initWizard("wizardForm");
+        });
+      } catch (e) {
+        console.error("Erro ao carregar wizard.js:", e);
+      }
+    </script>
+
+    <!-- Máscara CNPJ -->
+    <script>
+      document.getElementById("cnpj")?.addEventListener("input", (e) => {
+        let v = e.target.value.replace(/\D/g, "");
+        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+        e.target.value = v.slice(0, 18);
+      });
+    </script>
+  </body>
+</html>

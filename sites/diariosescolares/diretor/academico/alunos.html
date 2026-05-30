@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>Alunos - SGE v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              bg: "#f8fafc",
+              surface: "#ffffff",
+              border: "#e2e8f0",
+              primary: "#3b82f6",
+              primaryHover: "#2563eb",
+              text: "#0f172a",
+              muted: "#64748b",
+            },
+            fontFamily: {
+              sans: ["DM Sans", "sans-serif"],
+              display: ["Syne", "sans-serif"],
+            },
+            boxShadow: {
+              soft: "0 2px 12px 0 rgba(59,130,246,0.08)",
+              card: "0 1px 4px 0 rgba(15,23,42,0.06)",
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      }
+      .modal-backdrop {
+        backdrop-filter: blur(6px);
+      }
+      .toast {
+        animation: toastIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #f1f5f9 25%,
+          #e2e8f0 50%,
+          #f1f5f9 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      tr.row-item {
+        transition:
+          box-shadow 0.15s,
+          background 0.15s;
+      }
+      tr.row-item:hover {
+        background: #eff6ff;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px #bfdbfe;
+        border-color: #3b82f6;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 99px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-bg text-text font-sans antialiased h-screen flex overflow-hidden"
+  >
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-surface border-r border-border flex-col hidden md:flex shadow-card"
+    >
+      <div class="p-6 border-b border-border">
+        <h1 class="font-display text-2xl text-primary font-bold tracking-tight">
+          SGE v2.0
+        </h1>
+        <p class="text-xs text-muted mt-1">Painel do Diretor</p>
+      </div>
+      <nav class="flex-1 overflow-y-auto py-4">
+        <ul class="space-y-1 px-3">
+          <li>
+            <a
+              href="../../index.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="../../apenas-html/aprovar-cadastros.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Aprovar Cadastros</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Usuários
+          </li>
+          <li>
+            <a
+              href="../usuarios/professores.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Professores</a
+            >
+          </li>
+          <li>
+            <a
+              href="../usuarios/pais.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Responsáveis</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Acadêmico
+          </li>
+          <li>
+            <a
+              href="turmas.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Turmas</a
+            >
+          </li>
+          <li>
+            <a
+              href="horarios.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Horários</a
+            >
+          </li>
+          <li>
+            <a
+              href="../academico/alunos.html"
+              class="block px-4 py-2.5 rounded-xl bg-blue-50 text-primary font-semibold text-sm"
+              >Alunos</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Comunicação
+          </li>
+          <li>
+            <a
+              href="../relatorios/comunicacao.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Comunicados</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Relatórios
+          </li>
+          <li>
+            <a
+              href="../relatorios/frequencia.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Frequência</a
+            >
+          </li>
+          <li>
+            <a
+              href="../relatorios/notas.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Notas</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Sistema
+          </li>
+          <li>
+            <a
+              href="../configuracoes.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Configurações</a
+            >
+          </li>
+          <li>
+            <a
+              href="../../apenas-html/perfil.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Meu Perfil</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <div class="p-4 border-t border-border">
+        <a
+          href="../../apenas-html/login.html"
+          class="flex items-center gap-2 text-sm text-red-400 hover:text-red-500 transition-colors font-medium"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <header
+        class="h-16 bg-surface border-b border-border flex items-center justify-between px-6 shadow-card shrink-0"
+      >
+        <h2 class="font-display text-lg font-semibold text-text">Alunos</h2>
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-muted" id="topbar-greeting"
+            >Olá, Diretor</span
+          >
+          <div
+            id="topbar-avatar"
+            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-white text-sm"
+          >
+            D
+          </div>
+        </div>
+      </header>
+
+      <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-bg">
+        <!-- Toolbar -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6"
+        >
+          <div>
+            <h3 class="font-display text-xl font-bold text-text">
+              Gestão de Alunos
+            </h3>
+            <p class="text-sm text-muted mt-0.5" id="alunos-count">
+              Carregando...
+            </p>
+          </div>
+          <button
+            id="btn-novo-aluno"
+            class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-2xl shadow-soft transition flex items-center gap-2 self-start sm:self-auto"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Novo Aluno
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div
+          class="bg-surface rounded-2xl border border-border p-4 mb-5 shadow-card flex flex-col sm:flex-row gap-3"
+        >
+          <div class="relative flex-1">
+            <svg
+              class="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"
+              />
+            </svg>
+            <input
+              id="filter-search"
+              type="search"
+              placeholder="Buscar por nome ou matrícula..."
+              class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-bg text-sm text-text transition"
+              aria-label="Buscar alunos"
+            />
+          </div>
+          <select
+            id="filter-turma"
+            class="px-4 py-2.5 rounded-xl border border-border bg-bg text-sm text-text transition min-w-[160px]"
+            aria-label="Filtrar por turma"
+          >
+            <option value="">Todas as turmas</option>
+          </select>
+          <select
+            id="filter-status"
+            class="px-4 py-2.5 rounded-xl border border-border bg-bg text-sm text-text transition min-w-[148px]"
+            aria-label="Filtrar por status"
+          >
+            <option value="">Todos os status</option>
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+            <option value="transferido">Transferido</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div
+          class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden"
+        >
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm" aria-label="Lista de alunos">
+              <thead>
+                <tr class="border-b border-border bg-slate-50">
+                  <th
+                    class="text-left px-5 py-3.5 font-semibold text-muted text-xs uppercase tracking-wider"
+                  >
+                    Aluno
+                  </th>
+                  <th
+                    class="text-left px-5 py-3.5 font-semibold text-muted text-xs uppercase tracking-wider"
+                  >
+                    Matrícula
+                  </th>
+                  <th
+                    class="text-left px-5 py-3.5 font-semibold text-muted text-xs uppercase tracking-wider hidden md:table-cell"
+                  >
+                    Turma
+                  </th>
+                  <th
+                    class="text-left px-5 py-3.5 font-semibold text-muted text-xs uppercase tracking-wider hidden lg:table-cell"
+                  >
+                    Responsável
+                  </th>
+                  <th
+                    class="text-left px-5 py-3.5 font-semibold text-muted text-xs uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="text-right px-5 py-3.5 font-semibold text-muted text-xs uppercase tracking-wider"
+                  >
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="alunos-tbody">
+                <!-- populated by JS -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Empty state -->
+          <div
+            id="empty-state"
+            class="hidden flex-col items-center justify-center py-16 px-6 text-center"
+          >
+            <div
+              class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4"
+            >
+              <svg
+                class="w-8 h-8 text-blue-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </div>
+            <p class="font-semibold text-text mb-1" id="empty-title">
+              Nenhum aluno encontrado
+            </p>
+            <p class="text-sm text-muted" id="empty-subtitle">
+              Tente ajustar os filtros ou cadastre um novo aluno.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL ALUNO (Novo/Editar) -->
+    <div
+      id="modal-aluno"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-aluno-title"
+    >
+      <div
+        class="bg-surface rounded-3xl border border-border shadow-xl w-full max-w-2xl flex flex-col max-h-[92vh]"
+      >
+        <!-- Modal header -->
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0"
+        >
+          <h3
+            id="modal-aluno-title"
+            class="font-display text-base font-semibold text-text"
+          >
+            Novo Aluno
+          </h3>
+          <button
+            id="modal-aluno-close"
+            class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors"
+            aria-label="Fechar modal"
+          >
+            <svg
+              class="w-4 h-4 text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <!-- Modal body -->
+        <div class="overflow-y-auto flex-1 px-6 py-5">
+          <!-- Foto -->
+          <div class="flex items-center gap-4 mb-6">
+            <div class="relative shrink-0">
+              <div
+                id="foto-preview"
+                class="w-16 h-16 rounded-2xl bg-blue-50 border border-border flex items-center justify-center text-2xl overflow-hidden"
+              >
+                👤
+              </div>
+              <label
+                for="foto-upload"
+                class="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center cursor-pointer shadow-soft hover:bg-primaryHover transition-colors"
+                aria-label="Alterar foto do aluno"
+              >
+                <svg
+                  class="w-3 h-3 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    d="M15.232 5.232l3.536 3.536M9 13l6.5-6.5a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z"
+                  />
+                </svg>
+              </label>
+              <input
+                id="foto-upload"
+                type="file"
+                accept="image/*"
+                class="sr-only"
+                aria-label="Upload de foto do aluno"
+              />
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-text">Foto do aluno</p>
+              <p class="text-xs text-muted mt-0.5">JPG, PNG · Máx. 2MB</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label
+                for="aluno-nome"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Nome completo <span class="text-red-400">*</span></label
+              >
+              <input
+                id="aluno-nome"
+                type="text"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                placeholder="Ex: Maria Oliveira Silva"
+                autocomplete="off"
+              />
+              <p id="err-nome" class="hidden text-xs text-red-500 mt-1"></p>
+            </div>
+            <div>
+              <label
+                for="aluno-cpf"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >CPF / RG</label
+              >
+              <input
+                id="aluno-cpf"
+                type="text"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                placeholder="000.000.000-00"
+              />
+            </div>
+            <div>
+              <label
+                for="aluno-nascimento"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Data de nascimento</label
+              >
+              <input
+                id="aluno-nascimento"
+                type="date"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+              />
+            </div>
+            <div>
+              <label
+                for="aluno-matricula"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Matrícula <span class="text-red-400">*</span></label
+              >
+              <input
+                id="aluno-matricula"
+                type="text"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                placeholder="Ex: 2026001"
+              />
+              <p
+                id="err-matricula"
+                class="hidden text-xs text-red-500 mt-1"
+              ></p>
+            </div>
+            <div>
+              <label
+                for="aluno-status"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Status <span class="text-red-400">*</span></label
+              >
+              <select
+                id="aluno-status"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+              >
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+                <option value="transferido">Transferido</option>
+              </select>
+            </div>
+            <div>
+              <label
+                for="aluno-turma"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Turma <span class="text-red-400">*</span></label
+              >
+              <select
+                id="aluno-turma"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+              >
+                <option value="">Selecionar turma</option>
+              </select>
+              <p id="err-turma" class="hidden text-xs text-red-500 mt-1"></p>
+            </div>
+            <div>
+              <label
+                for="aluno-responsavel"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Responsável</label
+              >
+              <select
+                id="aluno-responsavel"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+              >
+                <option value="">Selecionar responsável</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- Modal footer -->
+        <div
+          class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0"
+        >
+          <button
+            id="modal-aluno-cancel"
+            class="px-5 py-2.5 rounded-2xl border border-border text-sm font-semibold text-muted hover:bg-slate-50 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            id="modal-aluno-save"
+            class="btn-primary text-white text-sm font-semibold px-6 py-2.5 rounded-2xl shadow-soft transition flex items-center gap-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL FICHA DO ALUNO -->
+    <div
+      id="modal-ficha"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ficha-title"
+    >
+      <div
+        class="bg-surface rounded-3xl border border-border shadow-xl w-full max-w-lg"
+      >
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-border"
+        >
+          <h3
+            id="ficha-title"
+            class="font-display text-base font-semibold text-text"
+          >
+            Ficha do Aluno
+          </h3>
+          <button
+            id="modal-ficha-close"
+            class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors"
+            aria-label="Fechar ficha"
+          >
+            <svg
+              class="w-4 h-4 text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <div id="ficha-content" class="px-6 py-5 space-y-4"></div>
+      </div>
+    </div>
+
+    <!-- MODAL EXCLUIR -->
+    <div
+      id="modal-excluir"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="excluir-title"
+    >
+      <div
+        class="bg-surface rounded-2xl border border-border shadow-xl w-full max-w-md p-6"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0"
+          >
+            <svg
+              class="w-5 h-5 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4
+              id="excluir-title"
+              class="font-display text-base font-semibold text-text"
+            >
+              Excluir aluno?
+            </h4>
+            <p class="text-xs text-muted mt-0.5" id="excluir-subtitle">
+              Esta ação não pode ser desfeita.
+            </p>
+          </div>
+        </div>
+        <p class="text-sm text-muted mb-5">
+          O registro do aluno
+          <strong id="excluir-nome" class="text-text"></strong> será
+          permanentemente removido do sistema.
+        </p>
+        <div class="flex gap-3 justify-end">
+          <button
+            id="excluir-cancelar"
+            class="px-5 py-2.5 rounded-2xl border border-border text-sm font-semibold text-muted hover:bg-slate-50 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            id="excluir-confirmar"
+            class="px-5 py-2.5 rounded-2xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors flex items-center gap-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6"
+              />
+            </svg>
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div
+      id="toast-container"
+      class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <script type="module" src="../js/academico-alunos.js"></script>
+  </body>
+</html>

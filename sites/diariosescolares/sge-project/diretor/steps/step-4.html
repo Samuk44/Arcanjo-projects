@@ -1,0 +1,410 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Diretor - Etapa 4 - Diários Escolares</title>
+    <meta
+      name="description"
+      content="Revisão e Finalização - Diários Escolares"
+    />
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        background-color: #f8fafc;
+        background-image:
+          radial-gradient(at 0% 0%, hsla(217, 91%, 93%, 1) 0, transparent 50%),
+          radial-gradient(at 50% 0%, hsla(220, 100%, 96%, 1) 0, transparent 50%);
+        min-height: 100vh;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background: linear-gradient(to right, #2563eb, #1d4ed8);
+        color: white;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        transition: all 0.2s;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 20px -3px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn-secondary {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-weight: 500;
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background-color: #f8fafc;
+        border-color: #cbd5e1;
+      }
+
+      .wizard-card {
+        background-color: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .wizard-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(to right, #60a5fa, #2563eb, #60a5fa);
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 6px;
+        background-color: #e2e8f0;
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: #2563eb;
+        border-radius: 9999px;
+        transition: width 0.5s ease-out;
+        box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+      }
+
+      .summary-box {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.5rem;
+      }
+
+      .checkbox-custom {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid #cbd5e1;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .checkbox-custom:hover {
+        border-color: #93c5fd;
+      }
+
+      .checkbox-custom input:checked + div {
+        background-color: #2563eb;
+        border-color: #2563eb;
+      }
+
+      .checkbox-custom input:checked + div::after {
+        content: "✓";
+        color: white;
+        font-size: 0.875rem;
+        font-weight: bold;
+      }
+
+      #toastContainer {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .toast {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        font-size: 0.875rem;
+        font-weight: 500;
+        animation: slideIn 0.3s ease-out;
+        min-width: 300px;
+      }
+
+      .toast-success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      }
+      .toast-error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+      }
+      .toast-warning {
+        background-color: #fffbeb;
+        color: #92400e;
+        border: 1px solid #fde68a;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="antialiased text-slate-900 flex items-center justify-center p-4 sm:p-8"
+  >
+    <div id="toastContainer"></div>
+
+    <main class="w-full max-w-2xl">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div
+          class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-600 text-white mb-4 shadow-lg shadow-primary-600/30"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">
+          Cadastro de Diretor
+        </h1>
+        <p class="text-slate-500 mt-2">
+          Configure sua escola e crie sua conta administrativa
+        </p>
+      </div>
+
+      <!-- Wizard Card -->
+      <div class="wizard-card p-6 sm:p-8">
+        <!-- Progress -->
+        <div class="flex items-center justify-between mb-2">
+          <span
+            class="text-xs font-semibold text-primary-600 uppercase tracking-wider"
+            >Etapa 4 de 4</span
+          >
+          <span class="text-xs text-slate-400">Revisão e Finalização</span>
+        </div>
+        <div class="progress-track mb-8">
+          <div class="progress-fill" style="width: 100%"></div>
+        </div>
+
+        <!-- Form -->
+        <form id="wizardForm" class="space-y-6" novalidate>
+          <section data-step="4" class="block">
+            <h2
+              class="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2"
+            >
+              <span
+                class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-600 text-sm font-bold"
+                >4</span
+              >
+              Revisão e Aceite
+            </h2>
+
+            <div class="space-y-6">
+              <!-- Resumo -->
+              <div class="summary-box">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="font-semibold text-slate-700">Resumo dos Dados</h3>
+                  <button
+                    type="button"
+                    id="btnEditSummary"
+                    class="text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                  >
+                    ✎ Editar
+                  </button>
+                </div>
+                <div class="space-y-3 text-sm text-slate-600">
+                  <div
+                    class="flex justify-between border-b border-slate-200 pb-2"
+                  >
+                    <span class="font-medium">Escola:</span>
+                    <span id="summary-escola" class="text-slate-900 font-medium"
+                      >---</span
+                    >
+                  </div>
+                  <div
+                    class="flex justify-between border-b border-slate-200 pb-2"
+                  >
+                    <span class="font-medium">Diretor:</span>
+                    <span
+                      id="summary-diretor"
+                      class="text-slate-900 font-medium"
+                      >---</span
+                    >
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-medium">Plano:</span>
+                    <span
+                      id="summary-plano"
+                      class="text-slate-900 font-medium capitalize"
+                      >---</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aceite de Termos -->
+              <div
+                class="space-y-4 p-5 bg-slate-50 rounded-xl border border-slate-100"
+              >
+                <h3 class="font-semibold text-slate-700 mb-3">
+                  Aceite de Termos
+                </h3>
+
+                <label class="flex items-start gap-3 cursor-pointer group">
+                  <label class="checkbox-custom mt-0.5">
+                    <input
+                      type="checkbox"
+                      id="aceiteTermos"
+                      name="aceiteTermos"
+                      class="hidden"
+                      required
+                    />
+                    <div class="w-full h-full"></div>
+                  </label>
+                  <span
+                    class="text-sm text-slate-600 group-hover:text-slate-800 transition-colors"
+                  >
+                    Eu li e concordo com os
+                    <a
+                      href="#"
+                      class="text-primary-600 hover:underline font-medium"
+                      >Termos de Uso</a
+                    >
+                    e a
+                    <a
+                      href="#"
+                      class="text-primary-600 hover:underline font-medium"
+                      >Política de Privacidade</a
+                    >.
+                  </span>
+                </label>
+                <span
+                  data-error="aceiteTermos"
+                  class="text-red-500 text-xs hidden block"
+                ></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Botões -->
+          <div class="flex gap-3 pt-4 border-t border-slate-100 mt-8">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="window.location.href = 'step-3.html'"
+            >
+              ← Voltar
+            </button>
+            <button type="submit" id="btnFinalizar" class="btn-primary">
+              Finalizar Cadastro
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="text-center mt-6">
+        <a
+          href="../../apenas-html/login.html"
+          class="text-sm text-slate-500 hover:text-primary-600 transition-colors"
+        >
+          Já tem uma conta?
+          <span class="font-medium underline">Faça login</span>
+        </a>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module">
+      // Mocks para evitar 404
+      window.AnalyticsMock = {
+        initAnalytics: () => {},
+        trackEvent: () => {},
+        isAnalyticsEnabled: () => true,
+      };
+      window.I18nMock = { t: (k) => k };
+      window.HelpersMock = {
+        sanitizeInput: (v) => (v ? String(v).trim() : ""),
+      };
+
+      try {
+        const { initWizard } = await import("../js/wizard.js");
+        document.addEventListener("DOMContentLoaded", () => {
+          initWizard("wizardForm");
+        });
+      } catch (e) {
+        console.error("Erro ao carregar wizard.js:", e);
+      }
+    </script>
+
+    <!-- UI Logic -->
+    <script>
+      // Botão de editar resumo volta para o step 2
+      document
+        .getElementById("btnEditSummary")
+        ?.addEventListener("click", () => {
+          window.location.href = "step-2.html";
+        });
+    </script>
+  </body>
+</html>

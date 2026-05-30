@@ -1,0 +1,122 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "usuarios": {
+      "$uid": {
+        ".read": "auth.uid == $uid || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor'",
+        ".write": "auth.uid == $uid || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor'",
+        ".validate": "(!data.exists()) || ((newData.child('role').val() == 'diretor' || newData.child('role').val() == 'professor' || newData.child('role').val() == 'pai' || newData.child('role').val() == 'responsavel' || newData.child('role').val() == 'admin') && (newData.child('status').val() == 'ativo' || newData.child('status').val() == 'pendente' || newData.child('status').val() == 'desativado'))"
+      }
+    },
+
+    "cadastrosPendentes": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')",
+        ".write": "!data.exists() && auth != null && auth.uid == $uid",
+        ".validate": "(!newData.exists()) || (!newData.child('status').exists() || newData.child('status').val() == 'pendente')"
+      }
+    },
+
+    "professores": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+      }
+    },
+
+    "pais": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+      }
+    },
+
+    "alunos": {
+      "$alunoId": {
+        ".read": "auth != null",
+        ".write": "root.child('usuarios').child(auth.uid).child('role').val() == 'diretor' || (root.child('usuarios').child(auth.uid).child('role').val() == 'pai' && newData.child('responsavelId').val() == auth.uid)",
+        ".validate": "newData.hasChildren(['nome', 'responsavelId', 'turma', 'turno'])"
+      }
+    },
+
+    "turmas": {
+      "$tid": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+      }
+    },
+
+    "disciplinas": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+    },
+
+    "horarios": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+    },
+
+    "chamadas": {
+      "$turmaId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.token.role == 'diretor' || auth.token.role == 'professor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'professor')"
+      }
+    },
+
+    "notas": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.role == 'diretor' || auth.token.role == 'professor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'professor')"
+    },
+
+    "bilhetes": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    "avisos": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+    },
+
+    "logs": {
+      ".read": "auth != null && (auth.token.role == 'diretor' || auth.token.role == 'admin' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'admin')",
+      ".write": false
+    },
+
+    "agregados": {
+      ".read": "auth != null",
+      ".write": false
+    },
+
+    "escola": {
+      "info": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+      }
+    },
+
+    "convites": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.role == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor')"
+    },
+
+    "metrics": {
+      ".read": "auth != null",
+      ".write": false
+    },
+
+    "frequencia": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.role == 'diretor' || auth.token.role == 'professor' || root.child('usuarios').child(auth.uid).child('role').val() == 'diretor' || root.child('usuarios').child(auth.uid).child('role').val() == 'professor')"
+    },
+
+    "profile_photos": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    }
+  }
+}

@@ -1,0 +1,516 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="robots" content="noindex" />
+    <title>Diários Escolares - Perfil</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-alt: #f1f5f9;
+        --primary: #3b82f6;
+        --primary-hover: #e09500;
+        --text: #0f172a;
+        --text-secondary: #64748b;
+        --text-tertiary: #7a8089;
+        --border: #e2e8f0;
+        --success: #22c55e;
+        --danger: #f43f5e;
+        --warning: #facc15;
+        --info: #3b82f6;
+        --radius: 0.5rem;
+        --transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "DM Sans",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 1.25rem;
+      }
+
+      .sidebar-logo {
+        width: 32px;
+        height: 32px;
+        background: var(--primary);
+        border-radius: var(--radius);
+        display: grid;
+        place-items: center;
+        color: var(--bg);
+        font-weight: 900;
+      }
+
+      .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .sidebar-nav a {
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        text-decoration: none;
+        color: var(--text-secondary);
+        transition: all var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+      }
+
+      .sidebar-nav a:hover,
+      .sidebar-nav a.active {
+        background: var(--surface-alt);
+        color: var(--primary);
+      }
+
+      .main-content {
+        padding: 2rem;
+        overflow-y: auto;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .profile-photo-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+      }
+
+      .profile-photo {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--surface-alt);
+        background: var(--surface-alt);
+      }
+
+      .photo-upload-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--primary);
+        color: var(--bg);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        border: none;
+        font-size: 1rem;
+        transition: all var(--transition);
+      }
+
+      .photo-upload-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .profile-title h1 {
+        font-family: "Syne", sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .profile-title p {
+        color: var(--text-tertiary);
+        font-family: "DM Mono", monospace;
+        font-size: 0.9rem;
+      }
+
+      .section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .section-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--primary);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group.full {
+        grid-column: span 2;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.05em;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="time"] {
+        width: 100%;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all var(--transition);
+      }
+
+      input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .preference-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .preference-item:last-child {
+        border-bottom: none;
+      }
+
+      .preference-info h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .preference-info p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      /* Toggle Switch */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 24px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: var(--surface-alt);
+        transition: 0.4s;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 2px;
+        bottom: 2px;
+        background-color: var(--text-tertiary);
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: rgba(59, 130, 246, 0.2);
+        border-color: var(--primary);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(24px);
+        background-color: var(--primary);
+      }
+
+      .btn-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .btn {
+        padding: 0.75rem 2rem;
+        border-radius: var(--radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+        border: 1px solid transparent;
+        font-family: inherit;
+      }
+
+      .btn-save {
+        background: var(--primary);
+        color: var(--bg);
+      }
+
+      .btn-save:hover {
+        background: var(--primary-hover);
+      }
+
+      .btn-logout {
+        background: transparent;
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+
+      .btn-logout:hover {
+        background: rgba(244, 63, 94, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          display: none;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .form-group.full {
+          grid-column: span 1;
+        }
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="../assets/img/logo.png" alt="Diários Escolares" class="h-10 w-auto object-contain" />
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#"><span>📊</span> Dashboard</a>
+          <a href="historico-chamadas.html"><span>📜</span> Histórico</a>
+          <a href="#" class="active"><span>⚙️</span> Perfil</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <div class="profile-header">
+          <div class="profile-photo-container">
+            <img
+              src="https://ui-avatars.com/api/?name=Joao+Silva&background=f0a500&color=0f1115"
+              alt="Foto de Perfil"
+              class="profile-photo"
+              id="img-perfil"
+            />
+            <label for="input-foto" class="photo-upload-btn">📷</label>
+            <input
+              type="file"
+              id="input-foto"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
+          <div class="profile-title">
+            <h1 id="nome-perfil">João Silva</h1>
+            <p id="uid-perfil">UID: pai_001</p>
+          </div>
+        </div>
+
+        <section class="section">
+          <div class="section-title">👤 Dados Pessoais</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nome Completo</label>
+              <input type="text" id="input-nome" placeholder="Seu nome" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input
+                type="email"
+                id="input-email"
+                placeholder="seu@email.com"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">CPF</label>
+              <input type="text" id="input-cpf" placeholder="000.000.000-00" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone</label>
+              <input
+                type="text"
+                id="input-telefone"
+                placeholder="(00) 00000-0000"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">🔔 Preferências de Notificação</div>
+          <div class="preference-item">
+            <div class="preference-info">
+              <h4>Faltas em tempo real</h4>
+              <p>Receba alertas assim que a chamada for registrada</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="pref-falta" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="preference-item">
+            <div class="preference-info">
+              <h4>Novos Bilhetes</h4>
+              <p>Notificar quando um professor enviar um bilhete</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="pref-bilhete" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="preference-item">
+            <div class="preference-info">
+              <h4>Notas Lançadas</h4>
+              <p>Alertar quando novas notas forem publicadas</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="pref-nota" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="preference-item">
+            <div class="preference-info">
+              <h4>Avisos da Escola</h4>
+              <p>Comunicados gerais e eventos importantes</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="pref-aviso" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div style="margin-top: 1.5rem">
+            <label class="form-label">Horário de Silêncio</label>
+            <div style="display: flex; gap: 1rem; align-items: center">
+              <input
+                type="time"
+                id="silencio-inicio"
+                value="22:00"
+                style="width: auto"
+              />
+              <span>até</span>
+              <input
+                type="time"
+                id="silencio-fim"
+                value="07:00"
+                style="width: auto"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">🔒 Segurança</div>
+          <div class="form-group">
+            <label class="form-label">Nova Senha</label>
+            <input
+              type="password"
+              id="input-senha"
+              placeholder="Deixe em branco para não alterar"
+            />
+          </div>
+        </section>
+
+        <div class="btn-group">
+          <button class="btn btn-logout" id="btn-sair">Sair da Conta</button>
+          <button class="btn btn-save" id="btn-salvar">
+            Salvar Alterações
+          </button>
+        </div>
+      </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script type="module" src="./js/perfil.js"></script>
+  </body>
+</html>
