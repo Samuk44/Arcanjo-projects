@@ -1,0 +1,13 @@
+Sempre:
+
+- Não ler node_modules
+- Não ler imagens
+- Não ler builds
+- Não ler dist
+- Não ler arquivos gerados
+
+Ao reorganizar:
+
+- Priorizar arquitetura por feature
+- Preservar lógica existente
+- Não apagar sem verificar referências

@@ -59,9 +59,18 @@ class ProfessorWizard {
     document
       .getElementById("cpf")
       .addEventListener("blur", () => this.validateCPF());
+    document.getElementById("dataNascimento").addEventListener("keydown", (e) => {
+      if (!["Tab","Backspace","Delete","ArrowLeft","ArrowRight","Home","End"].includes(e.key) && !/\d/.test(e.key)) e.preventDefault();
+    });
+    document.getElementById("dataNascimento").addEventListener("input", function () {
+      let v = this.value.replace(/\D/g, "").slice(0, 8);
+      if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+      if (v.length > 5) v = v.slice(0, 5) + "/" + v.slice(5);
+      this.value = v;
+    });
     document
       .getElementById("dataNascimento")
-      .addEventListener("change", () => this.validateDataNascimento());
+      .addEventListener("blur", () => this.validateDataNascimento());
     document
       .getElementById("telefone")
       .addEventListener("input", (e) => this.formatTelefone(e));
@@ -214,9 +223,7 @@ class ProfessorWizard {
     document.getElementById("reviewNome").textContent = this.formData.nome;
     document.getElementById("reviewCpf").textContent = this.formData.cpf;
     document.getElementById("reviewDataNascimento").textContent =
-      new Intl.DateTimeFormat("pt-BR").format(
-        new Date(this.formData.dataNascimento),
-      );
+      this.formData.dataNascimento || "—";
     document.getElementById("reviewTelefone").textContent =
       this.formData.telefone;
     document.getElementById("reviewEmail").textContent = this.formData.email;
@@ -302,13 +309,16 @@ class ProfessorWizard {
   }
 
   validateDataNascimento() {
-    const data = new Date(document.getElementById("dataNascimento").value);
+    const val = document.getElementById("dataNascimento").value;
+    const parts = val.split("/");
+    const data = parts.length === 3
+      ? new Date(+parts[2], +parts[1] - 1, +parts[0])
+      : new Date("invalid");
     const hoje = new Date();
     const idade = hoje.getFullYear() - data.getFullYear();
-    const valid = idade >= 18 && data < hoje;
+    const valid = !isNaN(data.getTime()) && val.length === 10 && idade >= 18 && data < hoje;
     this.setFieldStatus("dataNascimento", valid, "Deve ter pelo menos 18 anos");
-    this.formData.dataNascimento =
-      document.getElementById("dataNascimento").value;
+    this.formData.dataNascimento = val;
     return valid;
   }
 
@@ -546,6 +556,12 @@ class ProfessorWizard {
         turmas.push(`${ano}º${String.fromCharCode(65 + letra)}M`);
       }
     }
+    const cursosTecnicos = ["Administração", "Des. de Sistemas", "Logística", "Seg. do Trabalho"];
+    for (let ano = 1; ano <= 3; ano++) {
+      cursosTecnicos.forEach((curso) => {
+        turmas.push(`${ano}º Ano A - ${curso}`);
+      });
+    }
 
     turmas.forEach((turma) => {
       const btn = document.createElement("button");
@@ -612,8 +628,11 @@ class ProfessorWizard {
 
       // Save to /cadastrosPendentes
       const pendentesRef = ref(db, `cadastrosPendentes/${uid}`);
+      const [_d, _m, _y] = (this.formData.dataNascimento || "").split("/");
+      const dataNascimentoISO = (_d && _m && _y) ? `${_y}-${_m}-${_d}` : (this.formData.dataNascimento || "");
       await set(pendentesRef, {
         ...this.formData,
+        dataNascimento: dataNascimentoISO,
         uid,
         dataCadastro: new Date().toISOString(),
         status: "pendente",

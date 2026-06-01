@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGE v2.0 | Bilhetes</title>
+    <meta name="description" content="Comunicação com responsáveis" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#1e293b",
+              border: "#334155",
+              primary: "#f8fafc",
+              secondary: "#94a3b8",
+              accent: "#3b82f6",
+              success: "#22c55e",
+              danger: "#ef4444",
+              warning: "#f59e0b",
+            },
+            animation: {
+              "fade-in": "fadeIn 0.3s ease-out",
+              "slide-up": "slideUp 0.4s ease-out",
+            },
+            keyframes: {
+              fadeIn: { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+              slideUp: {
+                "0%": { transform: "translateY(10px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+      }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      .glass-effect {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .btn-toggle.active { background-color:#3b82f6; color:white; border-color:#3b82f6; }
+
+      /* Toast */
+      .toast { display:flex; align-items:flex-start; gap:.75rem; padding:.9rem 1.1rem;
+        background:#1e293b; border:1px solid #334155; border-radius:.75rem;
+        box-shadow:0 8px 24px rgba(0,0,0,.4); pointer-events:auto;
+        font-size:.875rem; color:#f8fafc; transition:opacity .3s, transform .3s; }
+      .toast.success { border-color:#22c55e44; }
+      .toast.error   { border-color:#ef444444; }
+
+      /* Bilhete card */
+      .bilhete-card { background:#0f172a; border:1px solid #334155; border-radius:.75rem;
+        padding:1rem 1.25rem; cursor:pointer; transition:border-color .2s, background .2s; }
+      .bilhete-card:hover { border-color:#3b82f6; background:#1e293b; }
+      .bilhete-card.lido { opacity:.7; }
+      .bilhete-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.5rem; }
+      .bilhete-info { flex:1; min-width:0; }
+      .bilhete-remetente { font-size:.75rem; color:#94a3b8; margin-bottom:.25rem; }
+      .bilhete-assunto { font-size:.9rem; font-weight:700; color:#f8fafc; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .bilhete-preview { font-size:.8rem; color:#94a3b8; margin:.5rem 0; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+      .bilhete-footer { display:flex; justify-content:space-between; align-items:center; margin-top:.5rem; }
+      .bilhete-meta { display:flex; gap:1rem; font-size:.75rem; color:#64748b; }
+      .bilhete-data { font-size:.75rem; }
+
+      /* Badges */
+      .badge { display:inline-block; padding:.2rem .55rem; border-radius:9999px; font-size:.7rem; font-weight:700; white-space:nowrap; }
+      .badge-urgente  { background:rgba(239,68,68,.2);  color:#ef4444; }
+      .badge-enviado  { background:rgba(59,130,246,.2); color:#3b82f6; }
+      .badge-entregue { background:rgba(245,158,11,.2); color:#f59e0b; }
+      .badge-lido     { background:rgba(34,197,94,.2);  color:#22c55e; }
+
+      /* btn-small */
+      .btn-small { background:#1e293b; border:1px solid #334155; border-radius:.4rem;
+        color:#94a3b8; font-size:.75rem; padding:.25rem .6rem; cursor:pointer; transition:.2s; }
+      .btn-small:hover { border-color:#3b82f6; color:#f8fafc; }
+
+      /* Modal */
+      .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7);
+        backdrop-filter:blur(4px); z-index:200; align-items:center; justify-content:center; padding:1rem; }
+      .modal-overlay.active { display:flex; }
+      .modal-box { background:#1e293b; border:1px solid #334155; border-radius:1rem;
+        width:100%; max-width:520px; padding:1.5rem; max-height:90vh; overflow-y:auto; }
+
+      /* file-preview */
+      .file-preview { font-size:.8rem; color:#94a3b8; background:#0f172a;
+        border:1px solid #334155; border-radius:.5rem; padding:.5rem .75rem; margin-top:.5rem; }
+    </style>
+  </head>
+
+  <body class="bg-slate-900 text-primary antialiased overflow-x-hidden">
+    <div class="flex h-screen overflow-hidden">
+
+      <aside
+        id="sidebar"
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-surface border-r border-border transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-auto"
+      >
+        <div
+          class="flex items-center justify-between h-16 px-6 border-b border-border"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center font-bold text-white">
+              SG
+            </div>
+            <span class="font-bold text-lg tracking-tight">Diários Escolares</span>
+          </div>
+          <button
+            id="sidebar-close"
+            class="lg:hidden text-secondary hover:text-primary"
+          >
+            <i class="ph ph-x text-xl"></i>
+          </button>
+        </div>
+
+        <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100%-4rem)] scrollbar-hide">
+          <p class="px-3 text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
+            Menu Principal
+          </p>
+
+          <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-squares-four text-lg"></i> Dashboard
+          </a>
+          <a href="chamada.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-clipboard-text text-lg"></i> Chamada
+          </a>
+          <a href="notas.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-chart-line-up text-lg"></i> Notas
+          </a>
+          <a href="historico-chamadas.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-clock-counter-clockwise text-lg"></i> Histórico
+          </a>
+          <a href="bilhetes.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-envelope-simple text-lg"></i> Bilhetes
+          </a>
+          <a href="alunos.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-users-three text-lg"></i> Alunos
+          </a>
+          <a href="horario.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-calendar-dots text-lg"></i> Horário
+          </a>
+
+          <div class="pt-4 mt-4 border-t border-border">
+            <p class="px-3 text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
+              Sistema
+            </p>
+            <a href="perfil.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+              <i class="ph ph-gear text-lg"></i> Configurações
+            </a>
+          </div>
+        </nav>
+      </aside>
+
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <header class="h-16 bg-surface/80 glass-effect border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
+          <div class="flex items-center gap-4">
+            <button
+              id="sidebar-toggle"
+              class="lg:hidden p-2 rounded-lg text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+            >
+              <i class="ph ph-list text-xl"></i>
+            </button>
+            <div class="hidden sm:block">
+              <h1 class="text-sm font-medium text-secondary">Comunicação</h1>
+              <h2 class="text-lg font-bold text-primary">Bilhetes</h2>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button
+              class="relative p-2 rounded-lg text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+              id="btn-notifications"
+            >
+              <i class="ph ph-bell text-xl"></i>
+              <span id="badge-notifications" class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full hidden"></span>
+            </button>
+
+            <div class="flex items-center gap-3 pl-3 border-l border-border">
+              <div class="text-right hidden md:block">
+                <p id="user-name" class="text-sm font-semibold text-primary">Professor</p>
+                <p id="user-discipline" class="text-xs text-secondary">Disciplina</p>
+              </div>
+              <div id="user-initials" class="w-9 h-9 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-accent font-bold text-sm cursor-pointer hover:bg-accent/30 transition-colors">
+                P
+              </div>
+              <button
+                id="btn-logout"
+                class="p-2 rounded-lg text-secondary hover:bg-danger/10 hover:text-danger transition-colors"
+                title="Sair"
+              >
+                <i class="ph ph-sign-out text-xl"></i>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6 scrollbar-hide space-y-6">
+
+          <!-- Header + Filtros -->
+          <section class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-end gap-4 lg:justify-between">
+              <div>
+                <h3 class="text-lg font-bold text-primary">Bilhetes Enviados</h3>
+                <p class="text-secondary text-sm mt-1">Comunicados enviados aos responsáveis dos alunos.</p>
+              </div>
+              <button id="btn-novo-bilhete"
+                class="px-5 py-2 rounded-lg bg-accent hover:bg-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap">
+                + Novo Bilhete
+              </button>
+            </div>
+            <!-- Barra de filtros -->
+            <div class="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-border">
+              <select id="filter-turma" class="bg-slate-900 border border-border text-primary text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent outline-none">
+                <option value="">Todas as turmas</option>
+              </select>
+              <select id="filter-status" class="bg-slate-900 border border-border text-primary text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent outline-none">
+                <option value="">Todos os status</option>
+                <option value="enviado">Enviado</option>
+                <option value="entregue">Entregue</option>
+                <option value="lido">Lido</option>
+              </select>
+              <input id="search-bilhetes" type="search" placeholder="Pesquisar bilhetes..."
+                class="flex-1 bg-slate-900 border border-border text-primary text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent outline-none" />
+            </div>
+          </section>
+
+          <!-- Lista de bilhetes -->
+          <section id="lista-bilhetes" class="space-y-3">
+            <div class="bg-surface border border-border rounded-xl p-8 text-center text-secondary text-sm">
+              Carregando bilhetes...
+            </div>
+          </section>
+        </main>
+
+        <!-- Modal: Novo Bilhete -->
+        <div id="modal-novo" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-novo')">
+          <div class="modal-box space-y-4">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-base font-bold text-primary">Novo Bilhete</h3>
+              <button onclick="closeModal('modal-novo')" class="text-secondary hover:text-primary text-xl leading-none">×</button>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-secondary uppercase tracking-wider mb-1">Assunto *</label>
+              <input id="input-assunto" type="text" placeholder="Ex: Resultado da prova, Reunião de pais..."
+                class="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-accent outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-secondary uppercase tracking-wider mb-1">Destinatário *</label>
+              <select id="input-destinatario" class="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-accent outline-none">
+                <option value="">Selecione...</option>
+                <option value="turma">Turma inteira</option>
+                <option value="responsavel">Responsável específico</option>
+              </select>
+            </div>
+
+            <div id="turma-select-group" style="display:none">
+              <label class="block text-xs font-semibold text-secondary uppercase tracking-wider mb-1">Turma</label>
+              <select id="input-turma" class="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-accent outline-none">
+                <option value="">Selecione a turma</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-secondary uppercase tracking-wider mb-1">
+                Mensagem * <span class="normal-case font-normal text-secondary">(<span id="char-count">0</span>/500)</span>
+              </label>
+              <textarea id="input-mensagem" rows="4" maxlength="500" placeholder="Digite a mensagem para os responsáveis..."
+                class="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-accent outline-none resize-none"></textarea>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer text-sm text-secondary">
+                <input id="input-urgente" type="checkbox" class="accent-accent" />
+                Marcar como urgente
+              </label>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-secondary uppercase tracking-wider mb-1">Anexo (opcional)</label>
+              <input id="input-anexo" type="file" accept=".pdf,.doc,.docx,.jpg,.png"
+                class="w-full text-sm text-secondary file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-accent file:text-white file:text-sm file:cursor-pointer" />
+              <div id="file-preview"></div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-border">
+              <button onclick="closeModal('modal-novo')" class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">Cancelar</button>
+              <button id="btn-enviar-bilhete" class="px-5 py-2 rounded-lg bg-accent hover:bg-blue-600 text-white text-sm font-semibold transition-all active:scale-95">
+                Enviar Bilhete
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: Visualizar Bilhete -->
+        <div id="modal-visualizar" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-visualizar')">
+          <div class="modal-box space-y-4">
+            <div class="flex items-center justify-between mb-2">
+              <h3 id="modal-assunto" class="text-base font-bold text-primary">Bilhete</h3>
+              <button onclick="closeModal('modal-visualizar')" class="text-secondary hover:text-primary text-xl leading-none">×</button>
+            </div>
+            <div id="modal-conteudo"></div>
+            <div class="flex justify-end pt-2 border-t border-border">
+              <button onclick="closeModal('modal-visualizar')" class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script type="module" src="./js/professor-shell.js"></script>
+    <script type="module" src="./js/bilhetes.js"></script>
+  </body>
+</html>

@@ -288,6 +288,23 @@ window.addEventListener("pagehide", () => {
 
 document.addEventListener("DOMContentLoaded", init);
 
+document.addEventListener("DOMContentLoaded", function () {
+  const el = document.getElementById("filter-data");
+  if (!el) return;
+  el.addEventListener("keydown", function (e) {
+    if (!["Tab","Backspace","Delete","ArrowLeft","ArrowRight","Home","End"].includes(e.key) && !/\d/.test(e.key)) e.preventDefault();
+  });
+  el.addEventListener("input", function () {
+    let v = this.value.replace(/\D/g, "").slice(0, 8);
+    if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+    if (v.length > 5) v = v.slice(0, 5) + "/" + v.slice(5);
+    this.value = v;
+  });
+  el.addEventListener("blur", function () {
+    this.classList.toggle("border-red-500", !!this.value && !/^\d{2}\/\d{2}\/\d{4}$/.test(this.value));
+  });
+});
+
 /**
  * BUILD: 2026-05-14 18:00:00
  * STATUS: PRODUCTION READY

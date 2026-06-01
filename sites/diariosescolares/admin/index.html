@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -322,7 +322,6 @@
       }
 
       input[type="text"],
-      input[type="date"],
       select {
         background: var(--surface-alt);
         border: 1px solid var(--border);
@@ -509,7 +508,7 @@
               <option value="DELETE">DELETE</option>
               <option value="LOGIN">LOGIN</option>
             </select>
-            <input type="date" id="filter-data" />
+            <input type="text" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off" id="filter-data" />
             <button class="btn" onclick="exportLogsCSV()">
               📥 Exportar CSV
             </button>

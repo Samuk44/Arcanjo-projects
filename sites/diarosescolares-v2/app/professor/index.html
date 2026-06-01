@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SGE — Professor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      visibility: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    nav {
+      background: #1e40af;
+      color: #fff;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    nav .brand { font-weight: 700; font-size: 1rem; letter-spacing: -0.3px; }
+
+    nav .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.875rem;
+    }
+
+    nav .role-badge {
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.78rem;
+    }
+
+    button.logout {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button.logout:hover { background: rgba(255,255,255,0.22); }
+
+    main {
+      max-width: 960px;
+      margin: 36px auto;
+      padding: 0 20px;
+    }
+
+    .greeting {
+      margin-bottom: 28px;
+    }
+
+    .greeting h1 { font-size: 1.4rem; font-weight: 600; }
+    .greeting p { color: #64748b; font-size: 0.9rem; margin-top: 4px; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 24px 20px;
+      text-decoration: none;
+      color: inherit;
+      border: 1.5px solid transparent;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      display: block;
+    }
+
+    .card:hover {
+      border-color: #1e40af;
+      box-shadow: 0 4px 16px rgba(30,64,175,0.12);
+    }
+
+    .card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .card h2 { font-size: 0.95rem; font-weight: 600; }
+    .card p { font-size: 0.82rem; color: #64748b; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="brand">SGE</span>
+    <div class="nav-right">
+      <span id="userName"></span>
+      <span class="role-badge">Professor</span>
+      <button class="logout" id="logoutBtn">Sair</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="greeting">
+      <h1>Bem-vindo, <span id="greetName"></span></h1>
+      <p>Selecione uma área para continuar.</p>
+    </div>
+
+    <div class="cards">
+      <a href="chamada.html" class="card">
+        <div class="card-icon">📋</div>
+        <h2>Chamada</h2>
+        <p>Registrar presença dos alunos</p>
+      </a>
+      <a href="#" class="card">
+        <div class="card-icon">📝</div>
+        <h2>Notas</h2>
+        <p>Lançar e consultar avaliações</p>
+      </a>
+      <a href="#" class="card">
+        <div class="card-icon">📅</div>
+        <h2>Horários</h2>
+        <p>Visualizar grade de aulas</p>
+      </a>
+      <a href="#" class="card">
+        <div class="card-icon">💬</div>
+        <h2>Comunicados</h2>
+        <p>Mensagens e avisos</p>
+      </a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { authController } from '../../auth/auth.controller.js';
+
+    const user = await authController.guardRoute('teacher');
+    if (!user) return;
+
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('greetName').textContent = user.name.split(' ')[0];
+    document.getElementById('logoutBtn').addEventListener('click', () => authController.logout());
+    document.body.style.visibility = 'visible';
+  </script>
+</body>
+</html>

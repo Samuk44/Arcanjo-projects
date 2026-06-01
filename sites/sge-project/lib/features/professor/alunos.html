@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGE v2.0 | Alunos</title>
+    <meta name="description" content="Lista de alunos vinculados ao professor" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#1e293b",
+              border: "#334155",
+              primary: "#f8fafc",
+              secondary: "#94a3b8",
+              accent: "#3b82f6",
+              success: "#22c55e",
+              danger: "#ef4444",
+              warning: "#f59e0b",
+            },
+            animation: {
+              "fade-in": "fadeIn 0.3s ease-out",
+              "slide-up": "slideUp 0.4s ease-out",
+            },
+            keyframes: {
+              fadeIn: { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+              slideUp: {
+                "0%": { transform: "translateY(10px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+      }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      .glass-effect {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .btn-toggle.active { background-color:#3b82f6; color:white; border-color:#3b82f6; }
+
+      /* Toast */
+      .toast { display:flex; align-items:flex-start; gap:.75rem; padding:.9rem 1.1rem;
+        background:#1e293b; border:1px solid #334155; border-radius:.75rem;
+        box-shadow:0 8px 24px rgba(0,0,0,.4); pointer-events:auto;
+        font-size:.875rem; color:#f8fafc; transition:opacity .3s, transform .3s; }
+
+      /* Freq bar */
+      .freq-bar-container { display:flex; align-items:center; gap:.5rem; }
+      .freq-bar { flex:1; height:.4rem; background:#0f172a; border-radius:.25rem; overflow:hidden; min-width:5rem; }
+      .freq-bar-fill { height:100%; background:#22c55e; border-radius:.25rem; transition:width .3s; }
+      .freq-bar-fill.warning { background:#f59e0b; }
+      .freq-bar-fill.danger  { background:#ef4444; }
+      .freq-percent { font-size:.75rem; color:#94a3b8; white-space:nowrap; }
+
+      /* Status badge */
+      .status-badge { display:inline-block; padding:.2rem .6rem; border-radius:9999px; font-size:.7rem; font-weight:700; }
+      .status-ok      { background:rgba(34,197,94,.15);  color:#22c55e; }
+      .status-atencao { background:rgba(245,158,11,.15); color:#f59e0b; }
+      .status-critico { background:rgba(239,68,68,.15);  color:#ef4444; }
+
+      /* Table */
+      #tabela-alunos td { padding:.75rem 1rem; font-size:.875rem; color:#f8fafc; }
+      .aluno-nome { cursor:pointer; font-weight:600; }
+      .aluno-nome:hover { color:#3b82f6; }
+      .action-btn { background:none; border:none; cursor:pointer; font-size:1.1rem; opacity:.7; transition:opacity .2s; }
+      .action-btn:hover { opacity:1; }
+
+      /* Modal */
+      .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7);
+        backdrop-filter:blur(4px); z-index:200; align-items:center; justify-content:center; padding:1rem; }
+      .modal-overlay.active { display:flex; }
+      .modal-box { background:#1e293b; border:1px solid #334155; border-radius:1rem;
+        width:100%; max-width:480px; padding:1.5rem; }
+      .detail-section { margin-bottom:1.25rem; }
+      .detail-title { font-size:.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.75rem; }
+      .detail-item { display:flex; justify-content:space-between; padding:.4rem 0; border-bottom:1px solid #1e293b; }
+      .detail-label { font-size:.875rem; color:#94a3b8; }
+      .detail-value { font-size:.875rem; font-weight:600; color:#f8fafc; }
+    </style>
+  </head>
+
+  <body class="bg-slate-900 text-primary antialiased overflow-x-hidden">
+    <div class="flex h-screen overflow-hidden">
+
+      <aside
+        id="sidebar"
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-surface border-r border-border transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-auto"
+      >
+        <div
+          class="flex items-center justify-between h-16 px-6 border-b border-border"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center font-bold text-white">
+              SG
+            </div>
+            <span class="font-bold text-lg tracking-tight">Diários Escolares</span>
+          </div>
+          <button
+            id="sidebar-close"
+            class="lg:hidden text-secondary hover:text-primary"
+          >
+            <i class="ph ph-x text-xl"></i>
+          </button>
+        </div>
+
+        <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100%-4rem)] scrollbar-hide">
+          <p class="px-3 text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
+            Menu Principal
+          </p>
+
+          <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-squares-four text-lg"></i> Dashboard
+          </a>
+          <a href="chamada.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-clipboard-text text-lg"></i> Chamada
+          </a>
+          <a href="notas.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-chart-line-up text-lg"></i> Notas
+          </a>
+          <a href="historico-chamadas.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-clock-counter-clockwise text-lg"></i> Histórico
+          </a>
+          <a href="bilhetes.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-envelope-simple text-lg"></i> Bilhetes
+          </a>
+          <a href="alunos.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-users-three text-lg"></i> Alunos
+          </a>
+          <a href="horario.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+            <i class="ph ph-calendar-dots text-lg"></i> Horário
+          </a>
+
+          <div class="pt-4 mt-4 border-t border-border">
+            <p class="px-3 text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
+              Sistema
+            </p>
+            <a href="perfil.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors">
+              <i class="ph ph-gear text-lg"></i> Configurações
+            </a>
+          </div>
+        </nav>
+      </aside>
+
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <header class="h-16 bg-surface/80 glass-effect border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
+          <div class="flex items-center gap-4">
+            <button
+              id="sidebar-toggle"
+              class="lg:hidden p-2 rounded-lg text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+            >
+              <i class="ph ph-list text-xl"></i>
+            </button>
+            <div class="hidden sm:block">
+              <h1 class="text-sm font-medium text-secondary">Cadastro e consulta</h1>
+              <h2 class="text-lg font-bold text-primary">Alunos</h2>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button
+              class="relative p-2 rounded-lg text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+              id="btn-notifications"
+            >
+              <i class="ph ph-bell text-xl"></i>
+              <span id="badge-notifications" class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full hidden"></span>
+            </button>
+
+            <div class="flex items-center gap-3 pl-3 border-l border-border">
+              <div class="text-right hidden md:block">
+                <p id="user-name" class="text-sm font-semibold text-primary">Professor</p>
+                <p id="user-discipline" class="text-xs text-secondary">Disciplina</p>
+              </div>
+              <div id="user-initials" class="w-9 h-9 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-accent font-bold text-sm cursor-pointer hover:bg-accent/30 transition-colors">
+                P
+              </div>
+              <button
+                id="btn-logout"
+                class="p-2 rounded-lg text-secondary hover:bg-danger/10 hover:text-danger transition-colors"
+                title="Sair"
+              >
+                <i class="ph ph-sign-out text-xl"></i>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6 scrollbar-hide space-y-6">
+
+          <!-- Filtros -->
+          <section class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-end gap-4 lg:justify-between">
+              <div>
+                <h3 class="text-lg font-bold text-primary">Alunos por turma</h3>
+                <p class="text-secondary text-sm mt-1">Frequência e média calculadas a partir das chamadas e notas registradas.</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <select id="select-turma" class="bg-slate-900 border border-border text-primary text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent outline-none">
+                  <option value="">Selecione a turma</option>
+                </select>
+                <input id="search-alunos" type="search" placeholder="Pesquisar aluno..."
+                  class="bg-slate-900 border border-border text-primary text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent outline-none" />
+              </div>
+            </div>
+          </section>
+
+          <!-- Tabela -->
+          <section class="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-xs text-secondary uppercase tracking-wider border-b border-border bg-slate-800/50">
+                    <th class="text-left px-5 py-3 font-semibold cursor-pointer hover:text-primary" onclick="sortTable('nome')">Aluno ↕</th>
+                    <th class="text-left px-3 py-3 font-semibold cursor-pointer hover:text-primary" onclick="sortTable('frequencia')">Frequência ↕</th>
+                    <th class="text-left px-3 py-3 font-semibold">Última Falta</th>
+                    <th class="text-left px-3 py-3 font-semibold cursor-pointer hover:text-primary" onclick="sortTable('media')">Média ↕</th>
+                    <th class="text-left px-3 py-3 font-semibold">Status</th>
+                    <th class="px-3 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody id="tabela-alunos" class="divide-y divide-border">
+                  <tr>
+                    <td colspan="6" class="py-8 text-center text-secondary">Selecione uma turma para carregar os alunos.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <!-- Modal: Detalhes do Aluno -->
+        <div id="modal-detalhes" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-detalhes')">
+          <div class="modal-box space-y-4">
+            <div class="flex items-center justify-between mb-2">
+              <h3 id="modal-nome" class="text-base font-bold text-primary">Detalhes do Aluno</h3>
+              <button onclick="closeModal('modal-detalhes')" class="text-secondary hover:text-primary text-xl leading-none">×</button>
+            </div>
+            <div id="modal-conteudo"></div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-border">
+              <button onclick="closeModal('modal-detalhes')" class="px-4 py-2 rounded-lg text-sm text-secondary hover:text-primary transition-colors">Fechar</button>
+              <button id="btn-enviar-bilhete" class="px-5 py-2 rounded-lg bg-accent hover:bg-blue-600 text-white text-sm font-semibold transition-all active:scale-95">
+                📩 Enviar Bilhete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script type="module" src="./js/professor-shell.js"></script>
+    <script type="module" src="./js/alunos.js"></script>
+  </body>
+</html>

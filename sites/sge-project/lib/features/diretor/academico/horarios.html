@@ -1,0 +1,1072 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>Horários - Diários Escolares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              bg: "#f8fafc",
+              surface: "#ffffff",
+              border: "#e2e8f0",
+              primary: "#3b82f6",
+              primaryHover: "#2563eb",
+              text: "#0f172a",
+              muted: "#64748b",
+            },
+            fontFamily: {
+              sans: ["DM Sans", "sans-serif"],
+              display: ["Syne", "sans-serif"],
+            },
+            boxShadow: {
+              soft: "0 2px 12px 0 rgba(59,130,246,0.08)",
+              card: "0 1px 4px 0 rgba(15,23,42,0.06)",
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      }
+
+      .modal-backdrop {
+        backdrop-filter: blur(4px);
+      }
+
+      .toast {
+        animation: toastIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateY(16px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .skeleton {
+        animation: skeleton-pulse 1.4s ease-in-out infinite;
+        background: linear-gradient(
+          90deg,
+          #e2e8f0 25%,
+          #f1f5f9 50%,
+          #e2e8f0 75%
+        );
+        background-size: 200% 100%;
+      }
+      @keyframes skeleton-pulse {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .schedule-cell {
+        min-height: 52px;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s,
+          background 0.15s;
+      }
+      .schedule-cell:hover {
+        border-color: #93c5fd !important;
+        box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.1);
+      }
+      .schedule-cell.drag-over {
+        background: #eff6ff;
+        border-color: #3b82f6 !important;
+      }
+
+      .horario-card {
+        transition:
+          transform 0.12s,
+          box-shadow 0.12s;
+        cursor: pointer;
+      }
+      .horario-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .horario-card:active {
+        transform: scale(0.98);
+      }
+
+      /* Discipline color palette */
+      .disc-mat {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #bfdbfe;
+      }
+      .disc-port {
+        background: #fce7f3;
+        color: #9d174d;
+        border-color: #fbcfe8;
+      }
+      .disc-cie {
+        background: #d1fae5;
+        color: #065f46;
+        border-color: #a7f3d0;
+      }
+      .disc-his {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fde68a;
+      }
+      .disc-geo {
+        background: #e0e7ff;
+        color: #3730a3;
+        border-color: #c7d2fe;
+      }
+      .disc-ed {
+        background: #f0fdf4;
+        color: #14532d;
+        border-color: #bbf7d0;
+      }
+      .disc-art {
+        background: #fdf4ff;
+        color: #701a75;
+        border-color: #f5d0fe;
+      }
+      .disc-ing {
+        background: #fff7ed;
+        color: #7c2d12;
+        border-color: #fed7aa;
+      }
+      .disc-fis {
+        background: #ecfdf5;
+        color: #134e4a;
+        border-color: #6ee7b7;
+      }
+      .disc-qui {
+        background: #fff1f2;
+        color: #881337;
+        border-color: #fecdd3;
+      }
+      .disc-bio {
+        background: #f0fdf4;
+        color: #166534;
+        border-color: #86efac;
+      }
+      .disc-fil {
+        background: #fafafa;
+        color: #18181b;
+        border-color: #d4d4d8;
+      }
+      .disc-def {
+        background: #f1f5f9;
+        color: #334155;
+        border-color: #cbd5e1;
+      }
+
+      .conflict-row {
+        background: #fff1f2;
+        border-left: 3px solid #ef4444;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+      }
+
+      .time-label {
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+      }
+
+      #modal-form input:focus,
+      #modal-form select:focus {
+        outline: none;
+        ring: 2px;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+
+      .filter-chip {
+        transition:
+          background 0.15s,
+          color 0.15s,
+          border-color 0.15s;
+      }
+      .filter-chip.active {
+        background: #eff6ff;
+        color: #2563eb;
+        border-color: #93c5fd;
+        font-weight: 600;
+      }
+
+      @media print {
+        aside,
+        header,
+        #toolbar,
+        #filter-bar,
+        #toast-container,
+        #modal-horario {
+          display: none !important;
+        }
+        body {
+          overflow: auto !important;
+          background: #fff !important;
+        }
+        main {
+          overflow: auto !important;
+        }
+        #schedule-wrapper {
+          overflow: visible !important;
+        }
+        .horario-card {
+          box-shadow: none !important;
+        }
+        #schedule-grid-container {
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-bg text-text font-sans antialiased h-screen flex overflow-hidden"
+  >
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-surface border-r border-border flex-col hidden md:flex shadow-card"
+    >
+      <div class="p-6 border-b border-border">
+        <img src="../../assets/img/logo.png" alt="Diários Escolares" class="h-10 w-auto object-contain" />
+        <p class="text-xs text-muted mt-1">Painel do Diretor</p>
+      </div>
+      <nav class="flex-1 overflow-y-auto py-4">
+        <ul class="space-y-1 px-3">
+          <li>
+            <a
+              href="../index.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="../aprovar-cadastros.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Aprovar Cadastros</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Usuários
+          </li>
+          <li>
+            <a
+              href="../usuarios/professores.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Professores</a
+            >
+          </li>
+          <li>
+            <a
+              href="../usuarios/pais.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Responsáveis</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Acadêmico
+          </li>
+          <li>
+            <a
+              href="../academico/turmas.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Turmas</a
+            >
+          </li>
+          <li>
+            <a
+              href="../academico/horarios.html"
+              class="block px-4 py-2.5 rounded-xl bg-blue-50 text-primary font-semibold text-sm"
+              >Horários</a
+            >
+          </li>
+          <li>
+            <a
+              href="alunos.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Alunos</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Comunicação
+          </li>
+          <li>
+            <a
+              href="../comunicados.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Comunicados</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Relatórios
+          </li>
+          <li>
+            <a
+              href="../relatorios/frequencia.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Frequência</a
+            >
+          </li>
+          <li>
+            <a
+              href="../relatorios/notas.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Notas</a
+            >
+          </li>
+          <li
+            class="pt-4 pb-2 px-4 text-xs font-bold text-muted uppercase tracking-wider"
+          >
+            Sistema
+          </li>
+          <li>
+            <a
+              href="../configuracoes.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Configurações</a
+            >
+          </li>
+          <li>
+            <a
+              href="../perfil.html"
+              class="block px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium text-muted hover:text-primary"
+              >Meu Perfil</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <div class="p-4 border-t border-border">
+        <a
+          href="../../apenas-html/login.html"
+          class="flex items-center gap-2 text-sm text-red-400 hover:text-red-500 transition-colors font-medium"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <!-- Topbar -->
+      <header
+        class="h-16 bg-surface border-b border-border flex items-center justify-between px-6 shadow-card shrink-0"
+      >
+        <div class="flex items-center gap-3">
+          <!-- Mobile menu toggle -->
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors"
+            aria-label="Abrir menu"
+          >
+            <svg
+              class="w-5 h-5 text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <h2 class="font-display text-lg font-semibold text-text">Horários</h2>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-muted hidden sm:block" id="topbar-greeting"
+            >Olá, Diretor</span
+          >
+          <div
+            id="topbar-avatar"
+            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-white text-sm"
+          >
+            D
+          </div>
+        </div>
+      </header>
+
+      <!-- Toolbar -->
+      <div
+        id="toolbar"
+        class="bg-surface border-b border-border px-4 md:px-6 py-3 flex flex-wrap items-center gap-3 shrink-0"
+      >
+        <!-- Turma select -->
+        <div class="flex items-center gap-2 flex-1 min-w-[180px] max-w-xs">
+          <label
+            for="select-turma"
+            class="text-xs font-semibold text-muted uppercase tracking-wider whitespace-nowrap"
+            >Turma</label
+          >
+          <select
+            id="select-turma"
+            class="flex-1 px-3 py-2 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+          >
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+
+        <!-- Filter by teacher -->
+        <div class="flex items-center gap-2 min-w-[160px]">
+          <label
+            for="filter-professor"
+            class="text-xs font-semibold text-muted uppercase tracking-wider whitespace-nowrap"
+            >Professor</label
+          >
+          <select
+            id="filter-professor"
+            class="flex-1 px-3 py-2 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+          >
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <!-- Filter by room -->
+        <div class="flex items-center gap-2 min-w-[140px]">
+          <label
+            for="filter-sala"
+            class="text-xs font-semibold text-muted uppercase tracking-wider whitespace-nowrap"
+            >Sala</label
+          >
+          <select
+            id="filter-sala"
+            class="flex-1 px-3 py-2 rounded-xl border border-border bg-bg text-text text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+          >
+            <option value="">Todas</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2 ml-auto flex-wrap">
+          <button
+            id="btn-novo"
+            class="btn-primary text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-soft transition flex items-center gap-1.5"
+            aria-label="Adicionar horário"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Novo
+          </button>
+          <button
+            id="btn-duplicar"
+            title="Duplicar grade para outra turma"
+            class="px-4 py-2 rounded-xl border border-border text-sm font-medium text-muted hover:bg-blue-50 hover:text-primary hover:border-blue-200 transition flex items-center gap-1.5"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+            Duplicar
+          </button>
+          <button
+            id="btn-exportar"
+            title="Exportar como CSV"
+            class="px-4 py-2 rounded-xl border border-border text-sm font-medium text-muted hover:bg-blue-50 hover:text-primary hover:border-blue-200 transition flex items-center gap-1.5"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+            Exportar
+          </button>
+          <button
+            id="btn-imprimir"
+            title="Imprimir grade"
+            class="px-4 py-2 rounded-xl border border-border text-sm font-medium text-muted hover:bg-blue-50 hover:text-primary hover:border-blue-200 transition flex items-center gap-1.5"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+              />
+            </svg>
+            Imprimir
+          </button>
+          <button
+            id="btn-limpar"
+            title="Limpar toda a grade desta turma"
+            class="px-4 py-2 rounded-xl border border-red-200 text-sm font-medium text-red-400 hover:bg-red-50 hover:text-red-600 transition flex items-center gap-1.5"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Limpar
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule Area -->
+      <div class="flex-1 overflow-auto p-4 md:p-6 bg-bg" id="schedule-wrapper">
+        <!-- Empty state -->
+        <div
+          id="empty-state"
+          class="hidden flex-col items-center justify-center py-20 text-center"
+        >
+          <div
+            class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-10 h-10 text-blue-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <h3 class="font-display text-lg font-semibold text-text mb-1">
+            Nenhuma turma selecionada
+          </h3>
+          <p class="text-sm text-muted max-w-xs">
+            Selecione uma turma no filtro acima para visualizar ou criar a grade
+            de horários.
+          </p>
+        </div>
+
+        <!-- No schedules state -->
+        <div
+          id="no-schedules-state"
+          class="hidden flex-col items-center justify-center py-20 text-center"
+        >
+          <div
+            class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-10 h-10 text-slate-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </div>
+          <h3 class="font-display text-lg font-semibold text-text mb-1">
+            Grade vazia
+          </h3>
+          <p class="text-sm text-muted max-w-xs mb-4">
+            Nenhum horário cadastrado para esta turma ainda.
+          </p>
+          <button
+            id="btn-novo-empty"
+            class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-soft transition flex items-center gap-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Adicionar primeiro horário
+          </button>
+        </div>
+
+        <!-- Skeleton loading -->
+        <div id="skeleton-grid" class="hidden">
+          <div
+            class="overflow-x-auto rounded-2xl border border-border bg-surface shadow-card"
+          >
+            <div class="grid grid-cols-6 min-w-[640px]">
+              <div
+                class="p-3 border-b border-r border-border bg-slate-50"
+              ></div>
+              <div
+                class="p-3 border-b border-r border-border bg-slate-50 skeleton h-10 rounded-lg m-2"
+              ></div>
+              <div
+                class="p-3 border-b border-r border-border bg-slate-50 skeleton h-10 rounded-lg m-2"
+              ></div>
+              <div
+                class="p-3 border-b border-r border-border bg-slate-50 skeleton h-10 rounded-lg m-2"
+              ></div>
+              <div
+                class="p-3 border-b border-r border-border bg-slate-50 skeleton h-10 rounded-lg m-2"
+              ></div>
+              <div
+                class="p-3 border-b border-border bg-slate-50 skeleton h-10 rounded-lg m-2"
+              ></div>
+            </div>
+            <div id="skeleton-rows"></div>
+          </div>
+        </div>
+
+        <!-- Schedule Grid -->
+        <div
+          id="schedule-grid-container"
+          class="hidden overflow-x-auto rounded-2xl border border-border bg-surface shadow-card"
+          style="min-width: 100%"
+        >
+          <div id="schedule-grid" class="min-w-[700px]"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL CRIAR/EDITAR HORÁRIO -->
+    <div
+      id="modal-horario"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-horario-title"
+    >
+      <div
+        class="bg-surface rounded-3xl border border-border shadow-xl w-full max-w-lg flex flex-col max-h-[90vh]"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between p-6 border-b border-border shrink-0"
+        >
+          <h3
+            id="modal-horario-title"
+            class="font-display text-base font-semibold text-text"
+          >
+            Novo Horário
+          </h3>
+          <button
+            id="modal-close"
+            class="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
+            aria-label="Fechar modal"
+          >
+            <svg
+              class="w-4 h-4 text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body (scrollable) -->
+        <div id="modal-form" class="overflow-y-auto p-6 space-y-4 flex-1">
+          <!-- Conflict warning -->
+          <div
+            id="conflict-warning"
+            class="hidden bg-red-50 border border-red-200 rounded-xl p-4"
+            role="alert"
+            aria-live="assertive"
+          >
+            <div class="flex items-start gap-3">
+              <svg
+                class="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                />
+              </svg>
+              <div>
+                <p class="text-sm font-semibold text-red-700">
+                  Conflito detectado
+                </p>
+                <ul
+                  id="conflict-list"
+                  class="text-xs text-red-600 mt-1 space-y-1 list-disc list-inside"
+                ></ul>
+              </div>
+            </div>
+          </div>
+
+          <input type="hidden" id="edit-id" />
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+              <label
+                for="modal-turma"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Turma <span class="text-red-400">*</span></label
+              >
+              <select
+                id="modal-turma"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                required
+              >
+                <option value="">Selecionar turma</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="modal-dia"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Dia da semana <span class="text-red-400">*</span></label
+              >
+              <select
+                id="modal-dia"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                required
+              >
+                <option value="">Selecionar dia</option>
+                <option value="segunda">Segunda-feira</option>
+                <option value="terca">Terça-feira</option>
+                <option value="quarta">Quarta-feira</option>
+                <option value="quinta">Quinta-feira</option>
+                <option value="sexta">Sexta-feira</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="modal-disciplina"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Disciplina <span class="text-red-400">*</span></label
+              >
+              <select
+                id="modal-disciplina"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                required
+              >
+                <option value="">Selecionar</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="modal-inicio"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Início <span class="text-red-400">*</span></label
+              >
+              <input
+                id="modal-inicio"
+                type="time"
+                min="07:00"
+                max="18:00"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="modal-fim"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Fim <span class="text-red-400">*</span></label
+              >
+              <input
+                id="modal-fim"
+                type="time"
+                min="07:00"
+                max="18:00"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                required
+              />
+            </div>
+
+            <div class="col-span-2">
+              <label
+                for="modal-professor"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Professor <span class="text-red-400">*</span></label
+              >
+              <select
+                id="modal-professor"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                required
+              >
+                <option value="">Selecionar professor</option>
+              </select>
+            </div>
+
+            <div class="col-span-2">
+              <label
+                for="modal-sala"
+                class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+                >Sala <span class="text-red-400">*</span></label
+              >
+              <select
+                id="modal-sala"
+                class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm transition"
+                required
+              >
+                <option value="">Selecionar sala</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div
+          class="p-6 border-t border-border flex items-center justify-between gap-3 shrink-0"
+        >
+          <button
+            id="modal-delete"
+            class="hidden px-4 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-500 hover:bg-red-50 transition flex items-center gap-1.5"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Excluir
+          </button>
+          <div class="flex gap-3 ml-auto">
+            <button
+              id="modal-cancelar"
+              class="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted hover:bg-slate-50 transition"
+            >
+              Cancelar
+            </button>
+            <button
+              id="modal-salvar"
+              class="btn-primary text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-soft transition flex items-center gap-2"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Salvar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DUPLICAR -->
+    <div
+      id="modal-duplicar"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-dup-title"
+    >
+      <div
+        class="bg-surface rounded-3xl border border-border shadow-xl w-full max-w-sm p-6"
+      >
+        <h3
+          id="modal-dup-title"
+          class="font-display text-base font-semibold text-text mb-4"
+        >
+          Duplicar Grade
+        </h3>
+        <p class="text-sm text-muted mb-4">
+          Copiar todos os horários da turma atual para:
+        </p>
+        <label
+          for="dup-turma"
+          class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5"
+          >Turma destino</label
+        >
+        <select
+          id="dup-turma"
+          class="w-full px-4 py-2.5 rounded-xl border border-border bg-bg text-text text-sm mb-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-primary transition"
+        >
+          <option value="">Selecionar turma</option>
+        </select>
+        <div class="flex gap-3 justify-end">
+          <button
+            id="dup-cancelar"
+            class="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted hover:bg-slate-50 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            id="dup-confirmar"
+            class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-soft transition"
+          >
+            Duplicar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR LIMPAR -->
+    <div
+      id="modal-limpar"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop bg-black/40"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="bg-surface rounded-3xl border border-border shadow-xl w-full max-w-sm p-6"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0"
+          >
+            <svg
+              class="w-5 h-5 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-display text-base font-semibold text-text">
+              Limpar grade?
+            </h4>
+            <p class="text-xs text-muted mt-0.5">
+              Esta ação não pode ser desfeita.
+            </p>
+          </div>
+        </div>
+        <p class="text-sm text-muted mb-5">
+          Todos os horários da turma selecionada serão permanentemente
+          removidos.
+        </p>
+        <div class="flex gap-3 justify-end">
+          <button
+            id="limpar-cancelar"
+            class="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted hover:bg-slate-50 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            id="limpar-confirmar"
+            class="px-5 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition"
+          >
+            Limpar tudo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div
+      id="toast-container"
+      class="fixed bottom-6 right-6 z-[100] flex flex-col gap-2 pointer-events-none"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <script type="module" src="../js/academico-horarios.js"></script>
+  </body>
+</html>

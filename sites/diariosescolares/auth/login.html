@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SGE - Login</title>
+    <title>Diários Escolares - Login</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;600&display=swap"
       rel="stylesheet"
@@ -39,7 +39,7 @@
       .login-logo {
         font-size: 2.5rem;
         font-weight: 800;
-        color: var(--color-amber);
+        color: var(--primary);
         margin-bottom: var(--spacing-md);
       }
     </style>
@@ -48,8 +48,13 @@
     <div class="login-container">
       <div class="card login-card">
         <div class="login-header">
-          <div class="login-logo">SGE</div>
-          <h2>Sistema de Gestão Escolar</h2>
+          <a href="../index.html"
+            ><img
+              src="../assets/img/logo.png"
+              alt="Diários Escolares"
+              class="h-14 w-auto object-contain"
+          /></a>
+          <h2>Diários Escolares</h2>
           <p class="text-muted mt-md">Faça login para continuar</p>
         </div>
 
@@ -111,14 +116,20 @@
 
     <!-- ✅ Script principal de login (CORRIGIDO) -->
     <script type="module">
-      import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-      import { ref, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+      import {
+        signInWithEmailAndPassword,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+      import {
+        ref,
+        get,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
       import { auth, db } from "../assets/js/firebase/config.js";
 
       const REDIRECTS = {
         diretor: "../diretor/index.html",
-        professor: "../professor/index.html",
-        responsavel: "../responsavel/index.html",
+        professor: "../lib/features/professor/index.html",
+        responsavel: "../lib/features/responsavel/responsavel/index.html",
       };
 
       async function handleLogin(e) {
@@ -133,10 +144,17 @@
           return;
         }
 
-        if (btnEntrar) { btnEntrar.disabled = true; btnEntrar.innerText = "Entrando..."; }
+        if (btnEntrar) {
+          btnEntrar.disabled = true;
+          btnEntrar.innerText = "Entrando...";
+        }
 
         try {
-          const { user } = await signInWithEmailAndPassword(auth, email, password);
+          const { user } = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
 
           const snap = await get(ref(db, `usuarios/${user.uid}`));
           if (!snap.exists()) {
@@ -146,42 +164,38 @@
 
           const data = snap.val();
 
-          if (data.status !== "ativo") {
-            await signOut(auth);
-            notify(
-              data.status === "pendente"
-                ? "Cadastro pendente de aprovação."
-                : "Conta inativa. Contate a escola.",
-              "error",
-            );
-            if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
-            return;
-          }
+          const dest = REDIRECTS[data.role] || "../index.html";
 
-          const dest = REDIRECTS[data.role];
-          if (!dest) {
-            await signOut(auth);
-            notify("Perfil sem acesso ao sistema.", "error");
-            if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
-            return;
+          if (!REDIRECTS[data.role]) {
+            console.warn(
+              `[Auth] Role "${data.role || "vazio"}" não mapeado. Redirecionando para a página inicial.`,
+            );
+            // Mantém a UI ativa, só muda a rota
           }
 
           notify("Login realizado com sucesso!", "success");
-          setTimeout(() => { window.location.href = dest; }, 800);
+          setTimeout(() => {
+            window.location.href = dest;
+          }, 800);
         } catch (error) {
           console.error("Erro no login:", error);
           let msg = "Erro ao fazer login.";
-          if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password")
+          if (
+            error.code === "auth/invalid-credential" ||
+            error.code === "auth/wrong-password"
+          )
             msg = "Email ou senha incorretos.";
           else if (error.code === "auth/user-not-found")
             msg = "Usuário não encontrado.";
           else if (error.code === "auth/too-many-requests")
             msg = "Muitas tentativas. Tente mais tarde.";
-          else if (error.message)
-            msg = error.message;
+          else if (error.message) msg = error.message;
 
           notify(msg, "error");
-          if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
+          if (btnEntrar) {
+            btnEntrar.disabled = false;
+            btnEntrar.innerText = "Entrar";
+          }
         }
       }
 
@@ -190,7 +204,9 @@
         else alert(msg);
       }
 
-      document.getElementById("loginForm")?.addEventListener("submit", handleLogin);
+      document
+        .getElementById("loginForm")
+        ?.addEventListener("submit", handleLogin);
     </script>
   </body>
 </html>

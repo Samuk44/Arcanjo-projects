@@ -1,0 +1,26 @@
+{
+  "schools": {
+    "school_1": {
+      "name": "Escola Central",
+      "city": "Goiânia",
+      "state": "GO",
+      "active": true
+    }
+  },
+  "users": {
+    "user_1": {
+      "name": "Professor João",
+      "email": "joao@email.com",
+      "role": "teacher",
+      "schoolId": "school_1"
+    }
+  },
+  "classes": {
+    "class_1": {
+      "name": "9A",
+      "grade": "9º ano",
+      "shift": "morning",
+      "schoolId": "school_1"
+    }
+  }
+}

@@ -67,26 +67,5 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
-
-# Dependências
-node_modules/
-vendor/
-
-# Build/compilação
-dist/
-build/
-*.log
-
-# Sistema operacional
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Backup temporário
-backup-html.zip
-*.tmp
+serviceAccountKey.json
+sge-dados-completos.json

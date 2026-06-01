@@ -1,0 +1,1930 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Sistema escolar que conecta professores, diretores e responsáveis. Frequência, comunicados e acompanhamento em tempo real."
+    />
+    <title>Diários Escolares — Gestão e comunicação escolar</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              display: ["Syne", "sans-serif"],
+            },
+            boxShadow: {
+              soft: "0 24px 60px rgba(59,130,246,0.08)",
+              card: "0 8px 24px rgba(59,130,246,0.06)",
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: Inter, sans-serif;
+      }
+      details summary {
+        cursor: pointer;
+        list-style: none;
+      }
+      details summary::-webkit-details-marker {
+        display: none;
+      }
+      details[open] .faq-icon {
+        transform: rotate(45deg);
+      }
+      .faq-icon {
+        transition: transform 0.2s ease;
+      }
+    </style>
+  </head>
+
+  <body class="bg-[#f8fafc] text-slate-900 antialiased">
+    <!-- ====================================================
+     NAVBAR
+==================================================== -->
+    <header
+      id="nav"
+      class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#e2e8f0]"
+    >
+      <div
+        class="max-w-7xl mx-auto px-5 md:px-8 flex items-center justify-between h-16 gap-4"
+      >
+        <!-- Logo -->
+        <a
+          href="/"
+          class="flex items-center gap-2.5 shrink-0"
+          aria-label="Diários Escolares — início"
+        >
+          <div
+            class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shrink-0"
+          >
+            <svg
+              class="w-4 h-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25"
+              />
+            </svg>
+          </div>
+          <span
+            class="font-display font-semibold text-slate-900 text-[15px] hidden sm:block"
+            >Diários Escolares</span
+          >
+        </a>
+
+        <!-- Links (desktop) -->
+        <nav
+          class="hidden md:flex items-center gap-1"
+          aria-label="Navegação principal"
+        >
+          <a
+            href="#como-funciona"
+            class="px-3 py-2 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors"
+            >Como funciona</a
+          >
+          <a
+            href="#recursos"
+            class="px-3 py-2 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors"
+            >Recursos</a
+          >
+          <a
+            href="#seguranca"
+            class="px-3 py-2 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors"
+            >Segurança</a
+          >
+          <a
+            href="#faq"
+            class="px-3 py-2 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors"
+            >Dúvidas</a
+          >
+        </nav>
+
+        <!-- CTA -->
+        <!-- TODO: se autenticado, substituir por link para o painel da role correta -->
+        <div class="flex items-center gap-3 shrink-0">
+          <a
+            id="nav-login"
+            href="/auth/login.html"
+            class="hidden sm:block text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+            >Entrar</a
+          >
+          <a
+            id="nav-register"
+            href="/auth/register.html"
+            class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+          >
+            Começar grátis
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ====================================================
+     HERO
+==================================================== -->
+    <section
+      id="hero"
+      class="py-20 md:py-32 overflow-hidden"
+      style="
+        background: radial-gradient(
+          ellipse 80% 60% at 50% -5%,
+          rgba(59, 130, 246, 0.07),
+          transparent
+        );
+      "
+    >
+      <div class="max-w-7xl mx-auto px-5 md:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <!-- Copy -->
+          <div class="max-w-xl">
+            <div
+              class="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6"
+            >
+              <span
+                class="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0"
+              ></span>
+              Comunicação escola-família em tempo real
+            </div>
+
+            <h1
+              class="font-display font-semibold text-4xl md:text-[52px] text-slate-900 leading-tight mb-5"
+            >
+              Professor registra.<br />Responsável<br />acompanha<span
+                class="text-blue-600"
+                >.</span
+              >
+            </h1>
+
+            <p class="text-lg text-slate-500 leading-relaxed mb-8">
+              Da chamada da sala de aula ao celular do responsável — frequência,
+              comunicados e histórico escolar visíveis para quem precisa saber.
+            </p>
+
+            <!-- CTAs -->
+            <!-- TODO: se autenticado, mostrar "Ir para meu painel" com link correto -->
+            <div class="flex flex-col sm:flex-row gap-3 mb-8">
+              <a
+                href="/auth/register.html"
+                class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors"
+              >
+                Começar agora
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </a>
+              <a
+                href="#como-funciona"
+                class="inline-flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 font-semibold px-6 py-3.5 rounded-xl border border-[#e2e8f0] transition-colors"
+              >
+                Ver como funciona
+              </a>
+            </div>
+
+            <!-- Microcopy de confiança -->
+            <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-400">
+              <span class="flex items-center gap-1.5">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Sem instalação
+              </span>
+              <span class="flex items-center gap-1.5">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Funciona no celular
+              </span>
+              <span class="flex items-center gap-1.5">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Acesso isolado por escola
+              </span>
+            </div>
+          </div>
+
+          <!-- Mockup visual do sistema (apenas desktop) -->
+          <div class="hidden lg:block" aria-hidden="true">
+            <div
+              class="rounded-[28px] border border-[#e2e8f0] bg-white shadow-[0_32px_80px_rgba(59,130,246,0.12)] overflow-hidden relative"
+            >
+              <!-- Barra de título (faz-de-conta de browser) -->
+              <div
+                class="flex items-center gap-1.5 px-4 py-3 bg-[#f8fafc] border-b border-[#e2e8f0]"
+              >
+                <span class="w-2.5 h-2.5 rounded-full bg-red-300"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-yellow-300"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-green-300"></span>
+                <div
+                  class="flex-1 mx-4 h-5 rounded-lg bg-[#e2e8f0] flex items-center px-3"
+                >
+                  <span class="text-[9px] text-slate-400 select-none"
+                    >app.diariosescolares.com.br</span
+                  >
+                </div>
+              </div>
+
+              <!-- Layout do app (sidebar + conteúdo) -->
+              <div class="flex h-[300px]">
+                <!-- Sidebar mock -->
+                <div
+                  class="w-40 border-r border-[#e2e8f0] bg-white p-4 shrink-0 space-y-2"
+                >
+                  <div class="flex items-center gap-2 mb-5">
+                    <div class="w-6 h-6 rounded-lg bg-blue-600 shrink-0"></div>
+                    <div class="h-2.5 w-16 rounded-full bg-slate-200"></div>
+                  </div>
+                  <div
+                    class="h-7 w-full rounded-xl bg-blue-50 border border-blue-100"
+                  ></div>
+                  <div class="h-7 w-full rounded-xl"></div>
+                  <div class="h-7 w-full rounded-xl"></div>
+                  <div class="h-7 w-full rounded-xl"></div>
+                  <div class="mt-4 h-2 w-12 rounded-full bg-slate-100"></div>
+                  <div class="h-7 w-full rounded-xl"></div>
+                  <div class="h-7 w-full rounded-xl"></div>
+                </div>
+
+                <!-- Conteúdo mock -->
+                <div class="flex-1 bg-[#f8fafc] p-5 overflow-hidden">
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="space-y-1.5">
+                      <div class="h-2 w-20 rounded-full bg-slate-200"></div>
+                      <div class="h-3.5 w-28 rounded-full bg-slate-300"></div>
+                    </div>
+                    <div
+                      class="h-8 w-20 rounded-xl bg-blue-600 opacity-80"
+                    ></div>
+                  </div>
+                  <!-- KPI cards -->
+                  <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div
+                      class="rounded-2xl bg-white border border-[#e2e8f0] p-3"
+                    >
+                      <div
+                        class="h-1.5 w-10 rounded-full bg-slate-200 mb-2"
+                      ></div>
+                      <p class="text-xl font-bold text-slate-800">95%</p>
+                      <div class="h-1 w-full rounded-full bg-blue-100 mt-2">
+                        <div class="h-1 w-[95%] rounded-full bg-blue-400"></div>
+                      </div>
+                    </div>
+                    <div
+                      class="rounded-2xl bg-white border border-[#e2e8f0] p-3"
+                    >
+                      <div
+                        class="h-1.5 w-8 rounded-full bg-slate-200 mb-2"
+                      ></div>
+                      <p class="text-xl font-bold text-red-500">3</p>
+                      <div class="h-1 w-full rounded-full bg-red-100 mt-2">
+                        <div class="h-1 w-[15%] rounded-full bg-red-400"></div>
+                      </div>
+                    </div>
+                    <div
+                      class="rounded-2xl bg-white border border-[#e2e8f0] p-3"
+                    >
+                      <div
+                        class="h-1.5 w-12 rounded-full bg-slate-200 mb-2"
+                      ></div>
+                      <p class="text-xl font-bold text-blue-600">2</p>
+                      <div class="h-1 w-full rounded-full bg-purple-100 mt-2">
+                        <div class="h-1 w-1/2 rounded-full bg-purple-400"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Lista mock -->
+                  <div
+                    class="rounded-2xl bg-white border border-[#e2e8f0] p-3 space-y-2"
+                  >
+                    <div class="h-2 w-24 rounded-full bg-slate-200 mb-3"></div>
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-6 h-6 rounded-full bg-blue-100 shrink-0"
+                      ></div>
+                      <div class="h-2 flex-1 rounded-full bg-slate-100"></div>
+                      <div
+                        class="h-5 w-14 rounded-lg bg-green-100 border border-green-200 shrink-0"
+                      ></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-6 h-6 rounded-full bg-purple-100 shrink-0"
+                      ></div>
+                      <div class="h-2 flex-1 rounded-full bg-slate-100"></div>
+                      <div
+                        class="h-5 w-14 rounded-lg bg-red-100 border border-red-200 shrink-0"
+                      ></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-6 h-6 rounded-full bg-green-100 shrink-0"
+                      ></div>
+                      <div class="h-2 flex-1 rounded-full bg-slate-100"></div>
+                      <div
+                        class="h-5 w-14 rounded-lg bg-green-100 border border-green-200 shrink-0"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notificação flutuante -->
+            <div
+              class="absolute mt-[-6rem] ml-[22rem] bg-white rounded-2xl border border-[#e2e8f0] shadow-card p-3 w-52"
+            >
+              <div class="flex items-start gap-2.5">
+                <div
+                  class="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-blue-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-xs font-semibold text-slate-800">
+                    Falta registrada
+                  </p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">
+                    Lucas · 3ºA · agora mesmo
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     COMO FUNCIONA
+==================================================== -->
+    <section
+      id="como-funciona"
+      class="py-20 md:py-28 bg-white border-y border-[#e2e8f0]"
+    >
+      <div class="max-w-7xl mx-auto px-5 md:px-8">
+        <div class="text-center max-w-xl mx-auto mb-14">
+          <p class="text-sm font-semibold text-blue-600 mb-2">Como funciona</p>
+          <h2
+            class="font-display font-semibold text-3xl md:text-4xl text-slate-900"
+          >
+            Simples para todo mundo usar
+          </h2>
+          <p class="mt-3 text-slate-500">
+            Três passos que conectam sala de aula, escola e família.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-5">
+          <!-- Passo 1 -->
+          <div class="rounded-[28px] bg-[#f8fafc] border border-[#e2e8f0] p-7">
+            <div
+              class="w-11 h-11 rounded-2xl bg-blue-600 flex items-center justify-center mb-5"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs font-semibold text-blue-500 tracking-wide"
+              >Passo 1</span
+            >
+            <h3
+              class="font-display font-semibold text-lg text-slate-900 mt-1 mb-2"
+            >
+              Professor registra a chamada
+            </h3>
+            <p class="text-sm text-slate-500 leading-relaxed">
+              No início da aula, marca presença, falta ou atraso para cada
+              aluno. Leva menos de dois minutos.
+            </p>
+          </div>
+
+          <!-- Passo 2 -->
+          <div class="rounded-[28px] bg-[#f8fafc] border border-[#e2e8f0] p-7">
+            <div
+              class="w-11 h-11 rounded-2xl bg-blue-600 flex items-center justify-center mb-5"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs font-semibold text-blue-500 tracking-wide"
+              >Passo 2</span
+            >
+            <h3
+              class="font-display font-semibold text-lg text-slate-900 mt-1 mb-2"
+            >
+              Sistema registra e organiza
+            </h3>
+            <p class="text-sm text-slate-500 leading-relaxed">
+              Os dados ficam seguros e organizados por turma, disciplina e data.
+              O diretor acompanha em tempo real.
+            </p>
+          </div>
+
+          <!-- Passo 3 -->
+          <div class="rounded-[28px] bg-[#f8fafc] border border-[#e2e8f0] p-7">
+            <div
+              class="w-11 h-11 rounded-2xl bg-blue-600 flex items-center justify-center mb-5"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs font-semibold text-blue-500 tracking-wide"
+              >Passo 3</span
+            >
+            <h3
+              class="font-display font-semibold text-lg text-slate-900 mt-1 mb-2"
+            >
+              Responsável acompanha
+            </h3>
+            <p class="text-sm text-slate-500 leading-relaxed">
+              Faltas, comunicados e histórico do filho acessíveis pelo celular,
+              sem instalar nada.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     PROBLEMA REAL
+==================================================== -->
+    <section id="problema" class="py-20 md:py-28 bg-[#f8fafc]">
+      <div class="max-w-7xl mx-auto px-5 md:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-start">
+          <!-- Lado esquerdo: dores -->
+          <div>
+            <p class="text-sm font-semibold text-red-500 mb-3">O problema</p>
+            <h2
+              class="font-display font-semibold text-3xl md:text-4xl text-slate-900 mb-5 leading-tight"
+            >
+              Coisas que não deveriam acontecer<span class="text-red-500"
+                >.</span
+              >
+            </h2>
+            <p class="text-slate-500 mb-8 leading-relaxed">
+              Na maioria das escolas, a informação existe. Só não chega a quem
+              precisa — ou chega tarde demais.
+            </p>
+            <div class="space-y-3">
+              <div
+                class="flex items-start gap-4 bg-white rounded-2xl border border-[#e2e8f0] p-4"
+              >
+                <div
+                  class="w-8 h-8 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0 mt-0.5"
+                >
+                  <svg
+                    class="w-4 h-4 text-red-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Aluno saiu cedo. Pai não sabia.
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    A escola registrou. A informação não chegou a tempo.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="flex items-start gap-4 bg-white rounded-2xl border border-[#e2e8f0] p-4"
+              >
+                <div
+                  class="w-8 h-8 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0 mt-0.5"
+                >
+                  <svg
+                    class="w-4 h-4 text-red-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    5 faltas acumuladas. Descoberta no boletim.
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Quando o responsável soube, já não havia o que fazer.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="flex items-start gap-4 bg-white rounded-2xl border border-[#e2e8f0] p-4"
+              >
+                <div
+                  class="w-8 h-8 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0 mt-0.5"
+                >
+                  <svg
+                    class="w-4 h-4 text-red-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Comunicado enviado. Ninguém leu.
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Ficou dobrado no fundo da mochila por semanas.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="flex items-start gap-4 bg-white rounded-2xl border border-[#e2e8f0] p-4"
+              >
+                <div
+                  class="w-8 h-8 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0 mt-0.5"
+                >
+                  <svg
+                    class="w-4 h-4 text-red-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Diretor sem visão real da escola.
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Dados espalhados em planilhas, sem visão consolidada.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lado direito: solução -->
+          <div
+            class="bg-white rounded-[28px] border border-[#e2e8f0] shadow-soft p-8"
+          >
+            <p class="text-sm font-semibold text-blue-600 mb-6">
+              Com Diários Escolares
+            </p>
+            <div class="space-y-5">
+              <div class="flex items-start gap-4">
+                <div
+                  class="w-9 h-9 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Frequência visível em tempo real
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Cada falta registrada fica imediatamente acessível.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="w-9 h-9 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Comunicados acessíveis pelo celular
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Sem depender de papel impresso ou caderno.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="w-9 h-9 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Diretor com visão consolidada da escola
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Turmas, professores e frequência — tudo organizado.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="w-9 h-9 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Histórico rastreável com data e autor
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Cada registro tem responsável e horário.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     RECURSOS POR PERFIL
+==================================================== -->
+    <section
+      id="recursos"
+      class="py-20 md:py-28 bg-white border-y border-[#e2e8f0]"
+    >
+      <div class="max-w-7xl mx-auto px-5 md:px-8">
+        <div class="text-center max-w-xl mx-auto mb-14">
+          <p class="text-sm font-semibold text-blue-600 mb-2">Recursos</p>
+          <h2
+            class="font-display font-semibold text-3xl md:text-4xl text-slate-900"
+          >
+            Para cada perfil, o que importa
+          </h2>
+          <p class="mt-3 text-slate-500">
+            Cada usuário acessa apenas o que é relevante para ele.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Diretor -->
+          <div class="rounded-[28px] bg-[#f8fafc] border border-[#e2e8f0] p-7">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shrink-0"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="font-display font-semibold text-slate-900">Diretor</p>
+                <p class="text-xs text-slate-400">Visão da escola</p>
+              </div>
+            </div>
+            <ul class="space-y-3" aria-label="Recursos para diretores">
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-blue-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Gerenciar turmas e professores
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-blue-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Frequência consolidada da escola
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-blue-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Vincular professores a disciplinas
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-blue-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Cadastro de responsáveis e usuários
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-blue-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Histórico rastreável de registros
+              </li>
+            </ul>
+          </div>
+
+          <!-- Professor -->
+          <div class="rounded-[28px] bg-[#f8fafc] border border-[#e2e8f0] p-7">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 rounded-2xl bg-green-600 flex items-center justify-center shrink-0"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="font-display font-semibold text-slate-900">
+                  Professor
+                </p>
+                <p class="text-xs text-slate-400">Sala de aula</p>
+              </div>
+            </div>
+            <ul class="space-y-3" aria-label="Recursos para professores">
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Registro de chamada por turma
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Marcar presença, falta ou atraso
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Notas e observações de aula
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Histórico de chamadas anteriores
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-green-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Acesso restrito às próprias turmas
+              </li>
+            </ul>
+          </div>
+
+          <!-- Responsável -->
+          <div class="rounded-[28px] bg-[#f8fafc] border border-[#e2e8f0] p-7">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 rounded-2xl bg-purple-600 flex items-center justify-center shrink-0"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="font-display font-semibold text-slate-900">
+                  Responsável
+                </p>
+                <p class="text-xs text-slate-400">Acompanhe seu filho</p>
+              </div>
+            </div>
+            <ul class="space-y-3" aria-label="Recursos para responsáveis">
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-purple-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Frequência em tempo real
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-purple-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Comunicados da escola
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-purple-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Histórico de presença e faltas
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-purple-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Acesso pelo celular, sem app
+              </li>
+              <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                <svg
+                  class="w-4 h-4 text-purple-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                >Apenas dados do próprio filho
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     MOCK VISUAL — PAINEL DO RESPONSÁVEL
+==================================================== -->
+    <section id="acompanhe" class="py-20 md:py-28 bg-[#f8fafc]">
+      <div class="max-w-7xl mx-auto px-5 md:px-8">
+        <div class="text-center max-w-xl mx-auto mb-14">
+          <p class="text-sm font-semibold text-blue-600 mb-2">
+            Para responsáveis
+          </p>
+          <h2
+            class="font-display font-semibold text-3xl md:text-4xl text-slate-900"
+          >
+            Tudo sobre o seu filho, em um lugar
+          </h2>
+          <p class="mt-3 text-slate-500">
+            Sem instalar aplicativo. Funciona pelo navegador do celular.
+          </p>
+        </div>
+
+        <!-- Mock de painel do responsável -->
+        <div
+          class="max-w-2xl mx-auto"
+          aria-label="Visualização ilustrativa do painel do responsável"
+          aria-hidden="true"
+        >
+          <div
+            class="rounded-[28px] border border-[#e2e8f0] bg-white shadow-soft overflow-hidden"
+          >
+            <!-- Cabeçalho do mock -->
+            <div
+              class="flex items-center justify-between px-6 py-4 border-b border-[#e2e8f0] bg-[#f8fafc]"
+            >
+              <div>
+                <p class="text-xs text-slate-500">Olá, Maria</p>
+                <p class="text-sm font-semibold text-slate-900">
+                  Painel da Responsável
+                </p>
+              </div>
+              <div
+                class="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center"
+              >
+                <span
+                  class="text-sm font-bold text-purple-700"
+                  aria-hidden="true"
+                  >M</span
+                >
+              </div>
+            </div>
+
+            <div class="p-6 space-y-5">
+              <!-- Seletor de filho -->
+              <div
+                class="flex items-center gap-3 bg-[#f8fafc] rounded-2xl border border-[#e2e8f0] px-4 py-3"
+              >
+                <div
+                  class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center shrink-0"
+                >
+                  <span class="text-xs font-bold text-blue-700">LA</span>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Lucas Almeida
+                  </p>
+                  <p class="text-xs text-slate-500">
+                    3º Ano A · Escola Municipal João Paulo
+                  </p>
+                </div>
+                <svg
+                  class="w-4 h-4 text-slate-400 ml-auto shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </div>
+
+              <!-- KPIs -->
+              <div class="grid grid-cols-3 gap-3">
+                <div
+                  class="rounded-2xl bg-green-50 border border-green-100 p-4 text-center"
+                >
+                  <p class="text-2xl font-bold text-green-700">92%</p>
+                  <p class="text-xs text-slate-500 mt-1">Frequência</p>
+                </div>
+                <div
+                  class="rounded-2xl bg-red-50 border border-red-100 p-4 text-center"
+                >
+                  <p class="text-2xl font-bold text-red-600">3</p>
+                  <p class="text-xs text-slate-500 mt-1">Faltas</p>
+                </div>
+                <div
+                  class="rounded-2xl bg-blue-50 border border-blue-100 p-4 text-center"
+                >
+                  <p class="text-2xl font-bold text-blue-700">2</p>
+                  <p class="text-xs text-slate-500 mt-1">Comunicados</p>
+                </div>
+              </div>
+
+              <!-- Chamadas recentes -->
+              <div>
+                <p
+                  class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3"
+                >
+                  Últimas chamadas
+                </p>
+                <div class="space-y-2">
+                  <div
+                    class="flex items-center justify-between px-4 py-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0]"
+                  >
+                    <div>
+                      <p class="text-sm font-medium text-slate-800">
+                        Matemática — Prof. Carlos
+                      </p>
+                      <p class="text-xs text-slate-500">Seg, 11 nov · 3º A</p>
+                    </div>
+                    <span
+                      class="px-2.5 py-1 rounded-lg bg-green-100 border border-green-200 text-xs font-semibold text-green-700"
+                      >Presente</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center justify-between px-4 py-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0]"
+                  >
+                    <div>
+                      <p class="text-sm font-medium text-slate-800">
+                        Português — Prof.ª Ana
+                      </p>
+                      <p class="text-xs text-slate-500">Ter, 12 nov · 3º A</p>
+                    </div>
+                    <span
+                      class="px-2.5 py-1 rounded-lg bg-red-100 border border-red-200 text-xs font-semibold text-red-600"
+                      >Falta</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center justify-between px-4 py-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0]"
+                  >
+                    <div>
+                      <p class="text-sm font-medium text-slate-800">
+                        Ciências — Prof. Roberto
+                      </p>
+                      <p class="text-xs text-slate-500">Qua, 13 nov · 3º A</p>
+                    </div>
+                    <span
+                      class="px-2.5 py-1 rounded-lg bg-yellow-100 border border-yellow-200 text-xs font-semibold text-yellow-700"
+                      >Atraso</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comunicado -->
+              <div
+                class="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 flex items-start gap-3"
+              >
+                <svg
+                  class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
+                  />
+                </svg>
+                <div>
+                  <p class="text-xs font-semibold text-blue-800">
+                    Comunicado · 14 nov
+                  </p>
+                  <p class="text-xs text-blue-600 mt-0.5">
+                    Reunião de pais na próxima sexta, às 18h.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-3">
+            Dados ilustrativos — não representam informações reais
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     SEGURANÇA
+==================================================== -->
+    <section
+      id="seguranca"
+      class="py-20 md:py-28 bg-white border-y border-[#e2e8f0]"
+    >
+      <div class="max-w-7xl mx-auto px-5 md:px-8">
+        <div class="text-center max-w-xl mx-auto mb-14">
+          <p class="text-sm font-semibold text-blue-600 mb-2">Segurança</p>
+          <h2
+            class="font-display font-semibold text-3xl md:text-4xl text-slate-900"
+          >
+            Dados da escola permanecem na escola
+          </h2>
+          <p class="mt-3 text-slate-500">
+            Isolamento total entre instituições. Cada escola acessa apenas os
+            próprios dados.
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div class="rounded-[24px] bg-[#f8fafc] border border-[#e2e8f0] p-6">
+            <div
+              class="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4"
+            >
+              <svg
+                class="w-5 h-5 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-semibold text-slate-800 text-sm mb-1.5">
+              Autenticação por e-mail
+            </h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Acesso individual com e-mail verificado. Sem senha compartilhada.
+            </p>
+          </div>
+
+          <div class="rounded-[24px] bg-[#f8fafc] border border-[#e2e8f0] p-6">
+            <div
+              class="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4"
+            >
+              <svg
+                class="w-5 h-5 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 01-1.125-1.125v-3.75zM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-8.25zM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-2.25z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-semibold text-slate-800 text-sm mb-1.5">
+              Isolamento por escola
+            </h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Nenhum dado de uma escola é acessível por outra, de nenhuma forma.
+            </p>
+          </div>
+
+          <div class="rounded-[24px] bg-[#f8fafc] border border-[#e2e8f0] p-6">
+            <div
+              class="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4"
+            >
+              <svg
+                class="w-5 h-5 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75l2.25 2.25 4.5-5.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-semibold text-slate-800 text-sm mb-1.5">
+              Permissões por perfil
+            </h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Professor vê suas turmas. Responsável vê seu filho. Diretor vê a
+              escola.
+            </p>
+          </div>
+
+          <div class="rounded-[24px] bg-[#f8fafc] border border-[#e2e8f0] p-6">
+            <div
+              class="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4"
+            >
+              <svg
+                class="w-5 h-5 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-semibold text-slate-800 text-sm mb-1.5">
+              Registros rastreáveis
+            </h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Cada registro tem data, hora e autor. Nada é alterado sem rastro.
+            </p>
+          </div>
+        </div>
+
+        <p class="text-center text-xs text-slate-400 mt-8">
+          Infraestrutura Firebase / Google Cloud · Dados protegidos pelas
+          políticas do Google
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     FAQ
+==================================================== -->
+    <section id="faq" class="py-20 md:py-28 bg-[#f8fafc]">
+      <div class="max-w-2xl mx-auto px-5 md:px-8">
+        <div class="text-center mb-12">
+          <p class="text-sm font-semibold text-blue-600 mb-2">Dúvidas</p>
+          <h2
+            class="font-display font-semibold text-3xl md:text-4xl text-slate-900"
+          >
+            Perguntas frequentes
+          </h2>
+        </div>
+
+        <div class="space-y-2" role="list">
+          <details
+            class="rounded-[20px] bg-white border border-[#e2e8f0] group"
+            role="listitem"
+          >
+            <summary
+              class="flex items-center justify-between px-6 py-4 text-sm font-medium text-slate-800 select-none"
+            >
+              Precisa instalar algum aplicativo?
+              <svg
+                class="faq-icon w-4 h-4 text-slate-400 shrink-0 ml-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </summary>
+            <p class="px-6 pb-4 text-sm text-slate-500 leading-relaxed">
+              Não. Funciona pelo navegador — Chrome, Safari, Firefox — sem
+              download. Acesse pelo celular, tablet ou computador.
+            </p>
+          </details>
+
+          <details
+            class="rounded-[20px] bg-white border border-[#e2e8f0] group"
+            role="listitem"
+          >
+            <summary
+              class="flex items-center justify-between px-6 py-4 text-sm font-medium text-slate-800 select-none"
+            >
+              Como os responsáveis acessam o sistema?
+              <svg
+                class="faq-icon w-4 h-4 text-slate-400 shrink-0 ml-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </summary>
+            <p class="px-6 pb-4 text-sm text-slate-500 leading-relaxed">
+              A escola cadastra o responsável com o e-mail dele. No primeiro
+              acesso, ele define a própria senha e acompanha os dados do filho
+              direto pelo navegador.
+            </p>
+          </details>
+
+          <details
+            class="rounded-[20px] bg-white border border-[#e2e8f0] group"
+            role="listitem"
+          >
+            <summary
+              class="flex items-center justify-between px-6 py-4 text-sm font-medium text-slate-800 select-none"
+            >
+              Os dados de uma escola ficam separados de outra?
+              <svg
+                class="faq-icon w-4 h-4 text-slate-400 shrink-0 ml-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </summary>
+            <p class="px-6 pb-4 text-sm text-slate-500 leading-relaxed">
+              Sim. O isolamento é feito por regras de segurança no banco de
+              dados. Nenhum usuário tem acesso — nem acidental — aos dados de
+              outra escola.
+            </p>
+          </details>
+
+          <details
+            class="rounded-[20px] bg-white border border-[#e2e8f0] group"
+            role="listitem"
+          >
+            <summary
+              class="flex items-center justify-between px-6 py-4 text-sm font-medium text-slate-800 select-none"
+            >
+              Funciona bem no celular?
+              <svg
+                class="faq-icon w-4 h-4 text-slate-400 shrink-0 ml-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </summary>
+            <p class="px-6 pb-4 text-sm text-slate-500 leading-relaxed">
+              Sim. O sistema é responsivo. Professores fazem chamada pelo
+              celular. Responsáveis acompanham tudo sem abrir computador.
+            </p>
+          </details>
+
+          <details
+            class="rounded-[20px] bg-white border border-[#e2e8f0] group"
+            role="listitem"
+          >
+            <summary
+              class="flex items-center justify-between px-6 py-4 text-sm font-medium text-slate-800 select-none"
+            >
+              Serve para escolas pequenas?
+              <svg
+                class="faq-icon w-4 h-4 text-slate-400 shrink-0 ml-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </summary>
+            <p class="px-6 pb-4 text-sm text-slate-500 leading-relaxed">
+              Sim. Não há número mínimo de alunos ou turmas. Funciona da mesma
+              forma para 50 ou 2.000 alunos.
+            </p>
+          </details>
+
+          <details
+            class="rounded-[20px] bg-white border border-[#e2e8f0] group"
+            role="listitem"
+          >
+            <summary
+              class="flex items-center justify-between px-6 py-4 text-sm font-medium text-slate-800 select-none"
+            >
+              O responsável vê dados de outros alunos?
+              <svg
+                class="faq-icon w-4 h-4 text-slate-400 shrink-0 ml-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </summary>
+            <p class="px-6 pb-4 text-sm text-slate-500 leading-relaxed">
+              Não. Cada responsável vê apenas os dados do filho vinculado à sua
+              conta. Garantido tecnicamente, não só por interface.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     CTA FINAL
+==================================================== -->
+    <section class="py-20 bg-white border-t border-[#e2e8f0]">
+      <div class="max-w-2xl mx-auto px-5 text-center">
+        <h2
+          class="font-display font-semibold text-3xl md:text-4xl text-slate-900 mb-4"
+        >
+          Pronto para começar?
+        </h2>
+        <p class="text-slate-500 mb-8">
+          Cadastre sua escola. Configure em menos de dez minutos.
+        </p>
+        <!-- TODO: se autenticado, substituir por "Ir para meu painel" -->
+        <div
+          class="flex flex-col sm:flex-row items-center justify-center gap-3"
+        >
+          <a
+            href="/auth/register.html"
+            class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors"
+          >
+            Criar conta da escola
+          </a>
+          <a
+            href="/auth/login.html"
+            class="inline-flex items-center justify-center text-sm font-medium text-slate-600 hover:text-slate-900 px-6 py-3.5 rounded-xl border border-[#e2e8f0] hover:border-slate-300 transition-colors bg-white"
+          >
+            Já tenho conta
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+     FOOTER
+==================================================== -->
+    <footer id="footer" class="bg-[#f8fafc] border-t border-[#e2e8f0] py-12">
+      <div class="max-w-7xl mx-auto px-5 md:px-8">
+        <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+          <!-- Marca -->
+          <div class="sm:col-span-2 md:col-span-1">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div
+                class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0"
+              >
+                <svg
+                  class="w-3.5 h-3.5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25"
+                  />
+                </svg>
+              </div>
+              <span class="font-display font-semibold text-slate-900 text-sm"
+                >Diários Escolares</span
+              >
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Frequência e comunicação entre escola e família — simples e
+              seguro.
+            </p>
+          </div>
+
+          <!-- Sistema -->
+          <nav aria-label="Links do sistema">
+            <p
+              class="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-3"
+            >
+              Sistema
+            </p>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="#como-funciona"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Como funciona</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#recursos"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Recursos</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#seguranca"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Segurança</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#faq"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Dúvidas</a
+                >
+              </li>
+            </ul>
+          </nav>
+
+          <!-- Acesso -->
+          <nav aria-label="Links de acesso">
+            <p
+              class="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-3"
+            >
+              Acesso
+            </p>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="/auth/login.html"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Entrar</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/auth/register.html"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Cadastrar escola</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/app/director/"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Painel do Diretor</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/app/professor/"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Painel do Professor</a
+                >
+              </li>
+            </ul>
+          </nav>
+
+          <!-- Legal -->
+          <nav aria-label="Links legais">
+            <p
+              class="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-3"
+            >
+              Legal
+            </p>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="#"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Política de Privacidade</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Termos de Uso</a
+                >
+              </li>
+              <li>
+                <a
+                  href="mailto:contato@diariosescolares.com.br"
+                  class="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                  >Contato</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <div
+          class="border-t border-[#e2e8f0] pt-6 flex flex-col sm:flex-row items-center justify-between gap-2"
+        >
+          <p class="text-xs text-slate-400">
+            © 2025 Diários Escolares. Todos os direitos reservados.
+          </p>
+          <p class="text-xs text-slate-400">Feito para escolas brasileiras</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ====================================================
+     AUTH CHECK
+     - Autenticado  → redireciona para o painel da role
+     - Não autenticado → homepage permanece visível (padrão)
+     - Dynamic import: falha silenciosa se Firebase não estiver disponível
+==================================================== -->
+    <script type="module">
+      // Se Firebase modules resolverem (bundler ativo), tenta redirecionar usuário logado.
+      // Caso contrário, homepage permanece visível — sem bloquear a página.
+      if (authController) {
+        try {
+          await authController.redirectIfAuthenticated();
+          // Se não redirecionou: usuário não está logado, homepage já está visível.
+          // TODO: atualizar #nav-login / #nav-register para "Ir para painel" se necessário.
+        } catch {
+          // Sessão indisponível (offline, erro de módulo) — homepage visível por padrão.
+        }
+      }
+    </script>
+  </body>
+</html>

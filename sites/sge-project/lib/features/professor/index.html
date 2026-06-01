@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGE v2.0 | Painel do Professor</title>
+    <meta
+      name="description"
+      content="Sistema de Gestão Escolar - Área do Professor"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#1e293b",
+              border: "#334155",
+              primary: "#f8fafc",
+              secondary: "#94a3b8",
+              accent: "#3b82f6",
+              success: "#22c55e",
+              danger: "#ef4444",
+              warning: "#f59e0b",
+            },
+            animation: {
+              "fade-in": "fadeIn 0.3s ease-out",
+              "slide-up": "slideUp 0.4s ease-out",
+            },
+            keyframes: {
+              fadeIn: { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+              slideUp: {
+                "0%": { transform: "translateY(10px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Custom Styles -->
+    <style>
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .glass-effect {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .btn-toggle.active {
+        background-color: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+      .status-pill {
+        @apply px-2 py-1 rounded-full text-xs font-semibold;
+      }
+      .status-realizada {
+        @apply bg-green-500/20 text-green-400;
+      }
+      .status-futura {
+        @apply bg-blue-500/20 text-blue-400;
+      }
+      .status-alerta {
+        @apply bg-red-500/20 text-red-400;
+      }
+    </style>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  </head>
+
+  <body class="bg-slate-900 text-primary antialiased overflow-x-hidden">
+    <!-- App Wrapper -->
+    <div class="flex h-screen overflow-hidden">
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-surface border-r border-border transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-auto"
+      >
+        <div
+          class="flex items-center justify-between h-16 px-6 border-b border-border"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center font-bold text-white"
+            >
+              SG
+            </div>
+            <span class="font-bold text-lg tracking-tight"
+              >Diários Escolares</span
+            >
+          </div>
+          <button
+            id="sidebar-close"
+            class="lg:hidden text-secondary hover:text-primary"
+          >
+            <i class="ph ph-x text-xl"></i>
+          </button>
+        </div>
+
+        <nav
+          class="p-4 space-y-1 overflow-y-auto h-[calc(100%-4rem)] scrollbar-hide"
+        >
+          <p
+            class="px-3 text-xs font-semibold text-secondary uppercase tracking-wider mb-2"
+          >
+            Menu Principal
+          </p>
+
+          <a
+            href="index.html"
+            class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-accent/10 text-accent"
+            data-view="dashboard"
+          >
+            <i class="ph ph-squares-four text-lg"></i> Dashboard
+          </a>
+          <a
+            href="chamada.html"
+            class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+            data-view="chamada"
+          >
+            <i class="ph ph-clipboard-text text-lg"></i> Chamada
+          </a>
+          <a
+            href="notas.html"
+            class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+            data-view="notas"
+          >
+            <i class="ph ph-chart-line-up text-lg"></i> Notas
+          </a>
+          <a
+            href="turmas.html"
+            class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+            data-view="turmas"
+          >
+            <i class="ph ph-users-three text-lg"></i> Turmas
+          </a>
+
+          <div class="pt-4 mt-4 border-t border-border">
+            <p
+              class="px-3 text-xs font-semibold text-secondary uppercase tracking-wider mb-2"
+            >
+              Sistema
+            </p>
+            <a
+              href="perfil.html"
+              class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+              data-view="perfil"
+            >
+              <i class="ph ph-gear text-lg"></i> Configurações
+            </a>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Header -->
+        <header
+          class="h-16 bg-surface/80 glass-effect border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20"
+        >
+          <div class="flex items-center gap-4">
+            <button
+              id="sidebar-toggle"
+              class="lg:hidden p-2 rounded-lg text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+            >
+              <i class="ph ph-list text-xl"></i>
+            </button>
+            <div class="hidden sm:block">
+              <h1 class="text-sm font-medium text-secondary">
+                Bem-vindo de volta,
+              </h1>
+              <h2
+                id="saudacao-contextual"
+                class="text-lg font-bold text-primary"
+              >
+                Carregando...
+              </h2>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Notifications -->
+            <button
+              class="relative p-2 rounded-lg text-secondary hover:bg-slate-800 hover:text-primary transition-colors"
+              id="btn-notifications"
+            >
+              <i class="ph ph-bell text-xl"></i>
+              <span
+                id="badge-notifications"
+                class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full hidden"
+              ></span>
+            </button>
+
+            <!-- Profile -->
+            <div class="flex items-center gap-3 pl-3 border-l border-border">
+              <div class="text-right hidden md:block">
+                <p id="user-name" class="text-sm font-semibold text-primary">
+                  Professor
+                </p>
+                <p id="user-discipline" class="text-xs text-secondary">
+                  Disciplina
+                </p>
+              </div>
+              <div
+                id="user-initials"
+                class="w-9 h-9 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-accent font-bold text-sm cursor-pointer hover:bg-accent/30 transition-colors"
+              >
+                P
+              </div>
+              <button
+                id="btn-logout"
+                class="p-2 rounded-lg text-secondary hover:bg-danger/10 hover:text-danger transition-colors"
+                title="Sair"
+              >
+                <i class="ph ph-sign-out text-xl"></i>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6 scrollbar-hide">
+          <!-- VIEW: DASHBOARD -->
+          <section
+            id="view-dashboard"
+            class="view-section active space-y-6 animate-fade-in"
+          >
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div
+                class="bg-surface border border-border rounded-xl p-5 shadow-sm hover:border-accent/50 transition-colors"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-secondary text-sm font-medium"
+                    >Aulas Hoje</span
+                  >
+                  <div class="p-2 bg-accent/10 rounded-lg text-accent">
+                    <i class="ph ph-calendar-check text-lg"></i>
+                  </div>
+                </div>
+                <p id="stat-aulas" class="text-2xl font-bold text-primary">—</p>
+                <p class="text-xs text-secondary mt-1">Registradas no dia</p>
+              </div>
+
+              <div
+                class="bg-surface border border-border rounded-xl p-5 shadow-sm hover:border-success/50 transition-colors"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-secondary text-sm font-medium"
+                    >Freq. Média</span
+                  >
+                  <div class="p-2 bg-success/10 rounded-lg text-success">
+                    <i class="ph ph-chart-pie-slice text-lg"></i>
+                  </div>
+                </div>
+                <p id="stat-freq" class="text-2xl font-bold text-primary">—</p>
+                <p class="text-xs text-secondary mt-1">
+                  Média geral das turmas
+                </p>
+              </div>
+
+              <div
+                class="bg-surface border border-border rounded-xl p-5 shadow-sm hover:border-warning/50 transition-colors"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-secondary text-sm font-medium"
+                    >Faltas (24h)</span
+                  >
+                  <div class="p-2 bg-warning/10 rounded-lg text-warning">
+                    <i class="ph ph-warning-circle text-lg"></i>
+                  </div>
+                </div>
+                <p id="stat-faltas" class="text-2xl font-bold text-primary">
+                  —
+                </p>
+                <p class="text-xs text-secondary mt-1">Últimas 24 horas</p>
+              </div>
+
+              <div
+                class="bg-surface border border-border rounded-xl p-5 shadow-sm hover:border-purple-500/50 transition-colors"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-secondary text-sm font-medium"
+                    >Bilhetes</span
+                  >
+                  <div class="relative">
+                    <div
+                      class="p-2 bg-purple-500/10 rounded-lg text-purple-400"
+                    >
+                      <i class="ph ph-envelope-simple text-lg"></i>
+                    </div>
+                    <span
+                      id="badge-bilhetes"
+                      class="absolute -top-1 -right-1 w-4 h-4 bg-danger text-white text-[10px] font-bold flex items-center justify-center rounded-full hidden"
+                      >0</span
+                    >
+                  </div>
+                </div>
+                <p id="stat-bilhetes" class="text-2xl font-bold text-primary">
+                  —
+                </p>
+                <p class="text-xs text-secondary mt-1">
+                  Enviados aos responsáveis
+                </p>
+              </div>
+            </div>
+
+            <!-- Today's Classes Grid -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-primary">Aulas de Hoje</h3>
+                <button class="text-sm text-accent hover:underline font-medium">
+                  Ver grade completa
+                </button>
+              </div>
+              <div
+                id="grid-aulas-dia"
+                class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+              >
+                <!-- Cards injetados via JS -->
+                <div
+                  class="col-span-full bg-surface border border-border rounded-xl p-8 text-center"
+                >
+                  <div
+                    class="inline-flex p-3 bg-slate-800 rounded-full mb-3 text-secondary"
+                  >
+                    <i class="ph ph-spinner animate-spin text-xl"></i>
+                  </div>
+                  <p class="text-secondary text-sm">Carregando turmas...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div
+              class="bg-surface border border-border rounded-xl p-5 shadow-sm"
+            >
+              <h3 class="text-lg font-bold text-primary mb-4">
+                Atividade Recente
+              </h3>
+              <div id="recent-activity" class="space-y-3">
+                <!-- Lista injetada via JS -->
+                <div
+                  class="flex items-center justify-center py-8 text-secondary text-sm"
+                >
+                  <i class="ph ph-clock-counter-clockwise mr-2"></i> Nenhuma
+                  atividade registrada hoje.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- VIEW: CHAMADA (Hidden by default) -->
+          <section
+            id="view-chamada"
+            class="view-section hidden space-y-6 animate-fade-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-2xl font-bold text-primary">Lançar Chamada</h2>
+                <p class="text-secondary text-sm mt-1">
+                  Selecione a turma e registre a presença.
+                </p>
+              </div>
+              <select
+                id="select-turma-chamada"
+                class="bg-surface border border-border text-primary text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent focus:border-transparent outline-none"
+              >
+                <option value="">Selecione a Turma</option>
+              </select>
+            </div>
+
+            <div
+              class="bg-surface border border-border rounded-xl p-6 min-h-[300px] flex items-center justify-center text-secondary"
+            >
+              <div class="text-center">
+                <i class="ph ph-clipboard-text text-4xl mb-3 opacity-50"></i>
+                <p>
+                  Selecione uma turma no dropdown acima ou clique em "Registrar"
+                  no dashboard.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Other Views Placeholders (Notas, Turmas, Perfil) -->
+          <section id="view-notas" class="view-section hidden">
+            <p class="text-secondary">Módulo de Notas em desenvolvimento.</p>
+          </section>
+          <section id="view-turmas" class="view-section hidden">
+            <p class="text-secondary">Módulo de Turmas em desenvolvimento.</p>
+          </section>
+          <section id="view-perfil" class="view-section hidden">
+            <p class="text-secondary">Módulo de Perfil em desenvolvimento.</p>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- MODAL: CHAMADA -->
+    <div id="modal-chamada" class="fixed inset-0 z-50 hidden">
+      <!-- Backdrop -->
+      <div
+        class="absolute inset-0 bg-black/60 glass-effect transition-opacity"
+        onclick="closeModal('modal-chamada')"
+      ></div>
+
+      <!-- Content -->
+      <div
+        class="absolute inset-y-0 right-0 w-full max-w-lg bg-surface border-l border-border shadow-2xl transform transition-transform duration-300 flex flex-col"
+      >
+        <div class="px-6 py-4 border-b border-border bg-slate-800/50">
+          <div class="text-center mb-4">
+            <h2 id="chamada-escola" class="text-xl font-bold text-primary">
+              COLÉGIO ESTADUAL XXXXX
+            </h2>
+
+            <p class="text-sm text-secondary">Diário de Frequência Escolar</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <strong>Turma:</strong>
+              <span id="modal-chamada-titulo">-</span>
+            </div>
+
+            <div>
+              <strong>Professor:</strong>
+              <span id="chamada-professor">-</span>
+            </div>
+
+            <div>
+              <strong>Bimestre:</strong>
+              <span id="chamada-bimestre">1º Bimestre</span>
+            </div>
+
+            <div>
+              <strong>Ano Letivo:</strong>
+              <span id="chamada-ano"></span>
+            </div>
+
+            <div>
+              <strong>Data:</strong>
+              <span id="chamada-data"></span>
+            </div>
+
+            <div>
+              <strong>Disciplina:</strong>
+              <span id="modal-chamada-info">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+          <div id="lista-alunos-chamada" class="space-y-3">
+            <!-- Alunos injetados via JS -->
+            <div class="flex items-center justify-center py-12 text-secondary">
+              <i class="ph ph-spinner animate-spin text-xl mr-2"></i> Carregando
+              alunos...
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-border bg-slate-800/50 space-y-3">
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-secondary whitespace-nowrap"
+              >Observações:</label
+            >
+            <input
+              id="chamada-obs"
+              type="text"
+              placeholder="Ex: Aula expositiva, prova..."
+              class="flex-1 bg-slate-900 border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-accent focus:border-transparent outline-none"
+            />
+          </div>
+          <div class="flex gap-3">
+            <button
+              id="btn-marcar-todos"
+              class="px-4 py-2 rounded-lg border border-border text-sm font-medium text-secondary hover:bg-slate-700 hover:text-primary transition-colors"
+            >
+              Marcar Todos P
+            </button>
+            <div class="flex-1"></div>
+            <button
+              onclick="closeModal('modal-chamada')"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              id="btn-salvar-chamada"
+              class="px-5 py-2 rounded-lg bg-accent hover:bg-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+            >
+              Finalizar Chamada
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div
+      id="toast-container"
+      class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"
+    ></div>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/dashboard-professor.v2.js"></script>
+    <script
+      type="module"
+      src="../../assets/js/firebase/notificacoes-ui.js"
+    ></script>
+
+    <script>
+      // Sidebar Mobile Toggle
+      document
+        .getElementById("sidebar-toggle")
+        ?.addEventListener("click", () => {
+          document
+            .getElementById("sidebar")
+            .classList.remove("-translate-x-full");
+        });
+      document
+        .getElementById("sidebar-close")
+        ?.addEventListener("click", () => {
+          document.getElementById("sidebar").classList.add("-translate-x-full");
+        });
+    </script>
+  </body>
+</html>

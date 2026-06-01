@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -6,23 +6,23 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1"
     />
-    <meta name="theme-color" content="#0f1115" />
+    <meta name="theme-color" content="#ffffff" />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="description" content="SGE v2.0 - Cadastro de Professor" />
+    <meta name="description" content="Diários Escolares - Cadastro de Professor" />
     <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml" />
-    <title>SGE v2.0 - Cadastro de Professor</title>
+    <title>Diários Escolares - Cadastro de Professor</title>
 
     <style>
       :root {
-        --bg: #0f1115;
-        --surface: #181b21;
-        --surface-alt: #1f2329;
-        --primary: #f0a500;
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-alt: #f1f5f9;
+        --primary: #3b82f6;
         --primary-hover: #e09500;
-        --text: #e6e9ed;
-        --text-secondary: #a8adb5;
+        --text: #0f172a;
+        --text-secondary: #64748b;
         --text-tertiary: #7a8089;
-        --border: #2d3139;
+        --border: #e2e8f0;
         --success: #22c55e;
         --error: #f43f5e;
         --warning: #facc15;
@@ -482,7 +482,7 @@
         display: inline-block;
         width: 20px;
         height: 20px;
-        border: 3px solid rgba(240, 165, 0, 0.2);
+        border: 3px solid rgba(59, 130, 246, 0.2);
         border-top-color: var(--primary);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
@@ -575,7 +575,7 @@
 
             <div class="form-group">
               <label class="form-label">Data de Nascimento *</label>
-              <input type="date" class="form-input" id="dataNascimento" />
+              <input type="text" class="form-input" id="dataNascimento" placeholder="dd/mm/aaaa" maxlength="10" inputmode="numeric" autocomplete="off" />
               <div class="form-error" id="dataNascimentoError"></div>
             </div>
 
@@ -883,6 +883,34 @@
     <div id="toastContainer"></div>
 
     <script type="module" src="js/professor.js"></script>
+    <script>
+      (function () {
+        function applyDateMask(el) {
+          if (!el) return;
+          el.addEventListener("keydown", function (e) {
+            if (["Tab","Backspace","Delete","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) return;
+            if (!/\d/.test(e.key)) e.preventDefault();
+          });
+          el.addEventListener("input", function () {
+            let v = this.value.replace(/\D/g, "").slice(0, 8);
+            if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+            if (v.length > 5) v = v.slice(0, 5) + "/" + v.slice(5);
+            this.value = v;
+          });
+          el.addEventListener("blur", function () {
+            const v = this.value;
+            if (!v) return;
+            if (v.length < 10) { this.setCustomValidity("Use dd/mm/aaaa"); this.reportValidity(); return; }
+            const [d, m, y] = v.split("/").map(Number);
+            const dt = new Date(y, m - 1, d);
+            if (dt.getDate() !== d || dt.getMonth() + 1 !== m || dt.getFullYear() !== y) {
+              this.setCustomValidity("Data inválida"); this.reportValidity();
+            } else { this.setCustomValidity(""); }
+          });
+        }
+        applyDateMask(document.getElementById("dataNascimento"));
+      })();
+    </script>
   </body>
 </html>
-<!-- SGE v2.0 • Professor Registration Wizard • 2026-05-14 -->
+<!-- Diários Escolares • Professor Registration Wizard • 2026-05-14 -->
