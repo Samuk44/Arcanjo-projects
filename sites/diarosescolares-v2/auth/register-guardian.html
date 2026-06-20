@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Responsável — Diários Escolares</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/assets/css/auth.css" />
+  </head>
+  <body>
+    <main class="auth-page">
+      <div class="auth-container">
+        <div class="auth-card">
+          <a href="register.html" class="auth-back">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <path d="M19 12H5" />
+              <path d="m12 19-7-7 7-7" />
+            </svg>
+            Voltar
+          </a>
+
+          <div class="auth-logo">
+            <div class="auth-logo-icon">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path
+                  d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                />
+                <line x1="9" y1="7" x2="16" y2="7" />
+              </svg>
+            </div>
+            <span class="auth-logo-text">Diários Escolares</span>
+          </div>
+
+          <h1 class="auth-title">Cadastro de Responsável</h1>
+          <p class="auth-subtitle">
+            Informe o código de convite fornecido pela escola.
+          </p>
+
+          <div id="general-error" class="auth-general-error" role="alert"></div>
+
+          <form id="register-guardian-form" class="auth-form" novalidate>
+            <div class="auth-field">
+              <label for="reg-name" class="auth-label">Seu nome completo</label>
+              <input
+                id="reg-name"
+                type="text"
+                class="auth-input"
+                placeholder="Nome do responsável"
+                autocomplete="name"
+                required
+              />
+              <span id="reg-name-error" class="auth-error"></span>
+            </div>
+
+            <div class="auth-field">
+              <label for="reg-email" class="auth-label"
+                >Email <span class="optional">ou telefone abaixo</span></label
+              >
+              <input
+                id="reg-email"
+                type="email"
+                class="auth-input"
+                placeholder="seu@email.com"
+                autocomplete="email"
+              />
+              <span id="reg-email-error" class="auth-error"></span>
+            </div>
+
+            <div class="auth-field">
+              <label for="reg-phone" class="auth-label"
+                >Telefone <span class="optional">opcional</span></label
+              >
+              <input
+                id="reg-phone"
+                type="tel"
+                class="auth-input"
+                placeholder="(11) 99999-9999"
+                autocomplete="tel"
+              />
+              <span id="reg-phone-error" class="auth-error"></span>
+            </div>
+
+            <div class="auth-field">
+              <label for="reg-password" class="auth-label">Senha</label>
+              <div class="auth-input-wrapper">
+                <input
+                  id="reg-password"
+                  type="password"
+                  class="auth-input has-toggle"
+                  placeholder="Mínimo 6 caracteres"
+                  autocomplete="new-password"
+                  required
+                  minlength="6"
+                />
+                <button
+                  type="button"
+                  id="toggle-password"
+                  class="password-toggle"
+                  aria-label="Mostrar senha"
+                >
+                  <svg
+                    id="toggle-password-icon"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+              <span id="reg-password-error" class="auth-error"></span>
+            </div>
+
+            <div class="auth-divider"><span>Vínculo com a escola</span></div>
+
+            <div class="auth-field">
+              <label for="reg-invite-code" class="auth-label"
+                >Código de convite</label
+              >
+              <input
+                id="reg-invite-code"
+                type="text"
+                class="auth-input"
+                placeholder="Ex: ESCOLA:GUARDIAN:ABC123"
+                autocomplete="off"
+                autocapitalize="characters"
+                required
+              />
+              <span id="reg-invite-code-error" class="auth-error"></span>
+            </div>
+
+            <button type="submit" id="submit-btn" class="auth-submit">
+              <span class="btn-text">Criar conta</span>
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+          </form>
+
+          <p class="auth-link mt-md">
+            Já tem conta? <a href="login.html">Entrar</a>
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <script
+      type="module"
+      src="/src/assets/js/auth/register-guardian.js"
+    ></script>
+  </body>
+</html>

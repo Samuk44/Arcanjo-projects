@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diretor - Turmas</title>
+    <link rel="stylesheet" href="../../src/assets/css/dasbboard.css" />
+    <!-- Assumindo um CSS principal -->
+  </head>
+  <body>
+    <header>
+      <h1>Gestão de Turmas</h1>
+      <nav>
+        <!-- Navegação do diretor aqui -->
+      </nav>
+    </header>
+
+    <main class="container mx-auto p-4">
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Cadastrar Nova Turma</h2>
+        <form
+          id="class-form"
+          class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+        >
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="class-name"
+            >
+              Nome da Turma:
+            </label>
+            <input
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="class-name"
+              type="text"
+              placeholder="Ex: 7º Ano A"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="class-grade"
+            >
+              Série:
+            </label>
+            <input
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="class-grade"
+              type="text"
+              placeholder="Ex: 7º Ano"
+              required
+            />
+          </div>
+          <div class="mb-6">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="class-shift"
+            >
+              Turno:
+            </label>
+            <input
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="class-shift"
+              type="text"
+              placeholder="Manhã/Tarde/Noite"
+              required
+            />
+          </div>
+          <div class="flex items-center justify-between">
+            <button
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="submit"
+            >
+              Cadastrar Turma
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-4">Turmas Cadastradas</h2>
+        <div
+          id="class-list-container"
+          class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+        >
+          <!-- Lista de turmas será renderizada aqui pelo JS -->
+          <p>Carregando turmas...</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <!-- Rodapé aqui -->
+    </footer>
+
+    <script
+      type="module"
+      src="../../src/assets/js/director/classes.js"
+    ></script>
+    <script type="module">
+      import { initClasses } from "../../src/assets/js/director/classes.js";
+      document.addEventListener("DOMContentLoaded", initClasses);
+    </script>
+  </body>
+</html>

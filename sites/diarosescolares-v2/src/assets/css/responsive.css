@@ -1,0 +1,170 @@
+@import "variables.css";
+
+/* Base: mobile-first (320px+) */
+
+/* Section spacing mobile */
+.section-padding {
+  padding: var(--space-4xl) 0;
+}
+
+/* Hero */
+.hero-grid {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+/* Grid layouts */
+.grid-2,
+.grid-3,
+.grid-4,
+.grid-5 {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.grid-2 {
+  grid-template-columns: 1fr;
+}
+.grid-3 {
+  grid-template-columns: 1fr;
+}
+.grid-4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid-5 {
+  grid-template-columns: 1fr;
+}
+
+/* Typography scale mobile */
+.heading-xl {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.heading-lg {
+  font-size: 1.75rem;
+  line-height: 1.15;
+}
+
+.heading-md {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+/* Tablet 768px+ */
+@media (min-width: 768px) {
+  .section-padding {
+    padding: var(--space-5xl) 0;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+  }
+
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .heading-xl {
+    font-size: 3rem;
+  }
+
+  .heading-lg {
+    font-size: 2.25rem;
+  }
+
+  .heading-md {
+    font-size: 1.75rem;
+  }
+}
+
+/* Desktop 1024px+ */
+@media (min-width: 1024px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .grid-5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .heading-xl {
+    font-size: 3.5rem;
+  }
+
+  .heading-lg {
+    font-size: 2.5rem;
+  }
+
+  .nav-desktop {
+    display: flex !important;
+  }
+
+  .nav-mobile {
+    display: none !important;
+  }
+}
+
+/* Large desktop 1280px+ */
+@media (min-width: 1280px) {
+  .heading-xl {
+    font-size: 4rem;
+  }
+}
+
+/* Ultra-wide 1920px+ */
+@media (min-width: 1920px) {
+  .container {
+    max-width: 1440px;
+  }
+
+  .heading-xl {
+    font-size: 4.5rem;
+  }
+}
+
+/* Hide/show utilities */
+.hide-mobile {
+  display: none;
+}
+.hide-tablet {
+  display: none;
+}
+.hide-desktop {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block;
+  }
+  .hide-tablet {
+    display: block;
+  }
+  .hide-desktop {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hide-desktop {
+    display: none;
+  }
+}
